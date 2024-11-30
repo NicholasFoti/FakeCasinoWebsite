@@ -24,6 +24,7 @@ const Header = () => {
     <header className="casino-header">
       <h1>Welcome to the Fake Casino!</h1>
       <p>Enjoy your stay with our exciting games and fake currency!</p>
+      <button className="home-button" onClick={() => navigate('/')}>Home</button>
       <div className="logged-in-info">
         {user ? (
           <>

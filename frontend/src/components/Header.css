@@ -16,6 +16,18 @@
   top: 10px;
 }
 
+.home-button {
+  position: absolute;
+  left: 10px;
+  top: 10px;
+  margin-top: 15px;
+  background-color: black;
+  color: white;
+  border-radius: 4px;
+  width: 100px;
+  transition: background-color 0.3s;
+}
+
 .auth-button {
   padding: 8px 20px;
   width: 100px;

@@ -66,13 +66,13 @@ router.post('/login', async (req, res) => {
         );
 
         if (user.rows.length === 0) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            return res.status(401).json({ message: 'Username does not exist' });
         }
 
         // Check password
         const validPassword = await bcrypt.compare(password, user.rows[0].password);
         if (!validPassword) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            return res.status(401).json({ message: 'Incorrect password' });
         }
 
         // Create JWT token
