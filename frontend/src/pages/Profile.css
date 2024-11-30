@@ -1,0 +1,24 @@
+.profile-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profile-info {
+    text-align: left;
+    padding: 20px;
+}
+
+.profile-info p {
+    margin: 15px 0;
+    font-size: 1.1em;
+    color: #333;
+}
+
+.profile-info strong {
+    color: #4a5568;
+    margin-right: 10px;
+}

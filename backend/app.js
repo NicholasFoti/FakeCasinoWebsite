@@ -1,27 +1,30 @@
 const express = require("express");
 require("dotenv").config();
 const path = require('path');
+const cors = require('cors');
+const authRoutes = require('./routes/authRoutes');
 
-//Create the express server
 const app = express();
 
-//set template engine
-app.set("view engine", "ejs");
-app.use(express.static("public"));
+// Enable CORS for frontend requests
+app.use(cors({
+    origin: 'http://localhost:3000',
+    credentials: true
+}));
 
-// Serve static files from the React app
+app.use(express.json());
 app.use(express.static(path.join(__dirname, '../frontend/build')));
 
-// Define a route
-app.get('/', (req, res) => {
-    res.render('index', {title: 'Welcome to My Casino'});
+// Routes
+app.use('/api/auth', authRoutes);
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).json({ message: 'Something broke!' });
 });
 
-// The "catchall" handler: for any request that doesn't match one above, send back React's index.html file.
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/build', 'index.html'));
+const PORT = process.env.PORT || 3001;
+app.listen(PORT, () => {
+    console.log(`Backend server running on http://localhost:${PORT}`);
 });
-
-// Start the server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

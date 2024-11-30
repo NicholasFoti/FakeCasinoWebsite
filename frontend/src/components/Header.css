@@ -3,4 +3,46 @@
   color: white;
   padding: 20px;
   text-align: center;
+}
+
+.logged-in-info {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+.auth-button {
+  padding: 8px 20px;
+  width: 100px;
+  margin: 0 10px;
+  background-color: #4a5568;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.logout-button {
+  background-color: #e53e3e;
+  transition: background-color 0.3s;
+}
+
+.logout-button:hover {
+  background-color: #770b0b;
+}
+
+
+.profile-button:hover {
+  background-color: #2d3748;
+}
+
+.user-info {
+  color: white;
+  margin-right: 15px;
+  font-size: 1.1em;
 } 

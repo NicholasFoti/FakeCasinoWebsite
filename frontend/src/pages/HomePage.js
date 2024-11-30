@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import './GameList.css';
+import './HomePage.css';
 
-const GameList = () => {
+const HomePage = () => {
   return (
     <div className="game-list">
       <h2>Our Games</h2>
@@ -22,4 +22,4 @@ const GameList = () => {
   );
 };
 
-export default GameList; 
+export default HomePage; 
