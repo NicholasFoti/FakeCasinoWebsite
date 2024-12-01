@@ -1,3 +1,10 @@
+.user-info-container {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: center;
+}
+
 .casino-header {
   background-color: #282c34;
   color: white;

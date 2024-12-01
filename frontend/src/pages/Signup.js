@@ -18,7 +18,7 @@ const Signup = () => {
     }
     
     try {
-      const response = await fetch('http://localhost:3001/api/auth/signup', {
+      const response = await fetch('http://localhost:3001/api/auth/signup', {     //Change this when completed   
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -39,7 +39,8 @@ const Signup = () => {
       localStorage.setItem('user', JSON.stringify(data.user));
       window.location.href = '/';
     } catch (err) {
-      alert(err.message);
+      console.error('Signup error:', err);
+      alert(err.message || 'Failed to connect to the server');
     }
   };
 

@@ -28,7 +28,10 @@ const Header = () => {
       <div className="logged-in-info">
         {user ? (
           <>
-            <span className="user-info">Logged in as: {user.username}</span>
+          <div className="user-info-container">
+          <span className="user-info">Logged in as: {user.username}</span>
+          <span className="user-balance">Balance: ${user.balance}</span>
+          </div>
             <button onClick={() => navigate('/profile')} className="auth-button profile-button">Profile</button>
             <button onClick={handleLogout} className="auth-button logout-button">Logout</button>
           </>

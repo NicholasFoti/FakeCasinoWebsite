@@ -1,14 +1,163 @@
-.roulette {
-  border: 1px solid #ccc;
+.placed-red, .placed-black, .placed-green {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  height: 50px;
+  border-radius: 5px;
+  background-color: #2a2a2a;
+}
+
+.bet-input {
+  display: flex;
+  gap: 10px;
+}
+
+.bets-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  color: white;
+}
+
+.bet-red, .bet-black, .bet-green {
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  color: white;
+  width: 300px;
+}
+
+.bet-red {
+  background-color: #DC2626;
+}
+
+.bet-black {
+  background-color: #1F2937;
+}
+
+.bet-green {
+  background-color: #059669;
+}
+
+.roulette-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 20px;
+  background-color: #0c0c0c;
+  border-radius: 15px;
   margin: 20px;
+}
+
+.roulette-wrapper {
+  position: relative;
+  display: flex;
+  width: 80%;
+  max-width: 800px;
+  height: 100px;
+  border: 3px solid #333;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #2a2a2a;
+}
+
+.center-marker {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background-color: #ffd700;
+  transform: translateX(-50%);
+  z-index: 2;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.center-marker::before,
+.center-marker::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+}
+
+.center-marker::before {
+  top: 0;
+  border-top: 8px solid #ffd700;
+}
+
+.center-marker::after {
+  bottom: 0;
+  border-bottom: 8px solid #ffd700;
+}
+
+.roulette-wheel {
+  display: flex;
+  position: absolute;
+  left: 0;
+  height: 100%;
+  transform: translateX(0);
+  will-change: transform;
+}
+
+.number {
+  flex: 0 0 80px; /* Keep this exact size to match calculations */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: bold;
+  color: white;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+}
+
+.red { 
+  background-color: #DC2626;
+  background: linear-gradient(145deg, #ff3030, #DC2626);
+}
+
+.black { 
+  background-color: #1F2937;
+  background: linear-gradient(145deg, #2d3748, #1F2937);
+}
+
+.green { 
+  background-color: #059669;
+  background: linear-gradient(145deg, #06b37d, #059669);
+}
+
+.spinning {
+  will-change: transform;
+}
+
+.selected {
+  transform: scale(1.1);
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  z-index: 1;
+}
+
+.result-display {
+  margin-top: 30px;
   text-align: center;
+  font-size: 24px;
+  color: white;
 }
 
-.roulette h2 {
-  font-size: 1.5em;
+.current-number {
+  margin-bottom: 15px;
 }
 
-.roulette p {
-  font-size: 1.2em;
-} 
+.current-number span {
+  margin-left: 10px;
+  padding: 8px 15px;
+  border-radius: 5px;
+  font-weight: bold;
+}
