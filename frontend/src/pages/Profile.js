@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Profile.css'; 
 
-const Profile = () => {
+function Profile () {
     const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
     const [formattedDate, setFormattedDate] = useState('');
 

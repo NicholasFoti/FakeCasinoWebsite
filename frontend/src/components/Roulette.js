@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import "./Roulette.css";
 
-const Roulette = () => {
+function Roulette () {
   const [chosenNumber, setChosenNumber] = useState(null);
   const numbersContainerRef = useRef();
   const [spinning, setSpinning] = useState(false);
@@ -18,7 +18,7 @@ const Roulette = () => {
     ...baseNumbers.slice(0, 5),
   ];
 
-  const spinToNumber = (targetNumber) => {
+  function spinToNumber (targetNumber) {
     const container = numbersContainerRef.current;
     const dramaticMultiplier = [2, 2.2, 2.5, 2.55][
       Math.floor(Math.random() * 4)
@@ -64,8 +64,43 @@ const Roulette = () => {
     }
   }, [countdown, spinning]);
 
+  function handleBet (number, color) {
+    if (!localStorage.getItem('token')) {
+      alert('Please login to place a bet');
+      return;
+    }
+    const bettersName = document.querySelector('.user-info').textContent.split(':')[1].trim();
+    const wagerInput = document.querySelector('.wager-input input');
+    const betAmount = parseInt(wagerInput.value) || 0;
+    
+    if (betAmount <= 0) {
+      alert('Please enter a valid bet amount');
+      return;
+    }
+
+    const currentBetElement = document.querySelector(`.placed-${color} span`);
+    const currentBetText = currentBetElement.textContent;
+    let currentAmount = 0;
+
+    if (currentBetText.includes('$')) {
+      currentAmount = parseInt(currentBetText.split('$')[1]) || 0;
+    }
+
+    const totalBet = currentAmount + betAmount;
+
+    currentBetElement.textContent = `${bettersName}: $${totalBet}`;
+  };
+
   return (
     <div className="roulette-container">
+      <div className="previous-rolls">
+        <h2>Previous Rolls</h2>
+        <div className="roll-list">
+          <div className="roll-item">
+            <span>Roll 1: 10</span>
+          </div>
+        </div>
+      </div>
       <div className="roulette-wrapper">
         <div className="center-marker"></div>
         <div className="roulette-wheel" ref={numbersContainerRef}>
@@ -79,6 +114,20 @@ const Roulette = () => {
               {num.value}
             </div>
           ))}
+        </div>
+      </div>
+      <div className="wager">
+        <h2>Wager:</h2>
+        <div className="wager-input">
+          <input type="number" placeholder="Enter your wager" />
+          <button className="wager-button clear">Clear</button>
+          <button className="wager-button +1">+1</button>
+          <button className="wager-button +10">+10</button>
+          <button className="wager-button +100">+100</button>
+          <button className="wager-button +1000">+1000</button>
+          <button className="wager-button 1/2">1/2</button>
+          <button className="wager-button 2x">2x</button>
+          <button className="wager-button max">Max</button>
         </div>
       </div>
       <div className="result-display">
@@ -95,22 +144,21 @@ const Roulette = () => {
       <div className="bets-container">
         <h2>Place your bets</h2>
         <div className="bet-input">
-          <div className="bet-red">Red
-          <div className="placed-red">
-              <span>0</span>
+          <button className="bet-red" onClick={() => handleBet(0, "red")}>Red
+            <div className="placed-red">
+              <span>Betters Name: $</span>
             </div>
-          </div>
-          <div className="bet-black">Black
-          <div className="placed-black">
-              <span>0</span>
+          </button>
+          <button className="bet-black" onClick={() => handleBet(0, "black")}>Black
+            <div className="placed-black">
+              <span>Betters Name: $</span>
             </div>
-          </div>
-          <div className="bet-green">Green
-          <div className="placed-green">
-            <span>0</span>
-          </div>
-          </div>
-
+          </button>
+          <button className="bet-green" onClick={() => handleBet(0, "green")}>Green
+            <div className="placed-green">
+              <span>Betters Name: $</span>
+            </div>
+          </button>
         </div>
       </div>
     </div>

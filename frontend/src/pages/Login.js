@@ -8,14 +8,16 @@ const Login = () => {
     password: ''
   });
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/auth/login', {    //Change this when completed
+      const response = await fetch('http://localhost:3001/api/auth/login', { //Change this when completed
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -29,14 +31,13 @@ const Login = () => {
         throw new Error(data.message || 'Login failed');
       }
 
-      // Store token and user data
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-
-      // Redirect to home page
       window.location.href = '/';
     } catch (err) {
       setError(err.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -63,7 +64,13 @@ const Login = () => {
             required
           />
         </div>
-        <button type="submit">Login</button>
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? (
+            <div className="spinner"></div>
+          ) : (
+            'Login'
+          )}
+        </button>
       </form>
     </div>
   );

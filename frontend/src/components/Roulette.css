@@ -1,3 +1,45 @@
+.wager-input {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 2px;
+}
+
+.wager-input input {
+  border-radius: 0;
+  padding-left: 10px;
+  border: 1px solid #333;
+  background-color: transparent;
+  color: white;
+  height: 36px;
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
+
+.wager-input input:focus {
+  border: 1px solid #a82929;
+  box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+  outline: none;
+}
+
+.wager-button {
+  border-radius: 0;
+  border-left: none;
+  border-right: 1px solid #333;
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+  background-color: transparent;
+  color: white;
+  height: 40px;
+}
+
+.wager-button:last-child {
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
+}
+
 .placed-red, .placed-black, .placed-green {
   display: flex;
   justify-content: center;
@@ -5,7 +47,19 @@
   align-items: center;
   height: 50px;
   border-radius: 5px;
-  background-color: #2a2a2a;
+  background-color: #555555;
+}
+
+.wager {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  margin-top: 20px;
+}
+
+.wager h2 {
+  margin-right: 10px;
 }
 
 .bet-input {
@@ -160,4 +214,16 @@
   padding: 8px 15px;
   border-radius: 5px;
   font-weight: bold;
+}
+
+/* Remove arrows for Firefox */
+.wager-input input[type=number]::-webkit-inner-spin-button,
+.wager-input input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Remove arrows for Firefox */
+.wager-input input[type=number] {
+  -moz-appearance: textfield;
 }
