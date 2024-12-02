@@ -6,6 +6,7 @@ function Roulette () {
   const numbersContainerRef = useRef();
   const [spinning, setSpinning] = useState(false);
   const [countdown, setCountdown] = useState(10);
+  const [betHistory, setBetHistory] = useState([]);
 
   const baseNumbers = Array.from({ length: 37 }, (_, i) => ({
     value: i,
@@ -20,8 +21,8 @@ function Roulette () {
 
   function spinToNumber (targetNumber) {
     const container = numbersContainerRef.current;
-    const dramaticMultiplier = [2, 2.2, 2.5, 2.55][
-      Math.floor(Math.random() * 4)
+    const dramaticMultiplier = [2, 2.2, 2.5][
+      Math.floor(Math.random() * 3)
     ];
 
     const targetIndex = numbers.findIndex((num) => num.value === targetNumber);
@@ -50,7 +51,12 @@ function Roulette () {
       container.style.transform = "translateX(0px)";
       setSpinning(false);
       setCountdown(10);
+      setBetHistory(prevHistory => {
+        const newHistory = [...prevHistory, targetNumber];
+        return newHistory.slice(-10);
+      });
     }, 13000);
+
   };
 
   useEffect(() => {
@@ -91,14 +97,80 @@ function Roulette () {
     currentBetElement.textContent = `${bettersName}: $${totalBet}`;
   };
 
+  function handleClearBet() {
+    const wagerInput = document.querySelector('.wager-input input');
+    wagerInput.value = '';
+  }
+
+  function handlePlusOne() {
+    const wagerInput = document.querySelector('.wager-input input');
+    if (wagerInput.value === '') {
+      wagerInput.value = 1;
+    } else {
+      wagerInput.value = parseFloat(wagerInput.value) + 1;
+    }
+  }
+
+  function handlePlusTen() {
+    const wagerInput = document.querySelector('.wager-input input');
+    if (wagerInput.value === '') {
+      wagerInput.value = 10;
+    } else {
+      wagerInput.value = parseFloat(wagerInput.value) + 10;
+    }
+  }
+
+  function handlePlusOneHundred() {
+    const wagerInput = document.querySelector('.wager-input input');
+    if (wagerInput.value === '') {
+      wagerInput.value = 100;
+    } else {
+      wagerInput.value = parseFloat(wagerInput.value) + 100;
+    }
+  }
+
+  function handlePlusOneThousand() {
+    const wagerInput = document.querySelector('.wager-input input');
+    if (wagerInput.value === '') {
+      wagerInput.value = 1000;
+    } else {
+      wagerInput.value = parseFloat(wagerInput.value) + 1000;
+    }
+  }
+
+  function handleHalf() {
+    const wagerInput = document.querySelector('.wager-input input');
+    wagerInput.value = parseFloat(wagerInput.value) / 2;
+  }
+  
+  function handleDouble() {
+    const wagerInput = document.querySelector('.wager-input input');
+    wagerInput.value = parseFloat(wagerInput.value) * 2;
+  }
+
+  function handleMax() {
+    const wagerInput = document.querySelector('.wager-input input');
+    const userBalance = JSON.parse(localStorage.getItem('user')).balance;
+    if(userBalance.toString().includes('.00')) {
+      wagerInput.value = parseInt(userBalance);
+    } else {
+      wagerInput.value = userBalance;
+    }
+  }
+
   return (
     <div className="roulette-container">
-      <div className="previous-rolls">
-        <h2>Previous Rolls</h2>
-        <div className="roll-list">
-          <div className="roll-item">
-            <span>Roll 1: 10</span>
-          </div>
+      <div className="roll-list">
+        <h2>Previous rolls:</h2>
+        <div className="roll-item">
+          {betHistory.slice(-10).map((roll, index) => {
+            const color = roll === 0 ? "green" : roll % 2 === 0 ? "black" : "red";
+            return (
+              <span key={index} className={color}>
+                {roll}
+              </span>
+            );
+          })}
         </div>
       </div>
       <div className="roulette-wrapper">
@@ -107,9 +179,7 @@ function Roulette () {
           {numbers.map((num, index) => (
             <div
               key={index}
-              className={`number ${num.color} ${
-                chosenNumber === num.value ? "selected" : ""
-              }`}
+              className={`number ${num.color}`}
             >
               {num.value}
             </div>
@@ -120,14 +190,14 @@ function Roulette () {
         <h2>Wager:</h2>
         <div className="wager-input">
           <input type="number" placeholder="Enter your wager" />
-          <button className="wager-button clear">Clear</button>
-          <button className="wager-button +1">+1</button>
-          <button className="wager-button +10">+10</button>
-          <button className="wager-button +100">+100</button>
-          <button className="wager-button +1000">+1000</button>
-          <button className="wager-button 1/2">1/2</button>
-          <button className="wager-button 2x">2x</button>
-          <button className="wager-button max">Max</button>
+          <button className="wager-button clear" onClick={handleClearBet}>Clear</button>
+          <button className="wager-button +1" onClick={handlePlusOne}>+1</button>
+          <button className="wager-button +10" onClick={handlePlusTen}>+10</button>
+          <button className="wager-button +100" onClick={handlePlusOneHundred}>+100</button>
+          <button className="wager-button +1000" onClick={handlePlusOneThousand}>+1000</button>
+          <button className="wager-button 1/2" onClick={handleHalf}>1/2</button>
+          <button className="wager-button 2x" onClick={handleDouble}>2x</button>
+          <button className="wager-button max" onClick={handleMax}>Max</button>
         </div>
       </div>
       <div className="result-display">
