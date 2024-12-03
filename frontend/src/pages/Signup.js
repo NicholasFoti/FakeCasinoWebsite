@@ -8,6 +8,7 @@ function Signup () {
     password: '',
     confirmPassword: ''
   });
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -16,6 +17,7 @@ function Signup () {
       alert("Passwords don't match!");
       return;
     }
+    setIsLoading(true);
     
     try {
       const response = await fetch('http://localhost:3001/api/auth/signup', {     //Change this when completed   
@@ -41,6 +43,8 @@ function Signup () {
     } catch (err) {
       console.error('Signup error:', err);
       alert(err.message || 'Failed to connect to the server');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -54,6 +58,7 @@ function Signup () {
             placeholder="Username"
             value={formData.username}
             onChange={(e) => setFormData({...formData, username: e.target.value})}
+            required
           />
         </div>
         <div className="form-group">
@@ -62,6 +67,7 @@ function Signup () {
             placeholder="Password"
             value={formData.password}
             onChange={(e) => setFormData({...formData, password: e.target.value})}
+            required
           />
         </div>
         <div className="form-group">
@@ -70,9 +76,16 @@ function Signup () {
             placeholder="Confirm Password"
             value={formData.confirmPassword}
             onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+            required
           />
         </div>
-        <button type="submit">Sign Up</button>
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? (
+            <div className="spinner"></div>
+          ) : (
+            'Sign Up'
+          )}
+        </button>
       </form>
     </div>
   );

@@ -6,44 +6,97 @@
 }
 
 .casino-header {
-  background-color: #282c34;
+  background-color: #1A1F2C ;
   color: white;
-  padding: 20px;
   text-align: center;
+  position: relative;
+  width: 100%;
+  height: 80px;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid rgb(77, 70, 88);
+}
+
+.header-content {
+  position: absolute;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  left: 10px;
 }
 
 .logged-in-info {
-  margin-top: 15px;
+  margin-top: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 10px;
   position: absolute;
   right: 10px;
-  top: 10px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
-.home-button {
-  position: absolute;
-  left: 10px;
-  top: 10px;
-  margin-top: 15px;
-  background-color: black;
-  color: white;
+.header-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  flex-direction: row;
+}
+
+.header-buttons a {
+  color: rgb(177, 177, 177);
   border-radius: 4px;
   width: 100px;
-  transition: background-color 0.3s;
+  transition: color 0.3s;
+}
+
+.home-button:hover {
+  color: rgb(139 92 246);
+}
+
+.auth-buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-right: 2.5rem;
+  gap: 15px;
+}
+
+.login-button {
+  background-color: none;
+}
+
+.login-button:hover {
+  background-color: #f0f0f0;
+  color: rgb(139 92 246);
+}
+
+.sign-up-button {
+  background-color: rgb(139 92 246);
+}
+
+.sign-up-button:hover {
+  background-color: #902bd3;
 }
 
 .auth-button {
-  padding: 8px 20px;
   width: 100px;
-  margin: 0 10px;
-  background-color: #4a5568;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  height: 40px;
+  padding: 5px;
   color: white;
   text-decoration: none;
-  border-radius: 4px;
-  transition: background-color 0.3s;
+  border-radius: 8px;
+  transition: background-color 0.3s, color 0.3s;
 }
 
 .logout-button {
@@ -64,4 +117,40 @@
   color: white;
   margin-right: 15px;
   font-size: 1.1em;
+}
+
+.user-balance {
+  transition: color 0.3s ease;
+}
+
+.balance-flash-red {
+  animation: flashRed 0.5s ease;
+}
+
+.balance-flash-green {
+  animation: flashGreen 0.5s ease;
+}
+
+@keyframes flashRed {
+  0% {
+    color: white;
+  }
+  50% {
+    color: #f35454;
+  }
+  100% {
+    color: white;
+  }
+} 
+
+@keyframes flashGreen {
+  0% {
+    color: white;
+  }
+  50% {
+    color: #00ff00;
+  }
+  100% {
+    color: white;
+  }
 } 

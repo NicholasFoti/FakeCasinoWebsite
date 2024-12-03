@@ -84,6 +84,14 @@
   border-bottom-right-radius: 2px;
 }
 
+.losing-bet {
+  color: red;
+}
+
+.winning-bet {
+  color: green;
+}
+
 .placed-red, .placed-black, .placed-green {
   display: flex;
   justify-content: center;
@@ -91,7 +99,8 @@
   align-items: center;
   height: 50px;
   border-radius: 5px;
-  background-color: #555555;
+  background-color: #666666;
+  backdrop-filter: blur(100px);
 }
 
 .wager {

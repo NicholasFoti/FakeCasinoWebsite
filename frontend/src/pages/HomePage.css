@@ -2,36 +2,27 @@ a {
   text-decoration: none;
 }
 
-.roulette:hover, .blackjack:hover, .slots:hover {
-    transition: all 0.3s ease-in-out;
-    cursor: pointer;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.5);
-}
-
-.game-list {
+.main-card {
   margin: 20px;
   text-align: center;
+  color: rgb(230, 110, 12);
 }
 
-.roulette, .blackjack, .slots {
+.main-card-buttons {
   border: 1px solid #ccc;
   border-radius: 10px;
-  padding: 20px;
-  margin: 20px;
-  color: rgb(230, 110, 12);
-  text-align: center;
 }
 
-.game-list h2 {
+.main-card h2 {
   font-size: 1.5em;
 }
 
-.game-list ul {
+.main-card-buttons ul {
   list-style-type: none;
   padding: 0;
 }
 
-.game-list li {
+.main-card-buttons li {
   margin: 10px 0;
   font-size: 1.2em;
 } 

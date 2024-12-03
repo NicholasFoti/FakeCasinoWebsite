@@ -32,7 +32,7 @@ router.post('/signup', async (req, res) => {
         const token = jwt.sign(
             { userId: newUser.rows[0].id },
             process.env.JWT_SECRET,
-            { expiresIn: '2m' }
+            { expiresIn: '12h' }
         );
 
         res.json({
@@ -79,7 +79,7 @@ router.post('/login', async (req, res) => {
         const token = jwt.sign(
             { userId: user.rows[0].id },
             process.env.JWT_SECRET,
-            { expiresIn: '2m' }
+            { expiresIn: '12h' }
         );
 
         res.json({
@@ -99,6 +99,26 @@ router.post('/login', async (req, res) => {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
     }
+});
+
+router.get('/user/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const userResult = await pool.query(
+      'SELECT id, username, balance, date_created, bets_won, bets_lost FROM user_details WHERE id = $1',
+      [id]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(userResult.rows[0]);
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    res.status(500).json({ message: 'Server error while fetching user data' });
+  }
 });
 
 module.exports = router; 

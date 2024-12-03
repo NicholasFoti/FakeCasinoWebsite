@@ -7,6 +7,7 @@ function Roulette () {
   const [spinning, setSpinning] = useState(false);
   const [countdown, setCountdown] = useState(10);
   const [betHistory, setBetHistory] = useState([]);
+  const balanceRef = useRef();
 
   const baseNumbers = Array.from({ length: 37 }, (_, i) => ({
     value: i,
@@ -21,7 +22,7 @@ function Roulette () {
 
   function spinToNumber (targetNumber) {
     const container = numbersContainerRef.current;
-    const dramaticMultiplier = [2, 2.2, 2.5][
+    const dramaticMultiplier = [2, 2.2, 2.3][
       Math.floor(Math.random() * 3)
     ];
 
@@ -47,6 +48,10 @@ function Roulette () {
     setSpinning(true);
 
     setTimeout(() => {
+      handleWinnings(targetNumber);
+    }, 10000);
+
+    setTimeout(() => {
       container.style.transition = "none";
       container.style.transform = "translateX(0px)";
       setSpinning(false);
@@ -55,9 +60,75 @@ function Roulette () {
         const newHistory = [...prevHistory, targetNumber];
         return newHistory.slice(-10);
       });
+      const allBetElements = document.querySelectorAll('.placed-red, .placed-black, .placed-green');
+      allBetElements.forEach(element => {
+        element.textContent = '';
+        element.classList.remove('winning-bet', 'losing-bet');
+      });
     }, 13000);
 
   };
+
+  async function handleWinnings(targetNumber) {
+    const allBetElements = document.querySelectorAll('.placed-red span, .placed-black span, .placed-green span');
+    
+    for (const element of allBetElements) {
+      if (!element.textContent) continue;
+      
+      const [username, betAmount] = element.textContent.split('$');
+      const betterName = username.replace(':', '').trim();
+      const amount = parseFloat(betAmount);
+      
+      if (!betterName || !amount) continue;
+
+      let winnings = 0;
+      let won = false;
+
+      if (targetNumber === 0) {
+        if (element.closest('.placed-green')) {
+          winnings = amount * 14;
+          won = true;
+        }
+      } else if (targetNumber % 2 === 0) {
+        if (element.closest('.placed-black')) {
+          winnings = amount * 2;
+          won = true;
+        }
+      } else {
+        if (element.closest('.placed-red')) {
+          winnings = amount * 2;
+          won = true;
+        }
+      }
+
+      if (won) {
+        try {
+          const response = await updateBalance(winnings);
+          if (response.ok) {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user.username === betterName) {
+              user.balance = Number((user.balance + winnings).toFixed(2));
+              localStorage.setItem('user', JSON.stringify(user));
+              window.dispatchEvent(new Event('balanceUpdate'));
+            }
+          }
+        } catch (error) {
+          console.error('Error updating balance for winner:', error);
+        }
+      }
+    }
+
+    if (targetNumber === 0) {
+      document.querySelectorAll('.placed-red, .placed-black').forEach(el => el.classList.add('losing-bet'));
+      document.querySelectorAll('.placed-green').forEach(el => el.classList.add('winning-bet'));
+    } else if (targetNumber % 2 === 0) {
+      document.querySelectorAll('.placed-green, .placed-red').forEach(el => el.classList.add('losing-bet'));
+      document.querySelectorAll('.placed-black').forEach(el => el.classList.add('winning-bet'));
+    } else {
+      document.querySelectorAll('.placed-green, .placed-black').forEach(el => el.classList.add('losing-bet'));
+      document.querySelectorAll('.placed-red').forEach(el => el.classList.add('winning-bet'));
+    }
+  }
 
   useEffect(() => {
     if (countdown > 0) {
@@ -70,37 +141,101 @@ function Roulette () {
     }
   }, [countdown, spinning]);
 
-  function handleBet (number, color) {
+  async function updateBalance(amount) {
+    const numericAmount = Number(Number(amount).toFixed(2));
+    
+    const response = await fetch('http://localhost:3001/api/game/update-balance', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: JSON.parse(localStorage.getItem('user')).id,
+        amount: numericAmount
+      })
+    });
+    return response;
+  };
+
+  async function handleBet(number, color) {
     if (!localStorage.getItem('token')) {
       alert('Please login to place a bet');
       return;
     }
-    const bettersName = document.querySelector('.user-info').textContent.split(':')[1].trim();
+
+    if (spinning) {
+      alert('Please wait for the current spin to complete');
+      return;
+    }
+    
+    const betButton = document.querySelector(`.bet-${color}`);
+    if (betButton.dataset.betting === 'true') {
+      return;
+    }
+    betButton.dataset.betting = 'true';
+    
+    const user = JSON.parse(localStorage.getItem('user'));
+    const bettersName = user.username;
     const wagerInput = document.querySelector('.wager-input input');
-    const betAmount = parseInt(wagerInput.value) || 0;
+    const betAmount = Number(Number(wagerInput.value).toFixed(2)) || 0;
     
     if (betAmount <= 0) {
+      betButton.dataset.betting = 'false';
       alert('Please enter a valid bet amount');
       return;
     }
 
-    const currentBetElement = document.querySelector(`.placed-${color} span`);
-    const currentBetText = currentBetElement.textContent;
-    let currentAmount = 0;
-
-    if (currentBetText.includes('$')) {
-      currentAmount = parseInt(currentBetText.split('$')[1]) || 0;
+    const userBalance = Number(user.balance);
+    if (betAmount > userBalance) {
+      betButton.dataset.betting = 'false';
+      alert('You do not have enough balance to place this bet');
+      return;
     }
 
-    const totalBet = currentAmount + betAmount;
+    let currentBetElement = document.querySelector(`.placed-${color} span`);
+    
+    if (!currentBetElement) {
+        const container = document.querySelector(`.placed-${color}`);
+        if (!container) {
+            betButton.dataset.betting = 'false';
+            console.error(`Could not find container for color ${color}`);
+            return;
+        }
+        currentBetElement = document.createElement('span');
+        container.appendChild(currentBetElement);
+    }
 
-    currentBetElement.textContent = `${bettersName}: $${totalBet}`;
+    try {
+        const updateBalanceResponse = await updateBalance(-betAmount);
+        
+        if (updateBalanceResponse.ok) {
+            let currentAmount = 0;
+            if (currentBetElement.textContent && currentBetElement.textContent.includes('$')) {
+                currentAmount = Number(Number(currentBetElement.textContent.split('$')[1]).toFixed(2)) || 0;
+            }
+
+            const totalBet = Number((currentAmount + betAmount).toFixed(2));
+            currentBetElement.textContent = `${bettersName}: $${totalBet.toFixed(2)}`;
+            
+            user.balance = Number((user.balance - betAmount).toFixed(2));
+            localStorage.setItem('user', JSON.stringify(user));
+            window.dispatchEvent(new Event('balanceUpdate'));
+        } else {
+            const errorData = await updateBalanceResponse.json();
+            alert(errorData.message || 'Failed to update balance');
+        }
+    } catch (error) {
+        console.error('Error placing bet:', error);
+        alert('Failed to place bet. Please try again.');
+    } finally {
+        betButton.dataset.betting = 'false';
+    }
   };
 
   function handleClearBet() {
     const wagerInput = document.querySelector('.wager-input input');
     wagerInput.value = '';
-  }
+  };
 
   function handlePlusOne() {
     const wagerInput = document.querySelector('.wager-input input');
@@ -109,7 +244,7 @@ function Roulette () {
     } else {
       wagerInput.value = parseFloat(wagerInput.value) + 1;
     }
-  }
+  };
 
   function handlePlusTen() {
     const wagerInput = document.querySelector('.wager-input input');
@@ -118,7 +253,7 @@ function Roulette () {
     } else {
       wagerInput.value = parseFloat(wagerInput.value) + 10;
     }
-  }
+  };
 
   function handlePlusOneHundred() {
     const wagerInput = document.querySelector('.wager-input input');
@@ -127,7 +262,7 @@ function Roulette () {
     } else {
       wagerInput.value = parseFloat(wagerInput.value) + 100;
     }
-  }
+  };
 
   function handlePlusOneThousand() {
     const wagerInput = document.querySelector('.wager-input input');
@@ -136,17 +271,17 @@ function Roulette () {
     } else {
       wagerInput.value = parseFloat(wagerInput.value) + 1000;
     }
-  }
+  };
 
   function handleHalf() {
     const wagerInput = document.querySelector('.wager-input input');
     wagerInput.value = parseFloat(wagerInput.value) / 2;
-  }
+  };
   
   function handleDouble() {
     const wagerInput = document.querySelector('.wager-input input');
     wagerInput.value = parseFloat(wagerInput.value) * 2;
-  }
+  };
 
   function handleMax() {
     const wagerInput = document.querySelector('.wager-input input');
@@ -156,7 +291,7 @@ function Roulette () {
     } else {
       wagerInput.value = userBalance;
     }
-  }
+  };
 
   return (
     <div className="roulette-container">
@@ -175,16 +310,16 @@ function Roulette () {
       </div>
       <div className="roulette-wrapper">
         <div className="center-marker"></div>
-        <div className="roulette-wheel" ref={numbersContainerRef}>
-          {numbers.map((num, index) => (
-            <div
-              key={index}
-              className={`number ${num.color}`}
-            >
-              {num.value}
-            </div>
-          ))}
-        </div>
+          <div className="roulette-wheel" ref={numbersContainerRef}>
+            {numbers.map((num, index) => (
+              <div
+                key={index}
+                className={`number ${num.color}`}
+              >
+                {num.value}
+              </div>
+            ))}
+          </div>
       </div>
       <div className="wager">
         <h2>Wager:</h2>
@@ -216,17 +351,17 @@ function Roulette () {
         <div className="bet-input">
           <button className="bet-red" onClick={() => handleBet(0, "red")}>Red
             <div className="placed-red">
-              <span>Betters Name: $</span>
+              <span></span>
             </div>
           </button>
           <button className="bet-black" onClick={() => handleBet(0, "black")}>Black
             <div className="placed-black">
-              <span>Betters Name: $</span>
+              <span></span>
             </div>
           </button>
           <button className="bet-green" onClick={() => handleBet(0, "green")}>Green
             <div className="placed-green">
-              <span>Betters Name: $</span>
+              <span></span>
             </div>
           </button>
         </div>

@@ -3,12 +3,13 @@ require("dotenv").config();
 const path = require('path');
 const cors = require('cors');
 const authRoutes = require('./routes/authRoutes');
+const gameRoutes = require('./routes/gameRoutes');
 
 const app = express();
 
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
-    ? 'https://your-render-frontend-url.onrender.com' //Change this when completed
+    ? 'https://your-render-frontend-url.onrender.com'
     : ['http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -22,6 +23,7 @@ app.use(express.static(path.join(__dirname, '../frontend/build')));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/game', gameRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
