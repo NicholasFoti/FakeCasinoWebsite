@@ -35,6 +35,8 @@
 .roll-item {
   display: flex;
   gap: 10px;
+  justify-content: start;
+  overflow: hidden;
 }
 
 .roll-item span {
@@ -46,6 +48,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.roll-item span.new-roll {
+  opacity: 0;
+  transform: translateX(-50px);
+  animation: slideIn 0.5s forwards;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .roll-item span.red {
@@ -60,6 +79,18 @@
 
 .roll-item span.green {
   background-color: #059669;
+  border: 1px solid #26b389;
+}
+
+@keyframes rollIn {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .wager-input input:focus {
@@ -85,37 +116,71 @@
 }
 
 .losing-bet {
-  color: red;
+  color: rgb(252, 74, 74) !important;
 }
 
 .winning-bet {
-  color: green;
+  color: rgb(36, 209, 94) !important;
 }
 
 .placed-red, .placed-black, .placed-green {
   display: flex;
   justify-content: center;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   height: 50px;
   width: 100%;
-  border-radius: 5px;
+}
+
+.placed-red-name, .placed-black-name, .placed-green-name {
+  color: white;
+}
+
+.placed-red-amount, .placed-black-amount, .placed-green-amount {
+  color: rgb(151, 151, 151);
+}
+
+.placed-red:has(span:not(:empty)), 
+.placed-black:has(span:not(:empty)), 
+.placed-green:has(span:not(:empty)) {
+  border-right: 1px solid rgba(139, 139, 139, 0.212);
+  border-left: 1px solid rgba(139, 139, 139, 0.212);
 }
 
 .total-betters {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   width: 100%;
-  flex-direction: row;
-  gap: 10px;
+  gap: 20px;
+  margin-top: 20px;
 }
 
-.total-betters-green{
-  margin-right: 275px;
+.total-betters-red, .total-betters-black, .total-betters-green {
+  width: 400px;
+  display: flex;
+  justify-content: space-between;
+  color: rgb(214, 214, 214);
+  align-items: center;
+}
+
+.betters-info, .total-amount {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.betters-info span, .total-amount span {
+  margin-left: 5px;
+}
+
+.total-amount {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  margin-right: 10px;
 }
 
 .placed-red span:not(:empty), .placed-black span:not(:empty), .placed-green span:not(:empty) {
-  border: 1px solid #333;
   width: 100%;
   text-align: center;
   display: flex;
@@ -138,8 +203,8 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 20px;
+  margin-top: 20px;
   width: 100%;
 }
 
@@ -148,7 +213,7 @@
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  width: 300px;
+  width: 400px;
   text-align: center;
   font-weight: bold;
   font-size: 20px;
@@ -175,8 +240,8 @@
   display: flex;
   flex-direction: row;
   width: 100%;
-  gap: 10px;
-  margin-top: 10px;
+  gap: 20px;
+  margin-top: 20px;
 }
 
 .wager h2 {
@@ -185,15 +250,15 @@
 
 .bet-input {
   display: flex;
-  gap: 10px;
+  gap: 20px;
+  margin-top: 20px;
 }
 
 .bets-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  color: white;
-  margin-top: 0px;
+  column-gap: 100px;
 }
 
 .bet-red, .bet-black, .bet-green {
@@ -201,7 +266,7 @@
   border-radius: 5px;
   cursor: pointer;
   color: white;
-  width: 300px;
+  width: 400px;
 }
 
 .bet-red {

@@ -16,6 +16,11 @@ function Roulette () {
     black: new Set(),
     green: new Set()
   });
+  const [betSums, setBetSums] = useState({
+    red: {},
+    black: {},
+    green: {}
+  });
 
   const baseNumbers = Array.from({ length: 37 }, (_, i) => ({
     value: i,
@@ -59,7 +64,30 @@ function Roulette () {
 
     setTimeout(() => {
       handleWinnings(targetNumber);
+      handleBetResults(targetNumber);
     }, 10000);
+
+    function handleBetResults(targetNumber) {
+      if (targetNumber === 0) {
+        document.querySelector('.total-betters-red').classList.add('losing-bet');
+        document.querySelector('.total-betters-black').classList.add('losing-bet');
+        document.querySelectorAll('.placed-red-name, .placed-black-name, .placed-red-amount, .placed-black-amount').forEach(el => el.classList.add('losing-bet'));
+        document.querySelectorAll('.placed-green-name, .placed-green-amount').forEach(el => el.classList.add('winning-bet'));
+        document.querySelector('.total-betters-green').classList.add('winning-bet');
+      } else if (targetNumber % 2 === 0) {
+        document.querySelector('.total-betters-red').classList.add('losing-bet');
+        document.querySelector('.total-betters-green').classList.add('losing-bet');
+        document.querySelectorAll('.placed-green-name, .placed-red-name, .placed-green-amount, .placed-red-amount').forEach(el => el.classList.add('losing-bet'));
+        document.querySelectorAll('.placed-black-name, .placed-black-amount').forEach(el => el.classList.add('winning-bet'));
+        document.querySelector('.total-betters-black').classList.add('winning-bet');
+      } else {
+        document.querySelector('.total-betters-black').classList.add('losing-bet');
+        document.querySelector('.total-betters-green').classList.add('losing-bet');
+        document.querySelectorAll('.placed-green-name, .placed-black-name, .placed-green-amount, .placed-black-amount').forEach(el => el.classList.add('losing-bet'));
+        document.querySelectorAll('.placed-red-name, .placed-red-amount').forEach(el => el.classList.add('winning-bet'));
+        document.querySelector('.total-betters-red').classList.add('winning-bet');
+      }
+    }
 
     setTimeout(() => {
       container.style.transition = "none";
@@ -70,7 +98,7 @@ function Roulette () {
         const newHistory = [...prevHistory, targetNumber];
         return newHistory.slice(-10);
       });
-      const allBetElements = document.querySelectorAll('.placed-red, .placed-black, .placed-green');
+      const allBetElements = document.querySelectorAll('.placed-red-name, .placed-black-name, .placed-green-name, .placed-red-amount, .placed-black-amount, .placed-green-amount');
       allBetElements.forEach(element => {
         element.textContent = '';
         element.classList.remove('winning-bet', 'losing-bet');
@@ -95,10 +123,213 @@ function Roulette () {
       totalBettersElements.forEach(element => {
         element.textContent = '0';
       });
-    }, 13000);
 
+      const totalAmountElements = document.querySelectorAll('.total-amount-red span, .total-amount-black span, .total-amount-green span');
+      totalAmountElements.forEach(element => {
+        element.textContent = '0';
+      });
+
+      const allTotalBettersElements = document.querySelectorAll('.total-betters-red, .total-betters-black, .total-betters-green');
+      allTotalBettersElements.forEach(element => {
+        element.classList.remove('losing-bet', 'winning-bet');
+      });
+
+    }, 13000);
   };
 
+  async function handleWinnings(targetNumber) {
+    const allBetElements = document.querySelectorAll('.placed-red, .placed-black, .placed-green');
+    
+    for (const container of allBetElements) {
+      const nameElement = container.querySelector('[class*="-name"]');
+      const amountElement = container.querySelector('[class*="-amount"]');
+      
+      if (!nameElement.textContent || !amountElement.textContent) continue;
+      
+      const betterName = nameElement.textContent.trim();
+      const amount = parseFloat(amountElement.textContent);
+      
+      if (!betterName || !amount) continue;
+
+      let winnings = 0;
+      let won = false;
+
+      if (targetNumber === 0) {
+        if (container.classList.contains('placed-green')) {
+          winnings = amount * 14;
+          won = true;
+        }
+      } else if (targetNumber % 2 === 0) {
+        if (container.classList.contains('placed-black')) {
+          winnings = amount * 2;
+          won = true;
+        }
+      } else {
+        if (container.classList.contains('placed-red')) {
+          winnings = amount * 2;
+          won = true;
+        }
+      }
+
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user.username === betterName) {
+        await updateBetStats(won);
+        
+        if (won) {
+          try {
+            const response = await updateBalance(winnings);
+            if (response.ok) {
+              user.balance = Number((user.balance + winnings).toFixed(2));
+              localStorage.setItem('user', JSON.stringify(user));
+              window.dispatchEvent(new Event('balanceUpdate'));
+            }
+          } catch (error) {
+            console.error('Error updating balance for winner:', error);
+          }
+        }
+      }
+    }
+  }
+
+  useEffect(() => {
+    const countdownText = document.querySelector('.countdown-text');
+    const countdownBar = document.querySelector('.countdown-bar');
+    
+    if (countdown > 0) {
+      countdownBar.style.transition = 'width 1s linear';
+      countdownText.textContent = `Rolling in ${countdown}...`;
+      countdownBar.style.width = `${(countdown - 1) * 10}%`;
+      
+      const timer = setTimeout(() => {
+        setCountdown(prev => prev - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (!spinning) {
+      const randomNumber = Math.floor(Math.random() * 37);
+      setChosenNumber(randomNumber);
+      spinToNumber(randomNumber);
+    }
+  }, [countdown, spinning]);
+
+  async function handleBet(amount, color) {
+    if (!localStorage.getItem('token')) {
+      alert('Please login to place a bet');
+      return;
+    }
+
+    if (spinning) {
+      alert('Please wait for the current spin to complete');
+      return;
+    }
+    
+    const betButton = document.querySelector(`.bet-${color}`);
+    if (betButton.dataset.betting === 'true') {
+      return;
+    }
+    betButton.dataset.betting = 'true';
+    
+    const user = JSON.parse(localStorage.getItem('user'));
+    const bettersName = user.username;
+    const wagerInput = document.querySelector('.wager-input input');
+    const wagerAmount = Number(Number(wagerInput.value).toFixed(2)) || 0;
+    
+    if (wagerAmount <= 0) {
+      betButton.dataset.betting = 'false';
+      alert('Please enter a valid bet amount');
+      return;
+    }
+
+    const userBalance = Number(user.balance);
+    if (wagerAmount > userBalance) {
+      betButton.dataset.betting = 'false';
+      alert('You do not have enough balance to place this bet');
+      return;
+    }
+
+    let currentBetElement = document.querySelector(`.placed-${color} span`);
+    let currentBetNameElement = document.querySelector(`.placed-${color} span.placed-${color}-name`);
+    let currentBetAmountElement = document.querySelector(`.placed-${color} span.placed-${color}-amount`);
+
+    if (!currentBetElement) {
+        const container = document.querySelector(`.placed-${color}`);
+        if (!container) {
+            betButton.dataset.betting = 'false';
+            console.error(`Could not find container for color ${color}`);
+            return;
+        }
+        currentBetElement = document.createElement('span');
+        container.appendChild(currentBetElement);
+    }
+
+    // Update frontend immediately
+    let currentAmount = 0;
+    if (currentBetAmountElement) {
+      currentAmount = Number(Number(currentBetAmountElement.textContent).toFixed(2)) || 0;
+    }
+
+    const totalBet = Number((currentAmount + wagerAmount).toFixed(2));
+  
+    currentBetNameElement.textContent = bettersName;
+    currentBetAmountElement.textContent = `${totalBet.toFixed(2)}`;
+
+    const currentTotalBetElement = document.querySelector(`.total-placed-${color} span`);
+    currentTotalBetElement.textContent = `${totalBet.toFixed(2)}`;
+
+    const currentTotalBettersElement = document.querySelector(`.total-betters-${color} span`);
+    setUniqueBetters(prev => {
+      const newUniqueBetters = { ...prev };
+      if (!prev[color].has(bettersName)) {
+        newUniqueBetters[color] = new Set([...prev[color], bettersName]);
+        currentTotalBettersElement.textContent = newUniqueBetters[color].size;
+      }
+      return newUniqueBetters;
+    });
+
+    const totalAmountElement = document.querySelector(`.total-amount-${color} span`);
+    if (totalAmountElement) {
+      totalAmountElement.textContent = ` ${totalBet}`;
+    }
+    const updatedBalance = Number((user.balance - wagerAmount).toFixed(2));
+    user.balance = updatedBalance;
+    localStorage.setItem('user', JSON.stringify(user));
+
+    setTimeout(() => {
+      window.dispatchEvent(new Event('balanceUpdate'));
+    }, 0);
+
+    //Update balance (after frontend)
+    try {
+        await updateBalance(-wagerAmount);
+    } catch (error) {
+        console.error('Error placing bet:', error);
+        alert('Failed to place bet. Please try again.');
+    } finally {
+        betButton.dataset.betting = 'false';
+    }
+  };
+
+  //////////////////////////////
+  //      API CALLS          //
+  //////////////////////////////
+
+  // Update balance in database
+  async function updateBalance(amount) {
+    const numericAmount = Number(Number(amount).toFixed(2));
+    
+    const response = await fetch('http://localhost:3001/api/game/update-balance', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: JSON.parse(localStorage.getItem('user')).id,
+        amount: numericAmount,
+      })
+    });
+    return response;
+  };
+
+  // Update bet stats in database
   async function updateBetStats(won) {
     try {
         const response = await fetch('http://localhost:3001/api/game/update-bet-stats', {
@@ -123,193 +354,6 @@ function Roulette () {
         console.error('Error updating bet stats:', error);
     }
   }
-
-  async function handleWinnings(targetNumber) {
-    const allBetElements = document.querySelectorAll('.placed-red span, .placed-black span, .placed-green span');
-    
-    for (const element of allBetElements) {
-      if (!element.textContent) continue;
-      
-      const [username, betAmount] = element.textContent.split('$');
-      const betterName = username.replace(':', '').trim();
-      const amount = parseFloat(betAmount);
-      
-      if (!betterName || !amount) continue;
-
-      let winnings = 0;
-      let won = false;
-
-      if (targetNumber === 0) {
-        if (element.closest('.placed-green')) {
-          winnings = amount * 14;
-          won = true;
-        }
-      } else if (targetNumber % 2 === 0) {
-        if (element.closest('.placed-black')) {
-          winnings = amount * 2;
-          won = true;
-        }
-      } else {
-        if (element.closest('.placed-red')) {
-          winnings = amount * 2;
-          won = true;
-        }
-      }
-
-      const user = JSON.parse(localStorage.getItem('user'));
-      if (user.username === betterName) {
-        await updateBetStats(won);
-        
-        if (won) {
-          try {
-            const response = await updateBalance(winnings);
-            if (response.ok) {
-              user.balance = Number((user.balance + winnings).toFixed(2));
-              localStorage.setItem('user', JSON.stringify(user));
-              window.dispatchEvent(new Event('balanceUpdate'));
-            }
-          } catch (error) {
-            console.error('Error updating balance for winner:', error);
-          }
-        }
-      }
-    }
-
-    if (targetNumber === 0) {
-      document.querySelectorAll('.placed-red, .placed-black').forEach(el => el.classList.add('losing-bet'));
-      document.querySelectorAll('.placed-green').forEach(el => el.classList.add('winning-bet'));
-    } else if (targetNumber % 2 === 0) {
-      document.querySelectorAll('.placed-green, .placed-red').forEach(el => el.classList.add('losing-bet'));
-      document.querySelectorAll('.placed-black').forEach(el => el.classList.add('winning-bet'));
-    } else {
-      document.querySelectorAll('.placed-green, .placed-black').forEach(el => el.classList.add('losing-bet'));
-      document.querySelectorAll('.placed-red').forEach(el => el.classList.add('winning-bet'));
-    }
-  }
-
-  useEffect(() => {
-    const countdownText = document.querySelector('.countdown-text');
-    const countdownBar = document.querySelector('.countdown-bar');
-    
-    if (countdown > 0) {
-      countdownBar.style.transition = 'width 1s linear';
-      countdownText.textContent = `Rolling in ${countdown}...`;
-      countdownBar.style.width = `${(countdown - 1) * 10}%`;
-      
-      const timer = setTimeout(() => {
-        setCountdown(prev => prev - 1);
-      }, 1000);
-      return () => clearTimeout(timer);
-    } else if (!spinning) {
-      const randomNumber = Math.floor(Math.random() * 37);
-      setChosenNumber(randomNumber);
-      spinToNumber(randomNumber);
-    }
-  }, [countdown, spinning]);
-
-  async function updateBalance(amount) {
-    const numericAmount = Number(Number(amount).toFixed(2));
-    
-    const response = await fetch('http://localhost:3001/api/game/update-balance', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        userId: JSON.parse(localStorage.getItem('user')).id,
-        amount: numericAmount,
-      })
-    });
-    return response;
-  };
-
-  async function handleBet(number, color) {
-    if (!localStorage.getItem('token')) {
-      alert('Please login to place a bet');
-      return;
-    }
-
-    if (spinning) {
-      alert('Please wait for the current spin to complete');
-      return;
-    }
-    
-    const betButton = document.querySelector(`.bet-${color}`);
-    if (betButton.dataset.betting === 'true') {
-      return;
-    }
-    betButton.dataset.betting = 'true';
-    
-    const user = JSON.parse(localStorage.getItem('user'));
-    const bettersName = user.username;
-    const wagerInput = document.querySelector('.wager-input input');
-    const betAmount = Number(Number(wagerInput.value).toFixed(2)) || 0;
-    
-    if (betAmount <= 0) {
-      betButton.dataset.betting = 'false';
-      alert('Please enter a valid bet amount');
-      return;
-    }
-
-    const userBalance = Number(user.balance);
-    if (betAmount > userBalance) {
-      betButton.dataset.betting = 'false';
-      alert('You do not have enough balance to place this bet');
-      return;
-    }
-
-    let currentBetElement = document.querySelector(`.placed-${color} span`);
-
-    if (!currentBetElement) {
-        const container = document.querySelector(`.placed-${color}`);
-        if (!container) {
-            betButton.dataset.betting = 'false';
-            console.error(`Could not find container for color ${color}`);
-            return;
-        }
-        currentBetElement = document.createElement('span');
-        container.appendChild(currentBetElement);
-    }
-
-    try {
-        const updateBalanceResponse = await updateBalance(-betAmount);
-        
-        if (updateBalanceResponse.ok) {
-            let currentAmount = 0;
-            if (currentBetElement.textContent && currentBetElement.textContent.includes('$')) {
-                currentAmount = Number(Number(currentBetElement.textContent.split('$')[1]).toFixed(2)) || 0;
-            }
-
-            const totalBet = Number((currentAmount + betAmount).toFixed(2));
-            currentBetElement.textContent = `${bettersName}: $${totalBet.toFixed(2)}`;
-
-            const currentTotalBetElement = document.querySelector(`.total-placed-${color} span`);
-            currentTotalBetElement.textContent = `${totalBet.toFixed(2)}`;
-
-            const currentTotalBettersElement = document.querySelector(`.total-betters-${color} span`);
-            setUniqueBetters(prev => {
-              const newUniqueBetters = { ...prev };
-              if (!prev[color].has(bettersName)) {
-                newUniqueBetters[color] = new Set([...prev[color], bettersName]);
-                currentTotalBettersElement.textContent = newUniqueBetters[color].size;
-              }
-              return newUniqueBetters;
-            });
-            
-            user.balance = Number((user.balance - betAmount).toFixed(2));
-            localStorage.setItem('user', JSON.stringify(user));
-            window.dispatchEvent(new Event('balanceUpdate'));
-        } else {
-            const errorData = await updateBalanceResponse.json();
-            alert(errorData.message || 'Failed to update balance');
-        }
-    } catch (error) {
-        console.error('Error placing bet:', error);
-        alert('Failed to place bet. Please try again.');
-    } finally {
-        betButton.dataset.betting = 'false';
-    }
-  };
 
   function handleClearBet() {
     const wagerInput = document.querySelector('.wager-input input');
@@ -375,16 +419,19 @@ function Roulette () {
   return (
     <div className="roulette-container">
       <div className="countdown-container">
-          <div className="countdown-text">{countdown}</div>
+        <div className="countdown-text">{countdown}</div>
         <div className="countdown-bar"></div>
       </div>
       <div className="roll-list">
         <h2>Previous rolls:</h2>
         <div className="roll-item">
-          {betHistory.slice(-10).map((roll, index) => {
+          {betHistory.slice(-10).reverse().map((roll, index) => {
             const color = roll === 0 ? "green" : roll % 2 === 0 ? "black" : "red";
             return (
-              <span key={index} className={color}>
+              <span 
+                key={`${roll}-${betHistory.length}-${index}`} 
+                className={`${color} ${index === 0 ? 'new-roll' : ''}`}
+              >
                 {roll}
               </span>
             );
@@ -437,36 +484,49 @@ function Roulette () {
         </div>
         <div className="total-betters">
           <div className="total-betters-red">
-            <FontAwesomeIcon icon={faUser} />
-            <span>0</span>
+            <div className="betters-info">
+              <FontAwesomeIcon icon={faUser} />
+              <span>0</span>
+            </div>
+            <div className="total-amount total-amount-red">
+              <FontAwesomeIcon icon={faMoneyBill1Wave} />
+              <span>0</span>
+            </div>
           </div>
           <div className="total-betters-black">
-            <FontAwesomeIcon icon={faUser} />
-            <span>0</span>
+            <div className="betters-info">
+              <FontAwesomeIcon icon={faUser} />
+              <span>0</span>
+            </div>
+            <div className="total-amount total-amount-black">
+              <FontAwesomeIcon icon={faMoneyBill1Wave} />
+              <span>0</span>
+            </div>
           </div>
           <div className="total-betters-green">
-            <FontAwesomeIcon icon={faUser} />
-            <span>0</span>
+            <div className="betters-info">
+              <FontAwesomeIcon icon={faUser} />
+              <span>0</span>
+            </div>
+            <div className="total-amount total-amount-green">
+              <FontAwesomeIcon icon={faMoneyBill1Wave} />
+              <span>0</span>
+            </div>
           </div>
         </div>
         <div className="placed-container">
           <div className="placed-red">
-            <span></span>
+            <span className="placed-red-name"></span>
+            <span className="placed-red-amount"></span>
           </div>
           <div className="placed-black">
-            <span></span>
+            <span className="placed-black-name"></span>
+            <span className="placed-black-amount"></span>
           </div>
           <div className="placed-green">
-            <span></span>
+            <span className="placed-green-name"></span>
+            <span className="placed-green-amount"></span>
           </div>
-        </div>
-      </div>
-      <div className="result-display">
-        <div className="current-number">
-          Current Number:{" "}
-          <span>
-            {chosenNumber !== null ? chosenNumber : "No spin yet"}
-          </span>
         </div>
       </div>
     </div>
