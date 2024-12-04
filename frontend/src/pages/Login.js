@@ -17,7 +17,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:3001/api/auth/login', { //Change this when completed
+      const response = await fetch('https://fakecasinowebsite.onrender.com/api/auth/login', { //Change this when completed
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -9,7 +9,7 @@ const app = express();
 
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
-    ? 'https://your-render-frontend-url.onrender.com'
+    ? 'https://fakecasinowebsite.onrender.com'
     : ['http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -33,5 +33,5 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
-    console.log(`Backend server running on http://localhost:${PORT}`);
+    console.log(`Backend server running on https://fakecasinowebsite.onrender.com${PORT}`);
 });

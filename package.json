@@ -4,29 +4,25 @@
   "description": "Fake Casino Project",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node backend/app.js",
-    "client": "cd frontend && npm start",
-    "dev": "concurrently \"npm run start\" \"npm run client\""
+    "heroku-postbuild": "cd frontend && npm install && npm run build",
+    "build": "cd frontend && npm install && npm run build",
+    "dev": "concurrently \"npm run start\" \"npm run client\"",
+    "client": "cd frontend && npm start"
   },
-  "author": "Nicholas Foti",
-  "license": "ISC",
+  "engines": {
+    "node": "18.x"
+  },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.7.1",
-    "@fortawesome/free-brands-svg-icons": "^6.7.1",
-    "@fortawesome/free-regular-svg-icons": "^6.7.1",
-    "@fortawesome/free-solid-svg-icons": "^6.7.1",
-    "@fortawesome/react-fontawesome": "^0.2.2",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
-    "ejs": "^3.1.9",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
     "pg": "^8.13.1",
     "pg-pool": "^3.7.0",
-    "react-router-dom": "^7.0.1"
+    "ws": "^8.16.0"
   },
   "devDependencies": {
     "concurrently": "^9.1.0",

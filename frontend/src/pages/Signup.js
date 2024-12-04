@@ -20,7 +20,7 @@ function Signup () {
     setIsLoading(true);
     
     try {
-      const response = await fetch('http://localhost:3001/api/auth/signup', {     //Change this when completed   
+      const response = await fetch('https://fakecasinowebsite.onrender.com/api/auth/signup', {     //Change this when completed   
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
