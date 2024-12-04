@@ -2,6 +2,8 @@ import React, { useRef, useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faMoneyBill1Wave, faUser } from '@fortawesome/free-solid-svg-icons';
+import winSound from '../sounds/money.mp3';
+import spinSound from '../sounds/spinWheel.mp3';
 
 import "./Roulette.css";
 
@@ -55,10 +57,11 @@ function Roulette () {
       containerWidth / 2 +
       numberWidth * dramaticMultiplier;
 
-    container.style.transition = "transform 10s ease-in-out";
+    container.style.transition = "transform 10s cubic-bezier(0.4, 0.0, 0.2, 1)";
     container.style.transform = `translateX(-${targetOffset}px)`;
 
     setSpinning(true);
+    playSpinSound();
     const countdownText = document.querySelector('.countdown-text');
     countdownText.textContent = `Rolling...`;
 
@@ -137,9 +140,47 @@ function Roulette () {
     }, 13000);
   };
 
+  function playWinSound() {
+    const audio = new Audio(winSound);
+    audio.play();
+  }
+
+  function playSpinSound() {
+    const audio = new Audio(spinSound);
+    audio.play();
+  }
+
   async function handleWinnings(targetNumber) {
     const allBetElements = document.querySelectorAll('.placed-red, .placed-black, .placed-green');
     
+    // Play sound immediately if user has a winning bet
+    const user = JSON.parse(localStorage.getItem('user'));
+    for (const container of allBetElements) {
+      const nameElement = container.querySelector('[class*="-name"]');
+      const amountElement = container.querySelector('[class*="-amount"]');
+      
+      const betterName = nameElement?.textContent?.trim();
+      const amount = parseFloat(amountElement?.textContent);
+      
+      // Only check for wins if this is the current user's bet and there's an amount
+      if (betterName === user.username && amount > 0) {
+        let isWinningBet = false;
+        
+        if (targetNumber === 0 && container.classList.contains('placed-green')) {
+          isWinningBet = true;
+        } else if (targetNumber % 2 === 0 && container.classList.contains('placed-black')) {
+          isWinningBet = true;
+        } else if (targetNumber % 2 === 1 && container.classList.contains('placed-red')) {
+          isWinningBet = true;
+        }
+
+        if (isWinningBet) {
+          playWinSound();
+          break;
+        }
+      }
+    }
+
     for (const container of allBetElements) {
       const nameElement = container.querySelector('[class*="-name"]');
       const amountElement = container.querySelector('[class*="-amount"]');
