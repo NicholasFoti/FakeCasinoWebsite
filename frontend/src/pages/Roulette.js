@@ -316,7 +316,9 @@ function Roulette () {
   async function updateBalance(amount) {
     const numericAmount = Number(Number(amount).toFixed(2));
     
-    const response = await fetch('http://localhost:3001/api/game/update-balance', {
+    const apiUrl = process.env.NODE_ENV === 'production' ? 'https://fakecasinowebsite.onrender.com/api/game/update-balance' : 'http://localhost:3001/api/game/update-balance';
+
+    const response = await fetch(apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -331,8 +333,10 @@ function Roulette () {
 
   // Update bet stats in database
   async function updateBetStats(won) {
+    const apiUrl = process.env.NODE_ENV === 'production' ? 'https://fakecasinowebsite.onrender.com/api/game/update-bet-stats' : 'http://localhost:3001/api/game/update-bet-stats';
+
     try {
-        const response = await fetch('http://localhost:3001/api/game/update-bet-stats', {
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
