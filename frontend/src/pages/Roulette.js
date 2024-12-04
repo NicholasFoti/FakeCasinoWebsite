@@ -1,4 +1,8 @@
 import React, { useRef, useState, useEffect } from "react";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faMoneyBill1Wave, faUser } from '@fortawesome/free-solid-svg-icons';
+
 import "./Roulette.css";
 
 function Roulette () {
@@ -7,7 +11,11 @@ function Roulette () {
   const [spinning, setSpinning] = useState(false);
   const [countdown, setCountdown] = useState(10);
   const [betHistory, setBetHistory] = useState([]);
-  const balanceRef = useRef();
+  const [uniqueBetters, setUniqueBetters] = useState({
+    red: new Set(),
+    black: new Set(),
+    green: new Set()
+  });
 
   const baseNumbers = Array.from({ length: 37 }, (_, i) => ({
     value: i,
@@ -46,6 +54,8 @@ function Roulette () {
     container.style.transform = `translateX(-${targetOffset}px)`;
 
     setSpinning(true);
+    const countdownText = document.querySelector('.countdown-text');
+    countdownText.textContent = `Rolling...`;
 
     setTimeout(() => {
       handleWinnings(targetNumber);
@@ -65,9 +75,54 @@ function Roulette () {
         element.textContent = '';
         element.classList.remove('winning-bet', 'losing-bet');
       });
+
+      const totalPlaced = document.querySelectorAll('.total-placed-red span, .total-placed-black span, .total-placed-green span');
+      totalPlaced.forEach(element => {
+        element.textContent = 0;
+      });
+
+      const countdownBar = document.querySelector('.countdown-bar');
+      countdownBar.style.transition = 'none';
+      countdownBar.style.width = '100%';
+
+      setUniqueBetters({
+        red: new Set(),
+        black: new Set(),
+        green: new Set()
+      });
+      
+      const totalBettersElements = document.querySelectorAll('.total-betters-red span, .total-betters-black span, .total-betters-green span');
+      totalBettersElements.forEach(element => {
+        element.textContent = '0';
+      });
     }, 13000);
 
   };
+
+  async function updateBetStats(won) {
+    try {
+        const response = await fetch('http://localhost:3001/api/game/update-bet-stats', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                userId: JSON.parse(localStorage.getItem('user')).id,
+                won: won
+            })
+        });
+        
+        if (response.ok) {
+            const userData = await response.json();
+            const user = JSON.parse(localStorage.getItem('user'));
+            user.bets_won = userData.stats.bets_won;
+            user.bets_lost = userData.stats.bets_lost;
+            localStorage.setItem('user', JSON.stringify(user));
+        }
+    } catch (error) {
+        console.error('Error updating bet stats:', error);
+    }
+  }
 
   async function handleWinnings(targetNumber) {
     const allBetElements = document.querySelectorAll('.placed-red span, .placed-black span, .placed-green span');
@@ -101,19 +156,21 @@ function Roulette () {
         }
       }
 
-      if (won) {
-        try {
-          const response = await updateBalance(winnings);
-          if (response.ok) {
-            const user = JSON.parse(localStorage.getItem('user'));
-            if (user.username === betterName) {
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user.username === betterName) {
+        await updateBetStats(won);
+        
+        if (won) {
+          try {
+            const response = await updateBalance(winnings);
+            if (response.ok) {
               user.balance = Number((user.balance + winnings).toFixed(2));
               localStorage.setItem('user', JSON.stringify(user));
               window.dispatchEvent(new Event('balanceUpdate'));
             }
+          } catch (error) {
+            console.error('Error updating balance for winner:', error);
           }
-        } catch (error) {
-          console.error('Error updating balance for winner:', error);
         }
       }
     }
@@ -131,8 +188,17 @@ function Roulette () {
   }
 
   useEffect(() => {
+    const countdownText = document.querySelector('.countdown-text');
+    const countdownBar = document.querySelector('.countdown-bar');
+    
     if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      countdownBar.style.transition = 'width 1s linear';
+      countdownText.textContent = `Rolling in ${countdown}...`;
+      countdownBar.style.width = `${(countdown - 1) * 10}%`;
+      
+      const timer = setTimeout(() => {
+        setCountdown(prev => prev - 1);
+      }, 1000);
       return () => clearTimeout(timer);
     } else if (!spinning) {
       const randomNumber = Math.floor(Math.random() * 37);
@@ -151,7 +217,7 @@ function Roulette () {
       },
       body: JSON.stringify({
         userId: JSON.parse(localStorage.getItem('user')).id,
-        amount: numericAmount
+        amount: numericAmount,
       })
     });
     return response;
@@ -193,7 +259,7 @@ function Roulette () {
     }
 
     let currentBetElement = document.querySelector(`.placed-${color} span`);
-    
+
     if (!currentBetElement) {
         const container = document.querySelector(`.placed-${color}`);
         if (!container) {
@@ -216,6 +282,19 @@ function Roulette () {
 
             const totalBet = Number((currentAmount + betAmount).toFixed(2));
             currentBetElement.textContent = `${bettersName}: $${totalBet.toFixed(2)}`;
+
+            const currentTotalBetElement = document.querySelector(`.total-placed-${color} span`);
+            currentTotalBetElement.textContent = `${totalBet.toFixed(2)}`;
+
+            const currentTotalBettersElement = document.querySelector(`.total-betters-${color} span`);
+            setUniqueBetters(prev => {
+              const newUniqueBetters = { ...prev };
+              if (!prev[color].has(bettersName)) {
+                newUniqueBetters[color] = new Set([...prev[color], bettersName]);
+                currentTotalBettersElement.textContent = newUniqueBetters[color].size;
+              }
+              return newUniqueBetters;
+            });
             
             user.balance = Number((user.balance - betAmount).toFixed(2));
             localStorage.setItem('user', JSON.stringify(user));
@@ -295,6 +374,10 @@ function Roulette () {
 
   return (
     <div className="roulette-container">
+      <div className="countdown-container">
+          <div className="countdown-text">{countdown}</div>
+        <div className="countdown-bar"></div>
+      </div>
       <div className="roll-list">
         <h2>Previous rolls:</h2>
         <div className="roll-item">
@@ -316,10 +399,10 @@ function Roulette () {
                 key={index}
                 className={`number ${num.color}`}
               >
-                {num.value}
-              </div>
-            ))}
-          </div>
+              {num.value}
+            </div>
+          ))}
+        </div>
       </div>
       <div className="wager">
         <h2>Wager:</h2>
@@ -335,35 +418,55 @@ function Roulette () {
           <button className="wager-button max" onClick={handleMax}>Max</button>
         </div>
       </div>
+      <div className="bets-container">
+        <div className="bet-input">
+          <button className="bet-red" onClick={() => handleBet(0, "red")}>Odd, Win 2x</button>
+          <button className="bet-black" onClick={() => handleBet(0, "black")}>Even, Win 2x</button>
+          <button className="bet-green" onClick={() => handleBet(0, "green")}>0, Win 14x</button>
+        </div>
+        <div className="total-placed">
+          <div className="total-placed-red">
+            <FontAwesomeIcon icon={faMoneyBill1Wave} size="2xl" style={{color: "#e23636",}} /><span> 0</span>
+          </div>
+          <div className="total-placed-black">
+            <FontAwesomeIcon icon={faMoneyBill1Wave} size="2xl" style={{color: "#8e8f8f",}} /><span> 0</span>
+          </div>
+          <div className="total-placed-green">
+            <FontAwesomeIcon icon={faMoneyBill1Wave} size="2xl" style={{color: "#059669",}} /><span> 0</span>
+          </div>
+        </div>
+        <div className="total-betters">
+          <div className="total-betters-red">
+            <FontAwesomeIcon icon={faUser} />
+            <span>0</span>
+          </div>
+          <div className="total-betters-black">
+            <FontAwesomeIcon icon={faUser} />
+            <span>0</span>
+          </div>
+          <div className="total-betters-green">
+            <FontAwesomeIcon icon={faUser} />
+            <span>0</span>
+          </div>
+        </div>
+        <div className="placed-container">
+          <div className="placed-red">
+            <span></span>
+          </div>
+          <div className="placed-black">
+            <span></span>
+          </div>
+          <div className="placed-green">
+            <span></span>
+          </div>
+        </div>
+      </div>
       <div className="result-display">
         <div className="current-number">
           Current Number:{" "}
           <span>
             {chosenNumber !== null ? chosenNumber : "No spin yet"}
           </span>
-        </div>
-        <div className="countdown">
-          {spinning ? "Spinning..." : `Next spin in: ${countdown}s`}
-        </div>
-      </div>
-      <div className="bets-container">
-        <h2>Place your bets</h2>
-        <div className="bet-input">
-          <button className="bet-red" onClick={() => handleBet(0, "red")}>Red
-            <div className="placed-red">
-              <span></span>
-            </div>
-          </button>
-          <button className="bet-black" onClick={() => handleBet(0, "black")}>Black
-            <div className="placed-black">
-              <span></span>
-            </div>
-          </button>
-          <button className="bet-green" onClick={() => handleBet(0, "green")}>Green
-            <div className="placed-green">
-              <span></span>
-            </div>
-          </button>
         </div>
       </div>
     </div>

@@ -1,5 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faCoins } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './Header.css';
 
 const Header = () => {
@@ -72,7 +75,7 @@ const Header = () => {
             <div className="user-info-container">
               <span className="user-info">Logged in as: {user.username}</span>
               <span className="user-balance" ref={balanceRef}>
-                Balance: ${Number(user.balance).toFixed(2)}
+              <FontAwesomeIcon icon={faCoins} size="xl" style={{color: "#FFD43B",}} /> {Number(user.balance).toFixed(2)}
               </span>
             </div>
             <button onClick={() => navigate('/profile')} className="auth-button profile-button">Profile</button>

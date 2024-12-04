@@ -1,9 +1,10 @@
 .casino-footer {
-  background-color: #282c34;
-  color: white;
-  padding: 10px;
+  background-color: #242424;
+  color: #8e8f8f;
+  padding: 15px;
   text-align: center;
   position: fixed;
   width: 100%;
   bottom: 0;
+  border-top: 1px solid #333;
 } 

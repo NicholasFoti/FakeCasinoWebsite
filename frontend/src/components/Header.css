@@ -6,7 +6,7 @@
 }
 
 .casino-header {
-  background-color: #1A1F2C ;
+  background-color: #242424;
   color: white;
   text-align: center;
   position: relative;
@@ -17,7 +17,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  border-bottom: 1px solid rgb(77, 70, 88);
+  border-bottom: 1px solid #333;
 }
 
 .header-content {
@@ -50,14 +50,14 @@
 }
 
 .header-buttons a {
-  color: rgb(177, 177, 177);
+  color: #8e8f8f;
   border-radius: 4px;
   width: 100px;
   transition: color 0.3s;
 }
 
 .home-button:hover {
-  color: rgb(139 92 246);
+  color: #f03e3e;
 }
 
 .auth-buttons {
@@ -124,11 +124,11 @@
 }
 
 .balance-flash-red {
-  animation: flashRed 0.5s ease;
+  animation: flashRed 1s ease;
 }
 
 .balance-flash-green {
-  animation: flashGreen 0.5s ease;
+  animation: flashGreen 1s ease;
 }
 
 @keyframes flashRed {
@@ -153,4 +153,18 @@
   100% {
     color: white;
   }
+} 
+
+.auth-buttons button {
+  background-color: #1F2937;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.auth-buttons button:hover {
+  background-color: #f03e3e;
 } 

@@ -98,9 +98,31 @@
   flex-direction: column;
   align-items: center;
   height: 50px;
+  width: 100%;
   border-radius: 5px;
-  background-color: #666666;
-  backdrop-filter: blur(100px);
+}
+
+.total-betters {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  flex-direction: row;
+  gap: 10px;
+}
+
+.total-betters-green{
+  margin-right: 275px;
+}
+
+.placed-red span:not(:empty), .placed-black span:not(:empty), .placed-green span:not(:empty) {
+  border: 1px solid #333;
+  width: 100%;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  border-radius: 5px;
 }
 
 .wager {
@@ -109,6 +131,52 @@
   align-items: center;
   color: white;
   margin-top: 20px;
+}
+
+.total-placed {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.total-placed-red, .total-placed-black, .total-placed-green {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 300px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.total-placed-red{
+  color: #e23636;
+}
+
+.total-placed-black{
+  color: #8e8f8f;
+}
+
+.total-placed-green{
+  color: #059669;
+}
+
+.total-placed span {
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.placed-container {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .wager h2 {
@@ -124,8 +192,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 20px;
   color: white;
+  margin-top: 0px;
 }
 
 .bet-red, .bet-black, .bet-green {
@@ -138,14 +206,35 @@
 
 .bet-red {
   background-color: #DC2626;
+  box-shadow: 0 4px #b71c1c;
 }
 
 .bet-black {
   background-color: #1F2937;
+  box-shadow: 0 4px #121a25;
 }
 
 .bet-green {
   background-color: #059669;
+  box-shadow: 0 4px #046b4a;
+}
+
+.bet-red:hover {
+  background-color: #DC2626;
+  transform: translateY(-2px);
+  transition: transform 0.2s ease-in-out;
+}
+
+.bet-black:hover {
+  background-color: #1F2937;
+  transform: translateY(-2px);
+  transition: transform 0.2s ease-in-out;
+}
+
+.bet-green:hover {
+  background-color: #059669;
+  transform: translateY(-2px);
+  transition: transform 0.2s ease-in-out;
 }
 
 .roulette-container {
@@ -214,7 +303,7 @@
 }
 
 .number {
-  flex: 0 0 80px; /* Keep this exact size to match calculations */
+  flex: 0 0 80px;
   height: 100%;
   display: flex;
   align-items: center;
@@ -280,3 +369,40 @@
 .wager-input input[type=number] {
   -moz-appearance: textfield;
 }
+
+.countdown-container {
+  width: 100%;
+  height: 25px;
+  padding: 2px;
+  border-radius: 2px;
+  border: 1px solid #333;
+  margin: 10px 0;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.countdown-text {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  z-index: 2;
+}
+
+.countdown-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background-color: #f03e3e;
+  transition: width 1s linear;
+  z-index: 1;
+}
+

@@ -6,9 +6,9 @@ import HomePage from './pages/HomePage';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Profile from './pages/Profile';
-import Roulette from './components/Roulette';
-import Blackjack from './components/Blackjack';
-import Slots from './components/Slots';
+import Roulette from './pages/Roulette';
+import Blackjack from './pages/Blackjack';
+import Slots from './pages/Slots';
 import Footer from './components/Footer';
 
 function App() {

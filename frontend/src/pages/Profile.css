@@ -1,10 +1,12 @@
 .profile-container {
     max-width: 600px;
+    color: white;
     margin: 40px auto;
     padding: 20px;
-    background-color: #fff;
+    background-color: #1e2024;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    border: 1px solid #333;
 }
 
 .profile-info {
@@ -15,10 +17,10 @@
 .profile-info p {
     margin: 15px 0;
     font-size: 1.1em;
-    color: #333;
+    color: #e08c97;
 }
 
 .profile-info strong {
-    color: #4a5568;
+    color: white;
     margin-right: 10px;
 }
