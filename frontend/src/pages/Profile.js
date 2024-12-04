@@ -22,7 +22,10 @@ function Profile () {
             <h2>Profile Information</h2>
             <div className="profile-info">
                 <p><strong>Username:</strong> {user.username}</p>
-                <p><strong>Balance:</strong> ${user.balance.toLocaleString()}</p>
+                <p><strong>Balance:</strong> ${Number(user.balance).toLocaleString('en-US', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                })}</p>
                 <p><strong>Member Since:</strong> {formattedDate}</p>
                 <p><strong>Bets Won:</strong> {user.bets_won || 0}</p>
                 <p><strong>Bets Lost:</strong> {user.bets_lost || 0}</p>

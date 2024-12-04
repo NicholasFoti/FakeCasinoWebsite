@@ -75,7 +75,10 @@ const Header = () => {
             <div className="user-info-container">
               <span className="user-info">Logged in as: {user.username}</span>
               <span className="user-balance" ref={balanceRef}>
-              <FontAwesomeIcon icon={faCoins} size="xl" style={{color: "#FFD43B",}} /> {Number(user.balance).toFixed(2)}
+              <FontAwesomeIcon icon={faCoins} size="xl" style={{color: "#FFD43B",}} /> {Number(user.balance).toLocaleString('en-US', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}
               </span>
             </div>
             <button onClick={() => navigate('/profile')} className="auth-button profile-button">Profile</button>

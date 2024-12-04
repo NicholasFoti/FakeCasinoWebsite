@@ -235,12 +235,19 @@ function Roulette () {
   useEffect(() => {
     const countdownText = document.querySelector('.countdown-text');
     const countdownBar = document.querySelector('.countdown-bar');
-    
+
+    if (countdown === 10 && !spinning) {
+      countdownBar.style.transition = 'none';
+      countdownBar.style.width = '100%';
+      void countdownBar.offsetHeight;
+      countdownBar.style.transition = 'width 1s linear';
+    }
+
     if (countdown > 0) {
       countdownBar.style.transition = 'width 1s linear';
       countdownText.textContent = `Rolling in ${countdown}...`;
       countdownBar.style.width = `${(countdown - 1) * 10}%`;
-      
+
       const timer = setTimeout(() => {
         setCountdown(prev => prev - 1);
       }, 1000);
