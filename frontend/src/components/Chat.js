@@ -10,6 +10,21 @@ const Chat = () => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
+    const fetchMessages = async () => {
+      const apiUrl = process.env.NODE_ENV === 'production' ? 'https://fakecasinowebsite.onrender.com/api/chat/messages' : 'http://localhost:3001/api/chat/messages';
+      try{
+        const response = await fetch(apiUrl);
+        if (response.ok){
+          const data = await response.json();
+          setMessages(data);
+        }
+      } catch (error) {
+        console.error('Error fetching chat messages:', error);
+      }
+    };
+
+    fetchMessages();
+
     socket.on('chatMessage', (message) => {
       setMessages((prevMessages) => [...prevMessages, message]);
     });
@@ -23,11 +38,32 @@ const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const sendMessage = () => {
-    const maxLength = 50;
+  const updateChatDatabase = async (username, text) => {
+    const apiUrl = process.env.NODE_ENV === 'production' ? 'https://fakecasinowebsite.onrender.com/api/chat/send-message' : 'http://localhost:3001/api/chat/send-message';
+    try{
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, text })
+    });
+
+    if (!response.ok){
+      console.error('Failed to save message:', response.statusText);
+    }
+    } catch (error) {
+      console.error('Error saving message:', error);
+    }
+  };
+
+  const sendMessage = async () => {
+    const maxLength = 100;
     if (input.trim() && input.length <= maxLength) {
+
       const username = JSON.parse(localStorage.getItem('user')).username;
       socket.emit('chatMessage', { username, text: input });
+
+      await updateChatDatabase(username, input);
+
       setInput('');
     } else if (input.length > maxLength) {
       alert(`Message is too long. Maximum length is ${maxLength} characters.`);

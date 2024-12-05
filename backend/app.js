@@ -3,8 +3,11 @@ require("dotenv").config();
 const path = require('path');
 const http = require('http');
 const cors = require('cors');
+const cron = require('node-cron');
+const pool = require('./db/config');
 const authRoutes = require('./routes/authRoutes');
 const gameRoutes = require('./routes/gameRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 const app = express();
 const server = http.createServer(app);
@@ -31,6 +34,7 @@ app.use(express.static(path.join(__dirname, '../frontend/build')));
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/game', gameRoutes);
+app.use('/api/chat', chatRoutes);
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
@@ -55,9 +59,18 @@ io.on('connection', (socket) => {
   });
 });
 
-// Add this right after io initialization to debug connection issues
 io.engine.on('connection_error', (err) => {
     console.error('Connection error:', err.code, err.message, err.context);
+});
+
+//Schedule cron job to delete chat messages older than 30 days
+cron.schedule('0 0 * * *', async () => {
+  try{
+    await pool.query('DELETE FROM chat_messages WHERE timestamp < NOW() - INTERVAL \'30 days\'');
+    console.log('Deleted chat messages older than 30 days');
+  } catch (error) {
+    console.error('Error deleting chat messages:', error);
+  }
 });
 
 const PORT = process.env.PORT || 3001;
