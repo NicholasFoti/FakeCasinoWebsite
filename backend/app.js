@@ -63,11 +63,11 @@ io.engine.on('connection_error', (err) => {
     console.error('Connection error:', err.code, err.message, err.context);
 });
 
-//Schedule cron job to delete chat messages older than 30 days
+//Schedule cron job to delete chat messages older than 12 hours
 cron.schedule('0 0 * * *', async () => {
   try{
-    await pool.query('DELETE FROM chat_messages WHERE timestamp < NOW() - INTERVAL \'30 days\'');
-    console.log('Deleted chat messages older than 30 days');
+    await pool.query('DELETE FROM chat_messages WHERE timestamp < NOW() - INTERVAL \'12 hours\'');
+    console.log('Deleted chat messages older than 12 hours');
   } catch (error) {
     console.error('Error deleting chat messages:', error);
   }
