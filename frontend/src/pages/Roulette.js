@@ -147,14 +147,18 @@ function Roulette () {
   
   function playWinSound() {
     const audio = new Audio(winSound);
-    audio.play();
+    audio.play().catch(error => console.error('Error playing win sound:', error));
   }
 
   function playSpinSound() {
     const audio = new Audio(spinSound);
     audio.volume = 0.2;
-    audio.play();
+    audio.play().catch(error => console.error('Error playing spin sound:', error));
   }
+
+  ///////////////////////////////
+  //         WINNINGS          //
+  ///////////////////////////////
 
   async function handleWinnings(targetNumber) {
     const allBetElements = document.querySelectorAll('.placed-red, .placed-black, .placed-green');
@@ -240,6 +244,10 @@ function Roulette () {
     }
   }
 
+  ///////////////////////////////
+  //         COUNTDOWN         //
+  ///////////////////////////////
+
   useEffect(() => {
     const countdownText = document.querySelector('.countdown-text');
     const countdownBar = document.querySelector('.countdown-bar');
@@ -266,6 +274,10 @@ function Roulette () {
       spinToNumber(randomNumber);
     }
   }, [countdown, spinning]);
+
+  ///////////////////////////////
+  //         BETS              //
+  ///////////////////////////////
 
   async function handleBet(amount, color) {
     if (!localStorage.getItem('token')) {
