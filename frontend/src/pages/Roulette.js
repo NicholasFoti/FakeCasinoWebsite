@@ -140,6 +140,10 @@ function Roulette () {
     }, 13000);
   };
 
+  ///////////////////////////////
+  //         SOUNDS            //
+  ///////////////////////////////
+  
   function playWinSound() {
     const audio = new Audio(winSound);
     audio.play();
@@ -147,14 +151,17 @@ function Roulette () {
 
   function playSpinSound() {
     const audio = new Audio(spinSound);
+    audio.volume = 0.2;
     audio.play();
   }
 
   async function handleWinnings(targetNumber) {
     const allBetElements = document.querySelectorAll('.placed-red, .placed-black, .placed-green');
     
-    // Play sound immediately if user has a winning bet
+    //Return if user is not logged in.
     const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) return;
+
     for (const container of allBetElements) {
       const nameElement = container.querySelector('[class*="-name"]');
       const amountElement = container.querySelector('[class*="-amount"]');

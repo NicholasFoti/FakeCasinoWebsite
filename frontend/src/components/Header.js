@@ -10,6 +10,7 @@ const Header = () => {
   const navigate = useNavigate();
   const prevBalanceRef = useRef();
   const balanceRef = useRef();
+  const logo = require('../images/CasinoLogo.png');
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -61,7 +62,7 @@ const Header = () => {
   return (
     <header className="casino-header">
       <div className="header-content">
-        <h1>Fake Casino</h1>
+        <Link to="/" className="header-logo"><img src={logo} alt="Fake Casino" /></Link>
       </div>
       <div className="header-buttons">
         <Link className="home-button" to="/">Home</Link>

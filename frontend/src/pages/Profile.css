@@ -1,26 +1,30 @@
 .profile-container {
     max-width: 600px;
-    color: white;
+    color: #f0f0f0;
     margin: 40px auto;
-    padding: 20px;
-    background-color: #1e2024;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-    border: 1px solid #333;
+    padding: 30px;
+    background-color: #242424;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    border: 1px solid #444;
+    text-align: center;
 }
 
 .profile-info {
     text-align: left;
-    padding: 20px;
+    padding: 25px;
+    background-color: #1a1a1a;
+    border-radius: 8px;
+    border: 1px solid #333;
 }
 
 .profile-info p {
-    margin: 15px 0;
-    font-size: 1.1em;
-    color: #e08c97;
+    margin: 20px 0;
+    font-size: 1.2em;
+    color: #f03e3e;
 }
 
 .profile-info strong {
-    color: white;
-    margin-right: 10px;
+    color: #f0f0f0;
+    margin-right: 15px;
 }

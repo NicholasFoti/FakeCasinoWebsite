@@ -110,6 +110,11 @@
   height: 40px;
 }
 
+.wager-button:hover {
+  background-color: #333;
+  transition: background-color 0.2s ease-in-out;
+}
+
 .wager-button:last-child {
   border-top-right-radius: 2px;
   border-bottom-right-radius: 2px;
@@ -195,7 +200,7 @@
   justify-content: center;
   align-items: center;
   color: white;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .total-placed {
@@ -271,17 +276,17 @@
 
 .bet-red {
   background-color: #DC2626;
-  box-shadow: 0 4px #b71c1c;
+  box-shadow: 0 4px #b71c1c, inset 0 1px 3px rgba(255, 255, 255, 0.5);
 }
 
 .bet-black {
-  background-color: #1F2937;
-  box-shadow: 0 4px #121a25;
+  background-color: #1a1a1a;
+  box-shadow: 0 4px #141414, inset 0 1px 3px rgba(255, 255, 255, 0.2);
 }
 
 .bet-green {
   background-color: #059669;
-  box-shadow: 0 4px #046b4a;
+  box-shadow: 0 4px #046b4a, inset 0 1px 3px rgba(255, 255, 255, 0.5);
 }
 
 .bet-red:hover {
@@ -291,7 +296,7 @@
 }
 
 .bet-black:hover {
-  background-color: #1F2937;
+  background-color: #171818;
   transform: translateY(-2px);
   transition: transform 0.2s ease-in-out;
 }
@@ -386,8 +391,8 @@
 }
 
 .black { 
-  background-color: #1F2937;
-  background: linear-gradient(145deg, #2d3748, #1F2937);
+  background-color: #1a1a1a;
+  background: linear-gradient(145deg, #1a1a1a, #1a1a1a);
 }
 
 .green { 

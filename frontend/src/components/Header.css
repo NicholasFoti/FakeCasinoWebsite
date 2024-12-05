@@ -1,7 +1,7 @@
 .user-info-container {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
+  flex-direction: row;
+  gap: 20px;
   align-items: center;
 }
 
@@ -29,12 +29,14 @@
   left: 10px;
 }
 
+.header-logo img {
+  width: 400px;
+}
+
 .logged-in-info {
-  margin-top: 0;
   display: flex;
-  justify-content: center;
   align-items: center;
-  gap: 10px;
+  gap: 20px;
   position: absolute;
   right: 10px;
   top: 50%;
@@ -62,41 +64,35 @@
 
 .auth-buttons {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-right: 2.5rem;
   gap: 15px;
 }
 
 .login-button {
-  background-color: none;
+  background-color: transparent;
+  border: 1px solid #f03e3e;
+  color: #f03e3e;
+  transition: all 0.3s ease;
 }
 
 .login-button:hover {
-  background-color: #f0f0f0;
-  color: rgb(139 92 246);
+  background-color: rgba(240, 62, 62, 0.1);
 }
 
 .sign-up-button {
-  background-color: rgb(139 92 246);
+  background-color: #f03e3e;
+  color: white;
+  transition: background-color 0.3s ease;
 }
 
 .sign-up-button:hover {
-  background-color: #902bd3;
+  background-color: #dc2626;
 }
 
 .auth-button {
-  width: 100px;
-  display: flex;
-  justify-content: center;
-  text-align: center;
-  align-items: center;
-  height: 40px;
-  padding: 5px;
-  color: white;
+  padding: 8px 20px;
+  border-radius: 5px;
+  font-weight: bold;
   text-decoration: none;
-  border-radius: 8px;
-  transition: background-color 0.3s, color 0.3s;
 }
 
 .logout-button {
@@ -113,10 +109,12 @@
   background-color: #2d3748;
 }
 
-.user-info {
-  color: white;
-  margin-right: 15px;
-  font-size: 1.1em;
+.user-info, .user-balance {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  color: #8e8f8f;
 }
 
 .user-balance {

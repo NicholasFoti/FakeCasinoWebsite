@@ -18,9 +18,13 @@ function Signup () {
       return;
     }
     setIsLoading(true);
-    
+
+    const apiUrl = process.env.NODE_ENV === 'production' 
+      ? 'https://fakecasinowebsite.onrender.com/api/auth/signup'
+      : 'http://localhost:3001/api/auth/signup';
+
     try {
-      const response = await fetch('https://fakecasinowebsite.onrender.com/api/auth/signup', {     //Change this when completed   
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -79,7 +83,7 @@ function Signup () {
             required
           />
         </div>
-        <button type="submit" disabled={isLoading}>
+        <button type="submit" className="submit-button" disabled={isLoading}>
           {isLoading ? (
             <div className="spinner"></div>
           ) : (
