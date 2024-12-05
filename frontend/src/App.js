@@ -10,6 +10,7 @@ import Roulette from './pages/Roulette';
 import Blackjack from './pages/Blackjack';
 import Slots from './pages/Slots';
 import Footer from './components/Footer';
+import { connectSocket, disconnectSocket } from './services/socket';
 
 function App() {
   useEffect(() => {
@@ -40,7 +41,12 @@ function App() {
       }
     };
 
+    connectSocket();
     checkUserData();
+
+    return () => {
+      disconnectSocket();
+    };
   }, []);
 
   return (

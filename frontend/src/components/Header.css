@@ -1,61 +1,106 @@
 .user-info-container {
   display: flex;
-  flex-direction: row;
-  gap: 20px;
   align-items: center;
+  gap: 10px;
 }
 
 .casino-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   background-color: #242424;
   color: white;
-  text-align: center;
-  position: relative;
   width: 100%;
   height: 80px;
-  top: 0;
-  left: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border-bottom: 1px solid #333;
-}
-
-.header-content {
-  position: absolute;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  left: 10px;
+  box-sizing: border-box;
+  padding: 0 20px;
+  overflow: hidden;
 }
 
 .header-logo img {
-  width: 400px;
+  width: 200px;
+  margin-right: 20px;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-links a, .auth-button {
+  position: relative;
+  color: #8e8f8f;
+  text-decoration: none;
+  transition: color 0.3s;
+  padding-bottom: 5px;
+}
+
+.nav-links a:hover, .auth-button:hover {
+  color: #f03e3e;
+}
+
+.nav-links a::after, .auth-button::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background-color: #f03e3e;
+  transition: width 0.3s;
+}
+
+.nav-links a:hover::after, .auth-button:hover::after {
+  width: 100%;
 }
 
 .logged-in-info {
   display: flex;
   align-items: center;
   gap: 20px;
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
+  margin-left: auto;
 }
 
 .header-buttons {
   display: flex;
-  justify-content: center;
+  justify-content: start;
   align-items: center;
-  gap: 15px;
+  gap: 50px;
   flex-direction: row;
 }
 
 .header-buttons a {
+  position: relative;
   color: #8e8f8f;
-  border-radius: 4px;
-  width: 100px;
+  text-decoration: none;
   transition: color 0.3s;
+  padding-bottom: 5px;
+}
+
+.header-buttons a:hover {
+  color: #f03e3e;
+}
+
+.header-buttons a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 2px;
+  background-color: #f03e3e;
+  transition: width 0.3s;
+}
+
+.header-buttons a:hover::after {
+  width: 100%;
 }
 
 .home-button:hover {
@@ -93,6 +138,12 @@
   border-radius: 5px;
   font-weight: bold;
   text-decoration: none;
+  color: #8e8f8f;
+  transition: color 0.3s;
+}
+
+.auth-button:hover {
+  color: #f03e3e;
 }
 
 .logout-button {
@@ -131,25 +182,25 @@
 
 @keyframes flashRed {
   0% {
-    color: white;
+    color: #8e8f8f;
   }
   50% {
     color: #f35454;
   }
   100% {
-    color: white;
+    color: #8e8f8f;
   }
 } 
 
 @keyframes flashGreen {
   0% {
-    color: white;
+    color: #8e8f8f;
   }
   50% {
     color: #00ff00;
   }
   100% {
-    color: white;
+    color: #8e8f8f;
   }
 } 
 
