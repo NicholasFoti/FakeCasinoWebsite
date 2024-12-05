@@ -13,6 +13,8 @@ function Roulette () {
   const numbersContainerRef = useRef();
   const [spinning, setSpinning] = useState(false);
   const [countdown, setCountdown] = useState(10);
+  const [targetNumber, setTargetNumber] = useState(null);
+  const [currentOffset, setCurrentOffset] = useState(0);
   const [betHistory, setBetHistory] = useState([]);
   const [uniqueBetters, setUniqueBetters] = useState({
     red: new Set(),
@@ -36,32 +38,35 @@ function Roulette () {
     ...baseNumbers.slice(0, 5),
   ];
 
-  function spinToNumber (targetNumber) {
-    const container = numbersContainerRef.current;
-    const dramaticMultiplier = [2, 2.2, 2.3][
-      Math.floor(Math.random() * 3)
-    ];
+  const calculateTargetOffset = (targetIndex, containerWidth) => {
+    const numberWidth = 80;
+    const totalNumbers = baseNumbers.length;
+    const spins = 3;
+    const dramaticMultiplier = [2, 2.2, 2.3][Math.floor(Math.random() * 3)];
 
+    return (
+      spins * totalNumbers * numberWidth +
+      targetIndex * numberWidth -
+      containerWidth / 2 +
+      numberWidth * dramaticMultiplier
+    );
+  };
+
+  const spinToNumber = (targetNumber) => {
+    const container = numbersContainerRef.current;
     const targetIndex = numbers.findIndex((num) => num.value === targetNumber);
 
     if (targetIndex === -1) return;
 
-    const numberWidth = 80;
     const containerWidth = container.parentElement.offsetWidth;
-    const totalNumbers = baseNumbers.length;
-
-    const spins = 3;
-
-    const targetOffset =
-      spins * totalNumbers * numberWidth +
-      targetIndex * numberWidth -
-      containerWidth / 2 +
-      numberWidth * dramaticMultiplier;
+    const targetOffset = calculateTargetOffset(targetIndex, containerWidth);
 
     container.style.transition = "transform 10s cubic-bezier(0.4, 0.0, 0.2, 1)";
     container.style.transform = `translateX(-${targetOffset}px)`;
 
     setSpinning(true);
+    setTargetNumber(targetNumber);
+
     playSpinSound();
     const countdownText = document.querySelector('.countdown-text');
     countdownText.textContent = `Rolling...`;
@@ -140,6 +145,35 @@ function Roulette () {
 
     }, 13000);
   };
+
+useEffect(() => {
+  const handleResize = () => {
+    if (spinning && targetNumber !== null) {
+      const container = numbersContainerRef.current;
+      const targetIndex = numbers.findIndex((num) => num.value === targetNumber);
+      const containerWidth = container.parentElement.offsetWidth;
+      const newTargetOffset = calculateTargetOffset(targetIndex, containerWidth);
+
+      const currentTransform = getComputedStyle(container).transform;
+      const matrixValues = currentTransform.match(/matrix.*\((.+)\)/);
+      const currentTranslateX = matrixValues ? parseFloat(matrixValues[1].split(', ')[4]) : 0;
+
+      const remainingDistance = newTargetOffset - currentTranslateX;
+      const remainingTime = (remainingDistance / (currentOffset - currentTranslateX)) * 10000;
+
+      container.style.transition = `transform ${remainingTime}ms cubic-bezier(0.4, 0.0, 0.2, 1)`;
+      container.style.transform = `translateX(-${newTargetOffset}px)`;
+
+      setCurrentOffset(newTargetOffset);
+    }
+  };
+
+  window.addEventListener('resize', handleResize);
+
+  return () => {
+    window.removeEventListener('resize', handleResize);
+  };
+}, [spinning, targetNumber, currentOffset]);
 
   ///////////////////////////////
   //         SOUNDS            //
@@ -487,6 +521,26 @@ function Roulette () {
       wagerInput.value = userBalance;
     }
   };
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (spinning && chosenNumber !== null) {
+        const container = numbersContainerRef.current;
+        const targetIndex = numbers.findIndex((num) => num.value === chosenNumber);
+        const containerWidth = container.parentElement.offsetWidth;
+        const targetOffset = calculateTargetOffset(targetIndex, containerWidth);
+
+        container.style.transition = "none";
+        container.style.transform = `translateX(-${targetOffset}px)`;
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [spinning, chosenNumber]);
 
   return (
     <div className="roulette-page">

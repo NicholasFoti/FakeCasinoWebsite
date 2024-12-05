@@ -310,10 +310,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
   background-color: #0c0c0c;
   border-radius: 15px;
-  margin: 20px;
   width: calc(100% - 280px);
   max-width: 1000px;
 }
@@ -370,6 +368,7 @@
   height: 100%;
   transform: translateX(0);
   will-change: transform;
+  width: fit-content;
 }
 
 .number {
