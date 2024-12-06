@@ -76,15 +76,26 @@
   flex-direction: row;
 }
 
+.header-button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: color 0.3s;
+  gap: 2px;
+}
+
 .header-buttons a {
   position: relative;
   color: #8e8f8f;
   text-decoration: none;
-  transition: color 0.3s;
   padding-bottom: 5px;
 }
 
-.header-buttons a:hover {
+.header-button:hover {
+  color: #ffffff;
+}
+
+.header-button:hover .header-icon {
   color: #f03e3e;
 }
 
@@ -101,10 +112,6 @@
 
 .header-buttons a:hover::after {
   width: 100%;
-}
-
-.home-button:hover {
-  color: #f03e3e;
 }
 
 .auth-buttons {

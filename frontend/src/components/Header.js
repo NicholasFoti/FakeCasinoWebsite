@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faCoins } from '@fortawesome/free-solid-svg-icons';
+import { faCoins, faHouse, faDice, faDiamond, faClover } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './Header.css';
 
@@ -65,10 +64,10 @@ const Header = () => {
         <Link to="/" className="header-logo"><img src={logo} alt="Fake Casino" /></Link>
       </div>
       <div className="header-buttons">
-        <Link className="home-button" to="/">Home</Link>
-        <Link className="home-button" to="/roulette">Roulette</Link>
-        <Link className="home-button" to="/blackjack">Blackjack</Link>
-        <Link className="home-button" to="/slots">Slots</Link>
+        <Link className="home-button header-button" to="/"><FontAwesomeIcon className="header-icon" icon={faHouse} />Home</Link>
+        <Link className="roulette-button header-button" to="/roulette"><FontAwesomeIcon className="header-icon" icon={faDice} />Roulette</Link>
+        <Link className="blackjack-button header-button" to="/blackjack"><FontAwesomeIcon className="header-icon" icon={faDiamond} />Blackjack</Link>
+        <Link className="slots-button header-button" to="/slots"><FontAwesomeIcon className="header-icon" icon={faClover} />Slots</Link>
       </div>
       <div className="logged-in-info">
         {user ? (
