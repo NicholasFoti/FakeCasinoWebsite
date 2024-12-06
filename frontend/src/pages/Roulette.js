@@ -42,7 +42,7 @@ function Roulette () {
     const numberWidth = 80;
     const totalNumbers = baseNumbers.length;
     const spins = 3;
-    const dramaticMultiplier = [2.1, 2.2][Math.floor(Math.random() * 2)];
+    const dramaticMultiplier = [2.12, 2.2][Math.floor(Math.random() * 2)];
 
     if (window.innerWidth >= 1900) {
       return (
@@ -96,7 +96,7 @@ function Roulette () {
     const containerWidth = container.parentElement.offsetWidth;
     const targetOffset = calculateTargetOffset(targetIndex, containerWidth);
 
-    container.style.transition = "transform 10s cubic-bezier(0.4, 0.0, 0.2, 1)";
+    container.style.transition = "transform 10s cubic-bezier(0.4, 0.0, 0.15, 0.985)";
     container.style.transform = `translateX(-${targetOffset}px)`;
 
     setSpinning(true);
