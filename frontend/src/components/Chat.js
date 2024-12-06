@@ -79,6 +79,7 @@ const Chat = () => {
             <div className="chat-message-header">
               <FontAwesomeIcon icon={faUser} style={{ color: "#ff5757" }} />
               <span className="chat-username">{msg.username}</span>
+              <span className="chat-timestamp">{new Date(msg.timestamp).toLocaleTimeString()}</span>
             </div>
             <div className="chat-message-text">{msg.text}</div>
           </div>
