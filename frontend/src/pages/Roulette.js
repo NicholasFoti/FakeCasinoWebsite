@@ -44,12 +44,47 @@ function Roulette () {
     const spins = 3;
     const dramaticMultiplier = [2.1, 2.2][Math.floor(Math.random() * 2)];
 
-    return (
-      spins * totalNumbers * numberWidth +
-      targetIndex * numberWidth +
-      (containerWidth / 2) - (numberWidth / 2) +
-      (numberWidth * 3.34) * dramaticMultiplier
-    );
+    if (window.innerWidth >= 1900) {
+      return (
+        spins * totalNumbers * numberWidth +
+        targetIndex * numberWidth +
+        (containerWidth / 2) - (numberWidth / 2) +
+        (numberWidth * 2) * dramaticMultiplier
+      );
+    } else if (window.innerWidth >= 1600) {
+      return (
+        spins * totalNumbers * numberWidth +
+        targetIndex * numberWidth +
+        (containerWidth / 2) - (numberWidth / 2) +
+        (numberWidth * 3.34) * dramaticMultiplier
+      );
+    } else if (window.innerWidth >= 1450) {
+      const dramaticMultiplier = [2.3, 2.4][Math.floor(Math.random() * 2)];
+      return (
+        spins * totalNumbers * numberWidth +
+        targetIndex * numberWidth +
+        (containerWidth / 2) - (numberWidth / 2) +
+        (numberWidth * 3.34) * dramaticMultiplier
+      );
+    }
+    else if (window.innerWidth >= 1200) {
+      const dramaticMultiplier = [2.7, 2.8][Math.floor(Math.random() * 2)];
+      return (
+        spins * totalNumbers * numberWidth +
+        targetIndex * numberWidth +
+        (containerWidth / 2) - (numberWidth / 2) +
+        (numberWidth * 3.34) * dramaticMultiplier
+      );
+    }
+    else {
+      const dramaticMultiplier = [2.9, 3][Math.floor(Math.random() * 2)];
+      return (
+        spins * totalNumbers * numberWidth +
+        targetIndex * numberWidth +
+        (containerWidth / 2) - (numberWidth / 2) +
+        (numberWidth * 3.34) * dramaticMultiplier
+      );
+    }
   };
 
   const spinToNumber = (targetNumber) => {
