@@ -325,6 +325,7 @@
   border-radius: 10px;
   overflow: hidden;
   background-color: #2a2a2a;
+  justify-content: center;
 }
 
 .center-marker {
@@ -363,8 +364,7 @@
 
 .roulette-wheel {
   display: flex;
-  position: absolute;
-  left: 0;
+  position: relative;
   height: 100%;
   transform: translateX(0);
   will-change: transform;
