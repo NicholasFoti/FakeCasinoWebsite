@@ -1,11 +1,9 @@
 import React, { useRef, useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { library } from '@fortawesome/fontawesome-svg-core';
 import { faMoneyBill1Wave, faUser } from '@fortawesome/free-solid-svg-icons';
 import winSound from '../sounds/money.mp3';
 import spinSound from '../sounds/spinWheel.mp3';
 import Chat from '../components/Chat';
-import Leaderboard from '../components/Leaderboard';
 
 import "./Roulette.css";
 

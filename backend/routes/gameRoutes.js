@@ -142,12 +142,24 @@ router.post('/update-winnings', async (req, res) => {
 router.get('/leaderboard', async (req, res) => {
   try {
     const leaderboardData = await pool.query(
-      'SELECT username, balance FROM user_details ORDER BY balance DESC LIMIT 10'
+      'SELECT username, total_winnings, total_losses FROM user_details ORDER BY total_winnings - total_losses DESC LIMIT 10'
     );
     res.json({ leaders: leaderboardData.rows });
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
     res.status(500).json({ message: 'Server error while fetching leaderboard' });
+  }
+});
+
+router.get('/leaderboard/wins', async (req, res) => {
+  try {
+    const leaderboardData = await pool.query(
+      'SELECT username, bets_won FROM user_details ORDER BY bets_won DESC LIMIT 10'
+    );
+    res.json({ leaders: leaderboardData.rows });
+  } catch (error) {
+    console.error('Error fetching wins leaderboard:', error);
+    res.status(500).json({ message: 'Server error while fetching wins leaderboard' });
   }
 });
 

@@ -10,6 +10,7 @@ import Roulette from './pages/Roulette';
 import Blackjack from './pages/Blackjack';
 import Slots from './pages/Slots';
 import Footer from './components/Footer';
+import Leaderboard from './components/Leaderboard';
 import { connectSocket, disconnectSocket } from './services/socket';
 
 function App() {
@@ -62,6 +63,7 @@ function App() {
             <Route path="/blackjack" element={<Blackjack />} />
             <Route path="/slots" element={<Slots />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
           </Routes>
         </main>
         <Footer />
