@@ -129,12 +129,7 @@ router.post('/process-roulette-bets', async (req, res) => {
 
 router.post('/update-winnings', async (req, res) => {
     const { userId, winAmount, lossAmount } = req.body;
-    if (winAmount > 0) {
-        await pool.query('UPDATE user_details SET total_winnings = total_winnings + $1 WHERE id = $2', [winAmount, userId]);
-    }
-    else {
-        await pool.query('UPDATE user_details SET total_losses = total_losses + $1 WHERE id = $2', [lossAmount, userId]);
-    }
+    await pool.query('UPDATE user_details SET total_winnings = total_winnings + $1, total_losses = total_losses + $2 WHERE id = $3', [winAmount, lossAmount, userId]);
 
     res.json({ message: 'Winnings updated successfully' });
 });

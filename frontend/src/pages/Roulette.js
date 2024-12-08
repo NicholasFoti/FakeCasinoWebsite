@@ -232,6 +232,33 @@ function Roulette () {
       }
     }
 
+    const totalBetAmount = Array.from(document.querySelectorAll('.total-amount'))
+    .reduce((sum, element) => sum + parseFloat(element.textContent), 0);
+
+    const totalBetAmountWon = Array.from(document.querySelectorAll('.total-amount'))
+      .filter(element => {
+        if (targetNumber === 0) {
+          return element.classList.contains('total-amount-green');
+        } else if (targetNumber % 2 === 0) {
+          return element.classList.contains('total-amount-black');
+        } else {
+          return element.classList.contains('total-amount-red');
+        }
+      })
+      .reduce((sum, element) => {
+        const amount = parseFloat(element.textContent);
+        if (targetNumber === 0) {
+          console.log('its zero');
+          return sum + (amount * 14 - amount);
+        } else {
+          return sum + amount;
+        }
+      }, 0);
+
+    const netLoss = Math.max(totalBetAmount - totalBetAmountWon, 0);
+    console.log(netLoss);
+    console.log(totalBetAmountWon);
+
     for (const container of allBetElements) {
       const nameElement = container.querySelector('[class*="-name"]');
       const amountElement = container.querySelector('[class*="-amount"]');
@@ -240,30 +267,6 @@ function Roulette () {
       
       const betterName = nameElement.textContent.trim();
       const amount = parseFloat(amountElement.textContent);
-      
-      const totalBetAmountLost = Array.from(document.querySelectorAll('.total-amount'))
-        .filter(element => {
-          if (targetNumber === 0) {
-            return !element.classList.contains('total-amount-green');
-          } else if (targetNumber % 2 === 0) {
-            return !element.classList.contains('total-amount-black');
-          } else {
-            return !element.classList.contains('total-amount-red');
-          }
-        })
-        .reduce((sum, element) => sum + parseFloat(element.textContent), 0);
-
-      const totalBetAmountWon = Array.from(document.querySelectorAll('.total-amount'))
-        .filter(element => {
-          if (targetNumber === 0) {
-            return element.classList.contains('total-amount-green');
-          } else if (targetNumber % 2 === 0) {
-            return element.classList.contains('total-amount-black');
-          } else {
-            return element.classList.contains('total-amount-red');
-          }
-        })
-        .reduce((sum, element) => sum + parseFloat(element.textContent), 0);
       
       if (!betterName || !amount) continue;
 
@@ -302,25 +305,15 @@ function Roulette () {
           } catch (error) {
             console.error('Error updating balance for winner:', error);
           }
-          try {
-            await updateWinnings(totalBetAmountWon, 0);
-          } catch (error) {
-            console.error('Error updating winnings for winner:', error);
-          }
-        }
-        else {
-          try {
-            await updateBalance(-winnings);
-          } catch (error) {
-            console.error('Error updating balance for loser:', error);
-          }
-          try {
-            await updateWinnings(0, totalBetAmountLost);
-          } catch (error) {
-            console.error('Error updating winnings for loser:', error);
-          }
         }
       }
+    }
+
+    //Update total_winnings and total_losses in database
+    try{
+      await updateWinnings(totalBetAmountWon, netLoss);
+    } catch (error) {
+      console.error('Error updating winnings:', error);
     }
   }
 
