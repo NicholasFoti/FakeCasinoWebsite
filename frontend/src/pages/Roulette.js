@@ -5,6 +5,7 @@ import { faMoneyBill1Wave, faUser } from '@fortawesome/free-solid-svg-icons';
 import winSound from '../sounds/money.mp3';
 import spinSound from '../sounds/spinWheel.mp3';
 import Chat from '../components/Chat';
+import Leaderboard from '../components/Leaderboard';
 
 import "./Roulette.css";
 
@@ -242,6 +243,30 @@ function Roulette () {
       const betterName = nameElement.textContent.trim();
       const amount = parseFloat(amountElement.textContent);
       
+      const totalBetAmountLost = Array.from(document.querySelectorAll('.total-amount'))
+        .filter(element => {
+          if (targetNumber === 0) {
+            return !element.classList.contains('total-amount-green');
+          } else if (targetNumber % 2 === 0) {
+            return !element.classList.contains('total-amount-black');
+          } else {
+            return !element.classList.contains('total-amount-red');
+          }
+        })
+        .reduce((sum, element) => sum + parseFloat(element.textContent), 0);
+
+      const totalBetAmountWon = Array.from(document.querySelectorAll('.total-amount'))
+        .filter(element => {
+          if (targetNumber === 0) {
+            return element.classList.contains('total-amount-green');
+          } else if (targetNumber % 2 === 0) {
+            return element.classList.contains('total-amount-black');
+          } else {
+            return element.classList.contains('total-amount-red');
+          }
+        })
+        .reduce((sum, element) => sum + parseFloat(element.textContent), 0);
+      
       if (!betterName || !amount) continue;
 
       let winnings = 0;
@@ -278,6 +303,23 @@ function Roulette () {
             }
           } catch (error) {
             console.error('Error updating balance for winner:', error);
+          }
+          try {
+            await updateWinnings(totalBetAmountWon, 0);
+          } catch (error) {
+            console.error('Error updating winnings for winner:', error);
+          }
+        }
+        else {
+          try {
+            await updateBalance(-winnings);
+          } catch (error) {
+            console.error('Error updating balance for loser:', error);
+          }
+          try {
+            await updateWinnings(0, totalBetAmountLost);
+          } catch (error) {
+            console.error('Error updating winnings for loser:', error);
           }
         }
       }
@@ -465,7 +507,25 @@ function Roulette () {
     } catch (error) {
         console.error('Error updating bet stats:', error);
     }
+  };
+
+  // Update winnings in database
+  async function updateWinnings(winAmount, lossAmount) {
+    const apiUrl = process.env.NODE_ENV === 'production' ? 'https://fakecasinowebsite.onrender.com/api/game/update-winnings' : 'http://localhost:3001/api/game/update-winnings';
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId: JSON.parse(localStorage.getItem('user')).id, winAmount, lossAmount })
+    });
+    return response;
   }
+
+  //////////////////////////////
+  //   WAGER BUTTON HELPERS   //
+  //////////////////////////////
 
   function handleClearBet() {
     const wagerInput = document.querySelector('.wager-input input');

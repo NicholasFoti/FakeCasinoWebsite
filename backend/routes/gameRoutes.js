@@ -127,43 +127,28 @@ router.post('/process-roulette-bets', async (req, res) => {
     }
 });
 
-router.post('/resolve-roulette-spin', async (req, res) => {
-    try {
-        const { userId, winAmount, won } = req.body;
-
-        // Update balance if there are winnings
-        if (winAmount > 0) {
-            await pool.query(
-                'UPDATE user_details SET balance = balance + $1 WHERE id = $2',
-                [winAmount, userId]
-            );
-        }
-
-        // Update bet statistics
-        await pool.query(
-            `UPDATE user_details SET bets_${won ? 'won' : 'lost'} = bets_${won ? 'won' : 'lost'} + 1 WHERE id = $1`,
-            [userId]
-        );
-
-        // Clear active bets
-        await pool.query(
-            'DELETE FROM active_roulette_bets WHERE user_id = $1',
-            [userId]
-        );
-
-        const userData = await pool.query(
-            'SELECT balance, bets_won, bets_lost FROM user_details WHERE id = $1',
-            [userId]
-        );
-
-        res.json({
-            message: 'Spin resolved successfully',
-            userData: userData.rows[0]
-        });
-    } catch (error) {
-        console.error('Error resolving roulette spin:', error);
-        res.status(500).json({ message: 'Server error while resolving spin' });
+router.post('/update-winnings', async (req, res) => {
+    const { userId, winAmount, lossAmount } = req.body;
+    if (winAmount > 0) {
+        await pool.query('UPDATE user_details SET total_winnings = total_winnings + $1 WHERE id = $2', [winAmount, userId]);
     }
+    else {
+        await pool.query('UPDATE user_details SET total_losses = total_losses + $1 WHERE id = $2', [lossAmount, userId]);
+    }
+
+    res.json({ message: 'Winnings updated successfully' });
+});
+
+router.get('/leaderboard', async (req, res) => {
+  try {
+    const leaderboardData = await pool.query(
+      'SELECT username, balance FROM user_details ORDER BY balance DESC LIMIT 10'
+    );
+    res.json({ leaders: leaderboardData.rows });
+  } catch (error) {
+    console.error('Error fetching leaderboard:', error);
+    res.status(500).json({ message: 'Server error while fetching leaderboard' });
+  }
 });
 
 module.exports = router;
