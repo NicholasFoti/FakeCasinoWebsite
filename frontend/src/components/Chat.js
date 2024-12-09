@@ -57,16 +57,15 @@ const Chat = () => {
 
   const sendMessage = async () => {
     const maxLength = 100;
-    const token = JSON.parse(localStorage.getItem('token'));
+    const user = JSON.parse(localStorage.getItem('user'));
 
-    if (!token) {
+    if (!user) {
       alert('Please login to send a message.');
       return;
     }
     
     if (input.trim() && input.length <= maxLength) {
-
-      const username = JSON.parse(localStorage.getItem('user')).username;
+      const username = user.username;
       socket.emit('chatMessage', { username, text: input });
 
       await updateChatDatabase(username, input);
