@@ -36,3 +36,20 @@ export const disconnectSocket = () => {
     socket.disconnect();
   }
 };
+
+// Add these after the existing socket setup
+socket.on('roulette_state', (state) => {
+  window.dispatchEvent(new CustomEvent('rouletteState', { detail: state }));
+});
+
+socket.on('new_bet', (betData) => {
+  window.dispatchEvent(new CustomEvent('newBet', { detail: betData }));
+});
+
+socket.on('roll_result', (result) => {
+  window.dispatchEvent(new CustomEvent('rollResult', { detail: result }));
+});
+
+export const emitBet = (betData) => {
+  socket.emit('place_bet', betData);
+};

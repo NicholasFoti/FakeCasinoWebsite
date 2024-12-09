@@ -57,6 +57,19 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
   });
+
+  // Send current game state to new connections
+  socket.emit('roulette_state', gameState);
+  
+  socket.on('place_bet', (betData) => {
+    const { color, amount, username } = betData;
+    if (!gameState.currentBets[color][username]) {
+      gameState.currentBets[color][username] = 0;
+    }
+    gameState.currentBets[color][username] += amount;
+    
+    io.emit('new_bet', gameState.currentBets);
+  });
 });
 
 io.engine.on('connection_error', (err) => {
@@ -72,6 +85,58 @@ cron.schedule('0 0 * * *', async () => {
     console.error('Error deleting chat messages:', error);
   }
 });
+
+const gameState = {
+  countdown: 10,
+  spinning: false,
+  previousRolls: [],
+  currentBets: {
+    red: {},
+    black: {},
+    green: {}
+  },
+  lastUpdated: Date.now()
+};
+
+let gameInterval;
+
+const startGameLoop = () => {
+  gameInterval = setInterval(() => {
+    if (!gameState.spinning) {
+      if (gameState.countdown > 0) {
+        gameState.countdown -= 1;
+        io.emit('roulette_state', gameState);
+      }
+      
+      if (gameState.countdown <= 0) {
+        gameState.spinning = true;
+        const result = Math.floor(Math.random() * 37);
+        io.emit('roulette_state', gameState);
+        
+        io.emit('roll_result', {
+          number: result,
+          previousRolls: gameState.previousRolls
+        });
+        
+        setTimeout(() => {
+          gameState.previousRolls.unshift(result);
+          if (gameState.previousRolls.length > 10) {
+            gameState.previousRolls.pop();
+          }
+          
+          // Reset for next round
+          gameState.spinning = false;
+          gameState.countdown = 10;
+          gameState.currentBets = { red: {}, black: {}, green: {} };
+          
+          io.emit('roulette_state', gameState);
+        }, 13000);
+      }
+    }
+  }, 1000);
+};
+
+startGameLoop();
 
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {

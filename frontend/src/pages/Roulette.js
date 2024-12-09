@@ -8,23 +8,17 @@ import Chat from '../components/Chat';
 import "./Roulette.css";
 
 function Roulette () {
-  const [chosenNumber, setChosenNumber] = useState(null);
+  const [gameState, setGameState] = useState({
+    countdown: 10,
+    spinning: false,
+    previousRolls: [],
+    currentBets: {
+      red: {},
+      black: {},
+      green: {}
+    }
+  });
   const numbersContainerRef = useRef();
-  const [spinning, setSpinning] = useState(false);
-  const [countdown, setCountdown] = useState(10);
-  const [targetNumber, setTargetNumber] = useState(null);
-  const [currentOffset, setCurrentOffset] = useState(0);
-  const [betHistory, setBetHistory] = useState([]);
-  const [uniqueBetters, setUniqueBetters] = useState({
-    red: new Set(),
-    black: new Set(),
-    green: new Set()
-  });
-  const [betSums, setBetSums] = useState({
-    red: {},
-    black: {},
-    green: {}
-  });
 
   const baseNumbers = Array.from({ length: 37 }, (_, i) => ({
     value: i,
@@ -98,8 +92,10 @@ function Roulette () {
     container.style.transition = "transform 10s cubic-bezier(0.4, 0.0, 0.15, 0.985)";
     container.style.transform = `translateX(-${targetOffset}px)`;
 
-    setSpinning(true);
-    setTargetNumber(targetNumber);
+    setGameState(prev => ({
+      ...prev,
+      spinning: true
+    }));
 
     playSpinSound();
     const countdownText = document.querySelector('.countdown-text');
@@ -135,12 +131,10 @@ function Roulette () {
     setTimeout(() => {
       container.style.transition = "none";
       container.style.transform = "translateX(0px)";
-      setSpinning(false);
-      setCountdown(10);
-      setBetHistory(prevHistory => {
-        const newHistory = [...prevHistory, targetNumber];
-        return newHistory.slice(-10);
-      });
+      setGameState(prev => ({
+        ...prev,
+        spinning: false
+      }));
       const allBetElements = document.querySelectorAll('.placed-red-name, .placed-black-name, .placed-green-name, .placed-red-amount, .placed-black-amount, .placed-green-amount');
       allBetElements.forEach(element => {
         element.textContent = '';
@@ -156,11 +150,14 @@ function Roulette () {
       countdownBar.style.transition = 'none';
       countdownBar.style.width = '100%';
 
-      setUniqueBetters({
-        red: new Set(),
-        black: new Set(),
-        green: new Set()
-      });
+      setGameState(prev => ({
+        ...prev,
+        currentBets: {
+          red: {},
+          black: {},
+          green: {}
+        }
+      }));
       
       const totalBettersElements = document.querySelectorAll('.total-betters-red span, .total-betters-black span, .total-betters-green span');
       totalBettersElements.forEach(element => {
@@ -325,28 +322,14 @@ function Roulette () {
     const countdownText = document.querySelector('.countdown-text');
     const countdownBar = document.querySelector('.countdown-bar');
 
-    if (countdown === 10 && !spinning) {
-      countdownBar.style.transition = 'none';
-      countdownBar.style.width = '100%';
-      void countdownBar.offsetHeight;
+    if (gameState.spinning) {
+      countdownText.textContent = 'Rolling...';
+    } else {
+      countdownText.textContent = `Rolling in ${gameState.countdown}...`;
       countdownBar.style.transition = 'width 1s linear';
+      countdownBar.style.width = `${(gameState.countdown) * 10}%`;
     }
-
-    if (countdown > 0) {
-      countdownBar.style.transition = 'width 1s linear';
-      countdownText.textContent = `Rolling in ${countdown}...`;
-      countdownBar.style.width = `${(countdown - 1) * 10}%`;
-
-      const timer = setTimeout(() => {
-        setCountdown(prev => prev - 1);
-      }, 1000);
-      return () => clearTimeout(timer);
-    } else if (!spinning) {
-      const randomNumber = Math.floor(Math.random() * 37);
-      setChosenNumber(randomNumber);
-      spinToNumber(randomNumber);
-    }
-  }, [countdown, spinning]);
+  }, [gameState.countdown, gameState.spinning]);
 
   ///////////////////////////////
   //         BETS              //
@@ -358,7 +341,7 @@ function Roulette () {
       return;
     }
 
-    if (spinning) {
+    if (gameState.spinning) {
       alert('Please wait for the current spin to complete');
       return;
     }
@@ -417,14 +400,16 @@ function Roulette () {
     currentTotalBetElement.textContent = `${totalBet.toFixed(2)}`;
 
     const currentTotalBettersElement = document.querySelector(`.total-betters-${color} span`);
-    setUniqueBetters(prev => {
-      const newUniqueBetters = { ...prev };
-      if (!prev[color].has(bettersName)) {
-        newUniqueBetters[color] = new Set([...prev[color], bettersName]);
-        currentTotalBettersElement.textContent = newUniqueBetters[color].size;
+    setGameState(prev => ({
+      ...prev,
+      currentBets: {
+        ...prev.currentBets,
+        [color]: {
+          ...prev.currentBets[color],
+          [bettersName]: wagerAmount
+        }
       }
-      return newUniqueBetters;
-    });
+    }));
 
     const totalAmountElement = document.querySelector(`.total-amount-${color} span`);
     if (totalAmountElement) {
@@ -582,22 +567,54 @@ function Roulette () {
     }
   };
 
+  useEffect(() => {
+    const handleRouletteState = (event) => {
+      setGameState(event.detail);
+    };
+
+    const handleNewBet = (event) => {
+      setGameState(prev => ({
+        ...prev,
+        currentBets: event.detail
+      }));
+    };
+
+    const handleRollResult = (event) => {
+      const { number, previousRolls } = event.detail;
+      spinToNumber(number);
+      setGameState(prev => ({
+        ...prev,
+        previousRolls
+      }));
+    };
+
+    window.addEventListener('rouletteState', handleRouletteState);
+    window.addEventListener('newBet', handleNewBet);
+    window.addEventListener('rollResult', handleRollResult);
+
+    return () => {
+      window.removeEventListener('rouletteState', handleRouletteState);
+      window.removeEventListener('newBet', handleNewBet);
+      window.removeEventListener('rollResult', handleRollResult);
+    };
+  }, []);
+
   return (
     <div className="roulette-page">
       <Chat />
       <div className="roulette-container">
         <div className="countdown-container">
-          <div className="countdown-text">{countdown}</div>
+          <div className="countdown-text">{gameState.countdown}</div>
           <div className="countdown-bar"></div>
         </div>
         <div className="roll-list">
           <h2>Previous rolls:</h2>
           <div className="roll-item">
-            {betHistory.slice(-10).reverse().map((roll, index) => {
+            {gameState.previousRolls.slice(-10).reverse().map((roll, index) => {
               const color = roll === 0 ? "green" : roll % 2 === 0 ? "black" : "red";
               return (
                 <span 
-                  key={`${roll}-${betHistory.length}-${index}`} 
+                  key={`${roll}-${gameState.previousRolls.length}-${index}`} 
                   className={`${color} ${index === 0 ? 'new-roll' : ''}`}
                 >
                   {roll}
