@@ -22,7 +22,8 @@ function App() {
       if (token && user) {
         try {
           const userId = JSON.parse(user).id;
-          const response = await fetch(`http://localhost:3001/api/auth/user/${userId}`, {
+          const apiUrl = process.env.NODE_ENV === 'production' ? `https://fakecasinowebsite.onrender.com/api/auth/user/${userId}` : `http://localhost:3001/api/auth/user/${userId}`;
+          const response = await fetch(apiUrl, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
