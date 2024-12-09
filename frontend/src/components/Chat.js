@@ -57,7 +57,7 @@ const Chat = () => {
 
   const sendMessage = async () => {
     const maxLength = 100;
-    const token = JSON.parse(localStorage.getItem('user')).token;
+    const token = JSON.parse(localStorage.getItem('token'));
 
     if (!token) {
       alert('Please login to send a message.');
