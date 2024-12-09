@@ -68,7 +68,22 @@ io.on('connection', (socket) => {
     }
     gameState.currentBets[color][username] += amount;
     
-    io.emit('new_bet', gameState.currentBets);
+    // Calculate totals for each color
+    const totals = {
+      red: { amount: 0, betters: 0 },
+      black: { amount: 0, betters: 0 },
+      green: { amount: 0, betters: 0 }
+    };
+
+    Object.entries(gameState.currentBets).forEach(([color, bets]) => {
+      totals[color].betters = Object.keys(bets).length;
+      totals[color].amount = Object.values(bets).reduce((sum, bet) => sum + bet, 0);
+    });
+    
+    io.emit('bet_update', {
+      currentBets: gameState.currentBets,
+      totals: totals
+    });
   });
 });
 
@@ -140,12 +155,6 @@ const startGameLoop = () => {
           gameState.spinning = false;
           gameState.countdown = 10;
           gameState.currentBets = { red: {}, black: {}, green: {} };
-          gameState.currentSpin = {
-            inProgress: false,
-            number: null,
-            startTime: null,
-            duration: 13000
-          };
           
           io.emit('roulette_state', gameState);
         }, 13000);

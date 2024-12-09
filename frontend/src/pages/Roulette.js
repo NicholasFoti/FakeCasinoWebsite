@@ -659,10 +659,48 @@ function Roulette () {
     };
   }, []);
 
+  useEffect(() => {
+    const handleBetUpdate = (event) => {
+      const { currentBets, totals } = event.detail;
+      
+      // Update current bets state
+      setGameState(prev => ({
+        ...prev,
+        currentBets
+      }));
+
+      // Update total betters and amounts for each color
+      Object.entries(totals).forEach(([color, data]) => {
+        const totalBettersElement = document.querySelector(`.total-betters-${color} .betters-info span`);
+        const totalAmountElement = document.querySelector(`.total-amount-${color} span`);
+        const totalPlacedElement = document.querySelector(`.total-placed-${color} span`);
+        
+        if (totalBettersElement) totalBettersElement.textContent = data.betters;
+        if (totalAmountElement) totalAmountElement.textContent = data.amount.toFixed(2);
+        if (totalPlacedElement) totalPlacedElement.textContent = data.amount.toFixed(2);
+
+        // Update individual bets display
+        Object.entries(currentBets[color]).forEach(([username, amount]) => {
+          const nameElement = document.querySelector(`.placed-${color}-name`);
+          const amountElement = document.querySelector(`.placed-${color}-amount`);
+          
+          if (nameElement) nameElement.textContent = username;
+          if (amountElement) amountElement.textContent = amount.toFixed(2);
+        });
+      });
+    };
+
+    window.addEventListener('betUpdate', handleBetUpdate);
+    
+    return () => {
+      window.removeEventListener('betUpdate', handleBetUpdate);
+    };
+  }, []);
+
   if (isLoading) {
     return (
       <div className="loading-container">
-        <div className="spinner"></div>
+        <FontAwesomeIcon icon={faSpinner} spin size="3x" />
         <div className="loading-text">Loading...</div>
       </div>
     );
