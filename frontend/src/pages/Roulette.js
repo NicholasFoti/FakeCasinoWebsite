@@ -20,6 +20,10 @@ function Roulette () {
   });
   const numbersContainerRef = useRef();
   const [isLoading, setIsLoading] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
+  const [currentWinAudio, setCurrentWinAudio] = useState(null);
+  const [currentSpinAudio, setCurrentSpinAudio] = useState(null);
+  const [isBetProcessing, setIsBetProcessing] = useState(false);
 
   const baseNumbers = Array.from({ length: 37 }, (_, i) => ({
     value: i,
@@ -105,7 +109,9 @@ function Roulette () {
     } else {
       container.style.transition = "transform 10s cubic-bezier(0.4, 0.0, 0.15, 0.985)";
       container.style.transform = `translateX(-${targetOffset}px)`;
-      playSpinSound();
+      if (!isMuted) {
+        playSpinSound();
+      }
     }
 
     setGameState(prev => ({
@@ -196,14 +202,46 @@ function Roulette () {
   ///////////////////////////////
   
   function playWinSound() {
+    if (isMuted) return;
+    
+    if (currentWinAudio) {
+      currentWinAudio.pause();
+      currentWinAudio.currentTime = 0;
+    }
+    
     const audio = new Audio(winSound);
     audio.play().catch(error => console.error('Error playing win sound:', error));
+    setCurrentWinAudio(audio);
   }
 
   function playSpinSound() {
+    if (isMuted) return;
+    
+    if (currentSpinAudio) {
+      currentSpinAudio.pause();
+      currentSpinAudio.currentTime = 0;
+    }
+    
     const audio = new Audio(spinSound);
     audio.volume = 0.2;
     audio.play().catch(error => console.error('Error playing spin sound:', error));
+    setCurrentSpinAudio(audio);
+  }
+
+  function toggleMute() {
+    setIsMuted(prev => !prev);
+    
+    if (currentWinAudio) {
+      currentWinAudio.pause();
+      currentWinAudio.currentTime = 0;
+      setCurrentWinAudio(null);
+    }
+    
+    if (currentSpinAudio) {
+      currentSpinAudio.pause();
+      currentSpinAudio.currentTime = 0;
+      setCurrentSpinAudio(null);
+    }
   }
 
   ///////////////////////////////
@@ -373,6 +411,8 @@ function Roulette () {
       alert('Please wait for the current spin to complete');
       return;
     }
+
+    setIsBetProcessing(true);
     
     const betButton = document.querySelector(`.bet-${color}`);
     if (betButton.dataset.betting === 'true') {
@@ -459,8 +499,16 @@ function Roulette () {
         alert('Failed to place bet. Please try again.');
     } finally {
         betButton.dataset.betting = 'false';
+        setIsBetProcessing(false);
     }
   };
+
+  useEffect(() => {
+    window.isBetProcessing = isBetProcessing;
+    return () => {
+      window.isBetProcessing = false;
+    };
+  }, [isBetProcessing]);
 
   //////////////////////////////
   //      API CALLS          //
@@ -599,12 +647,12 @@ function Roulette () {
     const handleRouletteState = (event) => {
       const state = event.detail;
       setGameState(state);
-
+      setIsLoading(false);
+  
       if (state.currentSpin?.inProgress) {
         const elapsedTime = Date.now() - state.currentSpin.startTime;
         if (elapsedTime < state.currentSpin.duration) {
           const remainingTime = state.currentSpin.duration - elapsedTime;
-          spinToNumber(state.currentSpin.number, elapsedTime);
           
           const timeoutId = setTimeout(() => {
             const container = numbersContainerRef.current;
@@ -613,19 +661,19 @@ function Roulette () {
               container.style.transform = "translateX(0px)";
             }
           }, remainingTime);
-
+  
           return () => clearTimeout(timeoutId);
         }
       }
     };
-
+  
     const handleNewBet = (event) => {
       setGameState(prev => ({
         ...prev,
         currentBets: event.detail
       }));
     };
-
+  
     const handleRollResult = (event) => {
       const { number, previousRolls } = event.detail;
       spinToNumber(number);
@@ -634,28 +682,15 @@ function Roulette () {
         previousRolls
       }));
     };
-
+  
     window.addEventListener('rouletteState', handleRouletteState);
     window.addEventListener('newBet', handleNewBet);
     window.addEventListener('rollResult', handleRollResult);
-
+  
     return () => {
       window.removeEventListener('rouletteState', handleRouletteState);
       window.removeEventListener('newBet', handleNewBet);
       window.removeEventListener('rollResult', handleRollResult);
-    };
-  }, []);
-
-  useEffect(() => {
-    const handleInitialState = (event) => {
-      setGameState(event.detail);
-      setIsLoading(false);
-    };
-
-    window.addEventListener('rouletteState', handleInitialState);
-    
-    return () => {
-      window.removeEventListener('rouletteState', handleInitialState);
     };
   }, []);
 
@@ -672,6 +707,7 @@ function Roulette () {
     <div className="roulette-page">
       <Chat />
       <div className="roulette-container">
+        <button id="muteButton" className="mute-button" onClick={toggleMute}>Mute</button>
         <div className="countdown-container">
           <div className="countdown-text">{gameState.countdown}</div>
           <div className="countdown-bar"></div>

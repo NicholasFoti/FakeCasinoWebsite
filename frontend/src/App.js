@@ -36,6 +36,8 @@ function App() {
     };
 
     const checkUserData = async () => {
+      if (window.isBetProcessing) return;
+      
       const token = localStorage.getItem('token');
       const user = localStorage.getItem('user');
       
