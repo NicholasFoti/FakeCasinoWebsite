@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from "react";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMoneyBill1Wave, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faMoneyBill1Wave, faUser, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import winSound from '../sounds/money.mp3';
 import spinSound from '../sounds/spinWheel.mp3';
 import Chat from '../components/Chat';
@@ -660,7 +660,12 @@ function Roulette () {
   }, []);
 
   if (isLoading) {
-    return <div className="loading">Loading game state...</div>;
+    return (
+      <div className="loading-container">
+        <div className="spinner"></div>
+        <div className="loading-text">Loading...</div>
+      </div>
+    );
   }
 
   return (
