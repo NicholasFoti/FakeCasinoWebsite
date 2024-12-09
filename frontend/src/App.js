@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 import './App.css';
 import Header from './components/Header';
 import HomePage from './pages/HomePage';
@@ -15,6 +16,25 @@ import { connectSocket, disconnectSocket } from './services/socket';
 
 function App() {
   useEffect(() => {
+
+    const checkTokenExpiration = () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          const decodedToken = jwtDecode(token);
+          const currentTime = Date.now() / 1000;
+          if (decodedToken.exp < currentTime) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            alert('Your session has expired. Please login again.');
+            window.location.href = '/login';
+          }
+        } catch (error) {
+          console.error('Error checking token expiration:', error);
+        }
+      }
+    };
+
     const checkUserData = async () => {
       const token = localStorage.getItem('token');
       const user = localStorage.getItem('user');
@@ -43,6 +63,7 @@ function App() {
       }
     };
 
+    checkTokenExpiration();
     connectSocket();
     checkUserData();
 

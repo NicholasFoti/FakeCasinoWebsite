@@ -15,7 +15,6 @@ export const socket = io(SOCKET_URL, {
 });
 
 socket.on('connect', () => {
-  console.log('Socket connected successfully:', socket.id);
 });
 
 socket.on('connect_error', (error) => {
@@ -23,7 +22,6 @@ socket.on('connect_error', (error) => {
 });
 
 socket.on('disconnect', (reason) => {
-  console.log('Socket disconnected:', reason);
 });
 
 // Export connect/disconnect functions for manual control
