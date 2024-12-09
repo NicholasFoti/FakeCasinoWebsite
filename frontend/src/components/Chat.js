@@ -57,6 +57,13 @@ const Chat = () => {
 
   const sendMessage = async () => {
     const maxLength = 100;
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    if (!user) {
+      alert('Please login to send a message.');
+      return;
+    }
+    
     if (input.trim() && input.length <= maxLength) {
 
       const username = JSON.parse(localStorage.getItem('user')).username;
@@ -91,7 +98,7 @@ const Chat = () => {
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+          onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
           placeholder="Type a message..."
         />
         <button onClick={sendMessage}>Send</button>
