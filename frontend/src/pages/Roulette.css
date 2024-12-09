@@ -473,6 +473,7 @@
   background-color: #f03e3e;
   transition: width 1s linear;
   z-index: 1;
+  will-change: width;
 }
 
 .roulette-page {

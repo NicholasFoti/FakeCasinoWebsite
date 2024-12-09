@@ -19,6 +19,7 @@ function Roulette () {
     }
   });
   const numbersContainerRef = useRef();
+  const [isLoading, setIsLoading] = useState(true);
 
   const baseNumbers = Array.from({ length: 37 }, (_, i) => ({
     value: i,
@@ -80,25 +81,38 @@ function Roulette () {
     }
   };
 
-  const spinToNumber = (targetNumber) => {
+  const spinToNumber = (targetNumber, elapsedTime = 0) => {
     const container = numbersContainerRef.current;
-    const targetIndex = numbers.findIndex((num) => num.value === targetNumber);
+    if (!container) return;
 
+    const countdownText = document.querySelector('.countdown-text');
+    const countdownBar = document.querySelector('.countdown-bar');
+    
+    if (!countdownText || !countdownBar) return;
+
+    const targetIndex = numbers.findIndex((num) => num.value === targetNumber);
     if (targetIndex === -1) return;
 
     const containerWidth = container.parentElement.offsetWidth;
     const targetOffset = calculateTargetOffset(targetIndex, containerWidth);
 
-    container.style.transition = "transform 10s cubic-bezier(0.4, 0.0, 0.15, 0.985)";
-    container.style.transform = `translateX(-${targetOffset}px)`;
+    if (elapsedTime > 0) {
+      const progress = elapsedTime / 10000;
+      const currentOffset = targetOffset * progress;
+      
+      container.style.transition = `transform ${10000 - elapsedTime}ms cubic-bezier(0.4, 0.0, 0.15, 0.985)`;
+      container.style.transform = `translateX(-${targetOffset}px)`;
+    } else {
+      container.style.transition = "transform 10s cubic-bezier(0.4, 0.0, 0.15, 0.985)";
+      container.style.transform = `translateX(-${targetOffset}px)`;
+      playSpinSound();
+    }
 
     setGameState(prev => ({
       ...prev,
       spinning: true
     }));
 
-    playSpinSound();
-    const countdownText = document.querySelector('.countdown-text');
     countdownText.textContent = `Rolling...`;
 
     setTimeout(() => {
@@ -322,12 +336,26 @@ function Roulette () {
     const countdownText = document.querySelector('.countdown-text');
     const countdownBar = document.querySelector('.countdown-bar');
 
+    if (!countdownText || !countdownBar) return;
+
     if (gameState.spinning) {
       countdownText.textContent = 'Rolling...';
     } else {
       countdownText.textContent = `Rolling in ${gameState.countdown}...`;
+      
+      // Reset the bar when countdown starts
+      if (gameState.countdown === 10) {
+        countdownBar.style.transition = 'none';
+        countdownBar.style.width = '100%';
+        // Force reflow
+        void countdownBar.offsetHeight;
+      }
+      
+      // Smooth transition for the countdown
       countdownBar.style.transition = 'width 1s linear';
-      countdownBar.style.width = `${(gameState.countdown) * 10}%`;
+      // Calculate width percentage based on remaining time
+      const widthPercentage = ((gameState.countdown - 1) / 9) * 100;
+      countdownBar.style.width = `${widthPercentage}%`;
     }
   }, [gameState.countdown, gameState.spinning]);
 
@@ -569,7 +597,26 @@ function Roulette () {
 
   useEffect(() => {
     const handleRouletteState = (event) => {
-      setGameState(event.detail);
+      const state = event.detail;
+      setGameState(state);
+
+      if (state.currentSpin?.inProgress) {
+        const elapsedTime = Date.now() - state.currentSpin.startTime;
+        if (elapsedTime < state.currentSpin.duration) {
+          const remainingTime = state.currentSpin.duration - elapsedTime;
+          spinToNumber(state.currentSpin.number, elapsedTime);
+          
+          const timeoutId = setTimeout(() => {
+            const container = numbersContainerRef.current;
+            if (container) {
+              container.style.transition = "none";
+              container.style.transform = "translateX(0px)";
+            }
+          }, remainingTime);
+
+          return () => clearTimeout(timeoutId);
+        }
+      }
     };
 
     const handleNewBet = (event) => {
@@ -599,6 +646,23 @@ function Roulette () {
     };
   }, []);
 
+  useEffect(() => {
+    const handleInitialState = (event) => {
+      setGameState(event.detail);
+      setIsLoading(false);
+    };
+
+    window.addEventListener('rouletteState', handleInitialState);
+    
+    return () => {
+      window.removeEventListener('rouletteState', handleInitialState);
+    };
+  }, []);
+
+  if (isLoading) {
+    return <div className="loading">Loading game state...</div>;
+  }
+
   return (
     <div className="roulette-page">
       <Chat />
@@ -610,7 +674,7 @@ function Roulette () {
         <div className="roll-list">
           <h2>Previous rolls:</h2>
           <div className="roll-item">
-            {gameState.previousRolls.slice(-10).reverse().map((roll, index) => {
+            {gameState.previousRolls.slice(-10).map((roll, index) => {
               const color = roll === 0 ? "green" : roll % 2 === 0 ? "black" : "red";
               return (
                 <span 

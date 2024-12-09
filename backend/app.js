@@ -95,6 +95,12 @@ const gameState = {
     black: {},
     green: {}
   },
+  currentSpin: {
+    inProgress: false,
+    number: null,
+    startTime: null,
+    duration: 13000 // Total animation duration
+  },
   lastUpdated: Date.now()
 };
 
@@ -111,11 +117,18 @@ const startGameLoop = () => {
       if (gameState.countdown <= 0) {
         gameState.spinning = true;
         const result = Math.floor(Math.random() * 37);
-        io.emit('roulette_state', gameState);
+        gameState.currentSpin = {
+          inProgress: true,
+          number: result,
+          startTime: Date.now(),
+          duration: 13000
+        };
         
+        io.emit('roulette_state', gameState);
         io.emit('roll_result', {
           number: result,
-          previousRolls: gameState.previousRolls
+          previousRolls: gameState.previousRolls,
+          startTime: gameState.currentSpin.startTime
         });
         
         setTimeout(() => {
@@ -124,10 +137,15 @@ const startGameLoop = () => {
             gameState.previousRolls.pop();
           }
           
-          // Reset for next round
           gameState.spinning = false;
           gameState.countdown = 10;
           gameState.currentBets = { red: {}, black: {}, green: {} };
+          gameState.currentSpin = {
+            inProgress: false,
+            number: null,
+            startTime: null,
+            duration: 13000
+          };
           
           io.emit('roulette_state', gameState);
         }, 13000);
