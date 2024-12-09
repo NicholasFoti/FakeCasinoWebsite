@@ -45,8 +45,11 @@ function App() {
     connectSocket();
     checkUserData();
 
+    const intervalId = setInterval(checkUserData, 5000);
+  
     return () => {
       disconnectSocket();
+      clearInterval(intervalId);
     };
   }, []);
 

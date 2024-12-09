@@ -91,7 +91,9 @@ router.post('/login', async (req, res) => {
                 balance: user.rows[0].balance,
                 date_created: user.rows[0].date_created,
                 bets_won: user.rows[0].bets_won,
-                bets_lost: user.rows[0].bets_lost
+                bets_lost: user.rows[0].bets_lost,
+                total_winnings: user.rows[0].total_winnings,
+                total_losses: user.rows[0].total_losses
             }
         });
 
@@ -106,7 +108,7 @@ router.get('/user/:id', async (req, res) => {
     const { id } = req.params;
     
     const userResult = await pool.query(
-      'SELECT id, username, balance, date_created, bets_won, bets_lost FROM user_details WHERE id = $1',
+      'SELECT id, username, balance, date_created, bets_won, bets_lost, total_winnings, total_losses FROM user_details WHERE id = $1',
       [id]
     );
 

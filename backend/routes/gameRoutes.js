@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../db/config');
+const authenticateToken = require('../middleware/authMiddleware');
 
-router.post('/update-balance', async (req, res) => {
+router.post('/update-balance', authenticateToken, async (req, res) => {
     try {
         const { userId, amount } = req.body;
         
@@ -59,7 +60,7 @@ router.post('/update-balance', async (req, res) => {
     }
 });
 
-router.post('/update-bet-stats', async (req, res) => {
+router.post('/update-bet-stats', authenticateToken, async (req, res) => {
     try {
         const { userId, won } = req.body;
         
@@ -91,7 +92,7 @@ router.post('/update-bet-stats', async (req, res) => {
     }
 });
 
-router.post('/process-roulette-bets', async (req, res) => {
+router.post('/process-roulette-bets', authenticateToken, async (req, res) => {
     try {
         const { userId, totalBetAmount, bets } = req.body;
         
@@ -127,7 +128,7 @@ router.post('/process-roulette-bets', async (req, res) => {
     }
 });
 
-router.post('/update-winnings', async (req, res) => {
+router.post('/update-winnings', authenticateToken, async (req, res) => {
     const { userId, winAmount, lossAmount } = req.body;
     await pool.query('UPDATE user_details SET total_winnings = total_winnings + $1, total_losses = total_losses + $2 WHERE id = $3', [winAmount, lossAmount, userId]);
 

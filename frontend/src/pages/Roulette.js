@@ -463,6 +463,7 @@ function Roulette () {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
       },
       body: JSON.stringify({
         userId: JSON.parse(localStorage.getItem('user')).id,
@@ -481,6 +482,7 @@ function Roulette () {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
             body: JSON.stringify({
                 userId: JSON.parse(localStorage.getItem('user')).id,
@@ -508,6 +510,7 @@ function Roulette () {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
       },
       body: JSON.stringify({ userId: JSON.parse(localStorage.getItem('user')).id, winAmount, lossAmount })
     });

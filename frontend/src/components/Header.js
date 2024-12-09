@@ -21,6 +21,7 @@ const Header = () => {
 
     const handleStorageChange = () => {
       const updatedUser = localStorage.getItem('user');
+            
       if (updatedUser) {
         const parsedUser = JSON.parse(updatedUser);
         
