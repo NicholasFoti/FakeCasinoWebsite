@@ -47,13 +47,25 @@ function Roulette () {
     const dramaticMultiplier = [2.12, 2.2][Math.floor(Math.random() * 2)];
 
     if (window.innerWidth >= 1900) {
+      console.log('bigger222');
       return (
         spins * totalNumbers * numberWidth +
         targetIndex * numberWidth +
         (containerWidth / 2) - (numberWidth / 2) +
-        (numberWidth * 2) * dramaticMultiplier
+        (numberWidth * 1.9) * dramaticMultiplier
+      );
+    }else if (window.innerWidth >= 1650) {
+      const dramaticMultiplier = [2.3, 2.4][Math.floor(Math.random() * 2)];
+      console.log(dramaticMultiplier);
+      console.log('bigger2');
+      return (
+        spins * totalNumbers * numberWidth +
+        targetIndex * numberWidth +
+        (containerWidth / 2) - (numberWidth / 2) +
+        (numberWidth * 3.34) * dramaticMultiplier
       );
     } else if (window.innerWidth >= 1600) {
+      console.log('bigger3');
       return (
         spins * totalNumbers * numberWidth +
         targetIndex * numberWidth +
