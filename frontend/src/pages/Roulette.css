@@ -130,15 +130,18 @@
 
 .placed-red, .placed-black, .placed-green {
   display: flex;
-  justify-content: center;
-  flex-direction: row;
-  align-items: center;
-  height: 50px;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: stretch;
+  height: auto;
+  max-height: 200px;
+  overflow-y: auto;
   width: 100%;
 }
 
 .placed-red-name, .placed-black-name, .placed-green-name {
   color: white;
+  margin-right: 10px;
 }
 
 .placed-red-amount, .placed-black-amount, .placed-green-amount {
@@ -532,5 +535,43 @@
   margin-top: 20px;
   font-size: 24px;
   font-weight: bold;
+}
+
+.bet-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  border-bottom: 1px solid rgba(139, 139, 139, 0.212);
+}
+
+.bet-entry:last-child {
+  border-bottom: none;
+}
+
+.placed-red-name, .placed-black-name, .placed-green-name {
+  color: white;
+  margin-right: 10px;
+}
+
+.placed-red-amount, .placed-black-amount, .placed-green-amount {
+  color: rgb(151, 151, 151);
+}
+
+.mute-button {
+  position: relative;
+  background: none;
+  top: 5px;
+  right: 20px;
+  border: none;
+  width: 30px;
+  cursor: pointer;
+  color: white;
+  padding: 10px;
+  transition: color 0.2s ease;
+}
+
+.mute-button:hover {
+  color: #888;
 }
 

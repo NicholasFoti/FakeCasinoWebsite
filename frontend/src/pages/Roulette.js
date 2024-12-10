@@ -1,9 +1,11 @@
 import React, { useRef, useState, useEffect } from "react";
+import { socket } from '../services/socket';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMoneyBill1Wave, faUser, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faMoneyBill1Wave, faUser, faVolumeHigh, faVolumeMute } from '@fortawesome/free-solid-svg-icons';
 import winSound from '../sounds/money.mp3';
 import spinSound from '../sounds/spinWheel.mp3';
 import Chat from '../components/Chat';
+
 
 import "./Roulette.css";
 
@@ -104,10 +106,10 @@ function Roulette () {
       const progress = elapsedTime / 10000;
       const currentOffset = targetOffset * progress;
       
-      container.style.transition = `transform ${10000 - elapsedTime}ms cubic-bezier(0.4, 0.0, 0.15, 0.985)`;
+      container.style.transition = `transform ${10000 - elapsedTime}ms cubic-bezier(0.4, 0.0, 0.15, 0.999)`;
       container.style.transform = `translateX(-${targetOffset}px)`;
     } else {
-      container.style.transition = "transform 10s cubic-bezier(0.4, 0.0, 0.15, 0.985)";
+      container.style.transition = "transform 10s cubic-bezier(0.4, 0.0, 0.15, 0.999)";
       container.style.transform = `translateX(-${targetOffset}px)`;
       if (!isMuted) {
         playSpinSound();
@@ -155,6 +157,16 @@ function Roulette () {
         ...prev,
         spinning: false
       }));
+
+      // Clear all bet entries and containers
+      const colors = ['red', 'black', 'green'];
+      colors.forEach(color => {
+        const container = document.querySelector(`.placed-${color}`);
+        if (container !== null) {
+          container.innerHTML = '';
+        }
+      });
+
       const allBetElements = document.querySelectorAll('.placed-red-name, .placed-black-name, .placed-green-name, .placed-red-amount, .placed-black-amount, .placed-green-amount');
       allBetElements.forEach(element => {
         element.textContent = '';
@@ -163,7 +175,7 @@ function Roulette () {
 
       const totalPlaced = document.querySelectorAll('.total-placed-red span, .total-placed-black span, .total-placed-green span');
       totalPlaced.forEach(element => {
-        element.textContent = 0;
+        element.textContent = '0';
       });
 
       const countdownBar = document.querySelector('.countdown-bar');
@@ -202,21 +214,18 @@ function Roulette () {
   ///////////////////////////////
   
   function playWinSound() {
-    if (isMuted) return;
-    
     if (currentWinAudio) {
       currentWinAudio.pause();
       currentWinAudio.currentTime = 0;
     }
     
     const audio = new Audio(winSound);
+    audio.muted = isMuted;
     audio.play().catch(error => console.error('Error playing win sound:', error));
     setCurrentWinAudio(audio);
   }
 
   function playSpinSound() {
-    if (isMuted) return;
-    
     if (currentSpinAudio) {
       currentSpinAudio.pause();
       currentSpinAudio.currentTime = 0;
@@ -224,6 +233,7 @@ function Roulette () {
     
     const audio = new Audio(spinSound);
     audio.volume = 0.2;
+    audio.muted = isMuted;
     audio.play().catch(error => console.error('Error playing spin sound:', error));
     setCurrentSpinAudio(audio);
   }
@@ -232,15 +242,11 @@ function Roulette () {
     setIsMuted(prev => !prev);
     
     if (currentWinAudio) {
-      currentWinAudio.pause();
-      currentWinAudio.currentTime = 0;
-      setCurrentWinAudio(null);
+      currentWinAudio.muted = !currentWinAudio.muted;
     }
     
     if (currentSpinAudio) {
-      currentSpinAudio.pause();
-      currentSpinAudio.currentTime = 0;
-      setCurrentSpinAudio(null);
+      currentSpinAudio.muted = !currentSpinAudio.muted;
     }
   }
 
@@ -259,10 +265,13 @@ function Roulette () {
       const nameElement = container.querySelector('[class*="-name"]');
       const amountElement = container.querySelector('[class*="-amount"]');
       
-      const betterName = nameElement?.textContent?.trim();
-      const amount = parseFloat(amountElement?.textContent);
+      if (!nameElement?.textContent || !amountElement?.textContent) continue;
       
-      // Only check for wins if this is the current user's bet and there's an amount
+      const betterName = nameElement.textContent.trim();
+      const amount = parseFloat(amountElement.textContent);
+      
+      if (!betterName || !amount) continue;
+      
       if (betterName === user.username && amount > 0) {
         let isWinningBet = false;
         
@@ -281,23 +290,23 @@ function Roulette () {
       }
     }
 
-    const totalBetAmount = Array.from(document.querySelectorAll('.total-amount'))
-    .reduce((sum, element) => sum + parseFloat(element.textContent), 0);
+    const totalBetAmount = Array.from(document.querySelectorAll('.total-amount span'))
+      .reduce((sum, element) => sum + (parseFloat(element.textContent) || 0), 0);
 
-    const totalBetAmountWon = Array.from(document.querySelectorAll('.total-amount'))
+    const totalBetAmountWon = Array.from(document.querySelectorAll('.total-amount span'))
       .filter(element => {
+        const parentElement = element.closest('.total-amount');
         if (targetNumber === 0) {
-          return element.classList.contains('total-amount-green');
+          return parentElement.classList.contains('total-amount-green');
         } else if (targetNumber % 2 === 0) {
-          return element.classList.contains('total-amount-black');
+          return parentElement.classList.contains('total-amount-black');
         } else {
-          return element.classList.contains('total-amount-red');
+          return parentElement.classList.contains('total-amount-red');
         }
       })
       .reduce((sum, element) => {
-        const amount = parseFloat(element.textContent);
+        const amount = parseFloat(element.textContent) || 0;
         if (targetNumber === 0) {
-          console.log('its zero');
           return sum + (amount * 14 - amount);
         } else {
           return sum + amount;
@@ -305,14 +314,13 @@ function Roulette () {
       }, 0);
 
     const netLoss = Math.max(totalBetAmount - totalBetAmountWon, 0);
-    console.log(netLoss);
-    console.log(totalBetAmountWon);
 
+    // Process winnings for each bet
     for (const container of allBetElements) {
       const nameElement = container.querySelector('[class*="-name"]');
       const amountElement = container.querySelector('[class*="-amount"]');
       
-      if (!nameElement.textContent || !amountElement.textContent) continue;
+      if (!nameElement?.textContent || !amountElement?.textContent) continue;
       
       const betterName = nameElement.textContent.trim();
       const amount = parseFloat(amountElement.textContent);
@@ -322,21 +330,15 @@ function Roulette () {
       let winnings = 0;
       let won = false;
 
-      if (targetNumber === 0) {
-        if (container.classList.contains('placed-green')) {
-          winnings = amount * 14;
-          won = true;
-        }
-      } else if (targetNumber % 2 === 0) {
-        if (container.classList.contains('placed-black')) {
-          winnings = amount * 2;
-          won = true;
-        }
-      } else {
-        if (container.classList.contains('placed-red')) {
-          winnings = amount * 2;
-          won = true;
-        }
+      if (targetNumber === 0 && container.classList.contains('placed-green')) {
+        winnings = amount * 14;
+        won = true;
+      } else if (targetNumber % 2 === 0 && container.classList.contains('placed-black')) {
+        winnings = amount * 2;
+        won = true;
+      } else if (targetNumber % 2 === 1 && container.classList.contains('placed-red')) {
+        winnings = amount * 2;
+        won = true;
       }
 
       const user = JSON.parse(localStorage.getItem('user'));
@@ -431,77 +433,41 @@ function Roulette () {
       return;
     }
 
-    const userBalance = Number(user.balance);
-    if (wagerAmount > userBalance) {
+    if (wagerAmount > user.balance) {
       betButton.dataset.betting = 'false';
       alert('You do not have enough balance to place this bet');
       return;
     }
 
-    let currentBetElement = document.querySelector(`.placed-${color} span`);
-    let currentBetNameElement = document.querySelector(`.placed-${color} span.placed-${color}-name`);
-    let currentBetAmountElement = document.querySelector(`.placed-${color} span.placed-${color}-amount`);
+    //Update Local Frontend
+    const totalPlaced = document.querySelector(`.total-placed-${color} span`);
+    totalPlaced.textContent = Number(totalPlaced.textContent) + wagerAmount;
 
-    if (!currentBetElement) {
-        const container = document.querySelector(`.placed-${color}`);
-        if (!container) {
-            betButton.dataset.betting = 'false';
-            console.error(`Could not find container for color ${color}`);
-            return;
-        }
-        currentBetElement = document.createElement('span');
-        container.appendChild(currentBetElement);
-    }
-
-    // Update frontend immediately
-    let currentAmount = 0;
-    if (currentBetAmountElement) {
-      currentAmount = Number(Number(currentBetAmountElement.textContent).toFixed(2)) || 0;
-    }
-
-    const totalBet = Number((currentAmount + wagerAmount).toFixed(2));
-  
-    currentBetNameElement.textContent = bettersName;
-    currentBetAmountElement.textContent = `${totalBet.toFixed(2)}`;
-
-    const currentTotalBetElement = document.querySelector(`.total-placed-${color} span`);
-    currentTotalBetElement.textContent = `${totalBet.toFixed(2)}`;
-
-    const currentTotalBettersElement = document.querySelector(`.total-betters-${color} span`);
-    setGameState(prev => ({
-      ...prev,
-      currentBets: {
-        ...prev.currentBets,
-        [color]: {
-          ...prev.currentBets[color],
-          [bettersName]: wagerAmount
-        }
-      }
-    }));
-
-    const totalAmountElement = document.querySelector(`.total-amount-${color} span`);
-    if (totalAmountElement) {
-      totalAmountElement.textContent = ` ${totalBet}`;
-    }
-    const updatedBalance = Number((user.balance - wagerAmount).toFixed(2));
-    user.balance = updatedBalance;
-    localStorage.setItem('user', JSON.stringify(user));
-
-    setTimeout(() => {
-      window.dispatchEvent(new Event('balanceUpdate'));
-    }, 0);
-
-    //Update balance (after frontend)
     try {
-        await updateBalance(-wagerAmount);
+      // Update balance in database
+      await updateBalance(-wagerAmount);
+      
+      // Update local balance
+      const updatedBalance = Number((user.balance - wagerAmount).toFixed(2));
+      user.balance = updatedBalance;
+      localStorage.setItem('user', JSON.stringify(user));
+      
+      // Emit bet via socket
+      socket.emit('place_bet', {
+        color,
+        amount: wagerAmount,
+        username: bettersName
+      });
+
+      window.dispatchEvent(new Event('balanceUpdate'));
     } catch (error) {
-        console.error('Error placing bet:', error);
-        alert('Failed to place bet. Please try again.');
+      console.error('Error placing bet:', error);
+      alert('Failed to place bet. Please try again.');
     } finally {
-        betButton.dataset.betting = 'false';
-        setIsBetProcessing(false);
+      betButton.dataset.betting = 'false';
+      setIsBetProcessing(false);
     }
-  };
+  }
 
   useEffect(() => {
     window.isBetProcessing = isBetProcessing;
@@ -694,6 +660,52 @@ function Roulette () {
     };
   }, []);
 
+  useEffect(() => {
+    socket.on('bet_update', (data) => {
+      const { color, bets, totalAmount, totalBetters } = data;
+      
+      // Update total betters count
+      const totalBettersElement = document.querySelector(`.total-betters-${color} span`);
+      if (totalBettersElement) {
+        totalBettersElement.textContent = totalBetters;
+      }
+
+      // Update total amount
+      const totalAmountElement = document.querySelector(`.total-amount-${color} span`);
+      if (totalAmountElement) {
+        totalAmountElement.textContent = totalAmount.toFixed(2);
+      }
+
+      // Clear existing bets for this color
+      const container = document.querySelector(`.placed-${color}`);
+      if (container) {
+        container.innerHTML = '';
+      }
+
+      // Add all bets in sorted order
+      Object.entries(bets).forEach(([username, amount]) => {
+        const betElement = document.createElement('div');
+        betElement.className = 'bet-entry';
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.className = `placed-${color}-name`;
+        nameSpan.textContent = username;
+        
+        const amountSpan = document.createElement('span');
+        amountSpan.className = `placed-${color}-amount`;
+        amountSpan.textContent = amount.toFixed(2);
+        
+        betElement.appendChild(nameSpan);
+        betElement.appendChild(amountSpan);
+        container.appendChild(betElement);
+      });
+    });
+
+    return () => {
+      socket.off('bet_update');
+    };
+  }, []);
+
   if (isLoading) {
     return (
       <div className="loading-container">
@@ -706,8 +718,13 @@ function Roulette () {
   return (
     <div className="roulette-page">
       <Chat />
+      <button className="mute-button" onClick={toggleMute}>
+          <FontAwesomeIcon 
+            icon={isMuted ? faVolumeMute : faVolumeHigh} 
+            size="lg"
+          />
+        </button>
       <div className="roulette-container">
-        <button id="muteButton" className="mute-button" onClick={toggleMute}>Mute</button>
         <div className="countdown-container">
           <div className="countdown-text">{gameState.countdown}</div>
           <div className="countdown-bar"></div>

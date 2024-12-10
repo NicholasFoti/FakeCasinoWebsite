@@ -68,7 +68,25 @@ io.on('connection', (socket) => {
     }
     gameState.currentBets[color][username] += amount;
     
-    io.emit('new_bet', gameState.currentBets);
+    // Calculate totals for the color
+    const totalAmount = Object.values(gameState.currentBets[color]).reduce((sum, bet) => sum + bet, 0);
+    const totalBetters = Object.keys(gameState.currentBets[color]).length;
+    
+    // Sort bets by amount in descending order
+    const sortedBets = Object.entries(gameState.currentBets[color])
+      .sort(([, a], [, b]) => b - a)
+      .reduce((acc, [key, value]) => ({
+        ...acc,
+        [key]: value
+      }), {});
+    
+    // Emit detailed bet information to all clients
+    io.emit('bet_update', {
+      color,
+      bets: sortedBets,
+      totalAmount,
+      totalBetters
+    });
   });
 });
 
