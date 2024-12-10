@@ -44,24 +44,25 @@ function Roulette () {
     const numberWidth = 80;
     const totalNumbers = baseNumbers.length;
     const spins = 3;
-    const dramaticMultiplier = [2.12, 2.2][Math.floor(Math.random() * 2)];
+    const dramaticMultiplier = [2.12, 2.19][Math.floor(Math.random() * 2)];
 
-    if (window.innerWidth >= 1900) {
+    if (window.innerWidth >= 2000) {
       return (
         spins * totalNumbers * numberWidth +
         targetIndex * numberWidth +
         (containerWidth / 2) - (numberWidth / 2) +
         (numberWidth * 2) * dramaticMultiplier
       );
-    }else if (window.innerWidth >= 1700) {
-      const dramaticMultiplier = [10, 11][Math.floor(Math.random() * 2)];
+    }
+    else if (window.innerWidth >= 1900) {
       return (
         spins * totalNumbers * numberWidth +
         targetIndex * numberWidth +
         (containerWidth / 2) - (numberWidth / 2) +
         (numberWidth * 3.34) * dramaticMultiplier
       );
-    } else if (window.innerWidth >= 1600) {
+    }
+    else if (window.innerWidth >= 1600) {
       return (
         spins * totalNumbers * numberWidth +
         targetIndex * numberWidth +
