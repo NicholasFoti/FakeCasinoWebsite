@@ -26,6 +26,8 @@ function Roulette () {
   const [currentWinAudio, setCurrentWinAudio] = useState(null);
   const [currentSpinAudio, setCurrentSpinAudio] = useState(null);
   const [isBetProcessing, setIsBetProcessing] = useState(false);
+  const globalVolumeRef = useRef(1);
+  const spinVolumeRef = useRef(0.2);
 
   const baseNumbers = Array.from({ length: 37 }, (_, i) => ({
     value: i,
@@ -111,9 +113,7 @@ function Roulette () {
     } else {
       container.style.transition = "transform 10s cubic-bezier(0.4, 0.0, 0.15, 0.999)";
       container.style.transform = `translateX(-${targetOffset}px)`;
-      if (!isMuted) {
-        playSpinSound();
-      }
+      playSpinSound();
     }
 
     setGameState(prev => ({
@@ -218,37 +218,55 @@ function Roulette () {
       currentWinAudio.pause();
       currentWinAudio.currentTime = 0;
     }
-    
+  
     const audio = new Audio(winSound);
-    audio.muted = isMuted;
-    audio.play().catch(error => console.error('Error playing win sound:', error));
+    audio.volume = isMuted ? 0 : globalVolumeRef.current;
+    
+    // Add an event listener for when the sound ends
+    audio.addEventListener('ended', () => {
+      setCurrentWinAudio(null);
+    });
+    
     setCurrentWinAudio(audio);
+    audio.play().catch(error => console.error('Error playing win sound:', error));
   }
-
+  
   function playSpinSound() {
     if (currentSpinAudio) {
       currentSpinAudio.pause();
       currentSpinAudio.currentTime = 0;
     }
-    
+  
     const audio = new Audio(spinSound);
-    audio.volume = 0.2;
-    audio.muted = isMuted;
-    audio.play().catch(error => console.error('Error playing spin sound:', error));
+    audio.volume = isMuted ? 0 : spinVolumeRef.current;
+    
+    // Add an event listener for when the sound ends
+    audio.addEventListener('ended', () => {
+      setCurrentSpinAudio(null);
+    });
+    
     setCurrentSpinAudio(audio);
+    audio.play().catch(error => console.error('Error playing spin sound:', error));
   }
 
-  function toggleMute() {
-    setIsMuted(prev => !prev);
-    
-    if (currentWinAudio) {
-      currentWinAudio.muted = !currentWinAudio.muted;
-    }
-    
-    if (currentSpinAudio) {
-      currentSpinAudio.muted = !currentSpinAudio.muted;
-    }
-  }
+  const toggleMute = () => {
+    setIsMuted(prevMuted => {
+      const newMutedState = !prevMuted;
+      localStorage.setItem('isMuted', newMutedState.toString());
+      
+      // If there's a currently playing win sound, update its volume
+      if (currentWinAudio) {
+        currentWinAudio.volume = newMutedState ? 0 : globalVolumeRef.current;
+      }
+      
+      // If there's a currently playing spin sound, update its volume
+      if (currentSpinAudio) {
+        currentSpinAudio.volume = newMutedState ? 0 : spinVolumeRef.current;
+      }
+      
+      return newMutedState;  // Make sure to return the new state
+    });
+  };
 
   ///////////////////////////////
   //         WINNINGS          //
@@ -704,6 +722,13 @@ function Roulette () {
     return () => {
       socket.off('bet_update');
     };
+  }, []);
+
+  useEffect(() => {
+    const savedMuteState = localStorage.getItem('isMuted');
+    if (savedMuteState !== null) {
+      setIsMuted(savedMuteState === 'true');
+    }
   }, []);
 
   if (isLoading) {
