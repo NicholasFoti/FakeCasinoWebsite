@@ -53,6 +53,14 @@ function Roulette () {
         (containerWidth / 2) - (numberWidth / 2) +
         (numberWidth * 2) * dramaticMultiplier
       );
+    }else if (window.innerWidth >= 1700) {
+      const dramaticMultiplier = [2.23, 2.3][Math.floor(Math.random() * 2)];
+      return (
+        spins * totalNumbers * numberWidth +
+        targetIndex * numberWidth +
+        (containerWidth / 2) - (numberWidth / 2) +
+        (numberWidth * 3.34) * dramaticMultiplier
+      );
     } else if (window.innerWidth >= 1600) {
       return (
         spins * totalNumbers * numberWidth +
