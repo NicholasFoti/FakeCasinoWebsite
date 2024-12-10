@@ -54,7 +54,7 @@ function Roulette () {
         (numberWidth * 2) * dramaticMultiplier
       );
     }else if (window.innerWidth >= 1700) {
-      const dramaticMultiplier = [2.23, 2.3][Math.floor(Math.random() * 2)];
+      const dramaticMultiplier = [10, 11][Math.floor(Math.random() * 2)];
       return (
         spins * totalNumbers * numberWidth +
         targetIndex * numberWidth +
