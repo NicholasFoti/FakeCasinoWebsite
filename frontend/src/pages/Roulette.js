@@ -55,11 +55,12 @@ function Roulette () {
       );
     }
     else if (window.innerWidth >= 1900) {
+      const dramaticMultiplier = [2.2, 2.3][Math.floor(Math.random() * 2)];
       return (
         spins * totalNumbers * numberWidth +
         targetIndex * numberWidth +
         (containerWidth / 2) - (numberWidth / 2) +
-        (numberWidth * 3.34) * dramaticMultiplier
+        (numberWidth * 2) * dramaticMultiplier
       );
     }
     else if (window.innerWidth >= 1600) {
