@@ -43,7 +43,7 @@ const Blackjack = () => {
     }
   };
 
-  // Logic for dealer to draw a card
+  // Logic for dealers turn.
   const stand = () => {
     setGameStatus('stand');
     const newDealerHand = [...dealerHand, deck.pop()];
@@ -80,8 +80,8 @@ const Blackjack = () => {
   };
 
   return (
-    <div className="blackjack">
-      <h2>BlackJack Coming Soon</h2>
+    <div className="main-card">
+      <h2>Blackjack Coming Soon</h2>
     </div>
   );
 };
