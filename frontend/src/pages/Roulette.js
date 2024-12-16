@@ -328,7 +328,6 @@ function Roulette () {
     }
   
     const netLoss = Math.max(userTotalBetAmount - userTotalWinAmount, 0);
-    console.log(netLoss);
   
     // Update total winnings and losses in database
     try {

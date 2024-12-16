@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   handleClearBet,
   handlePlusOne,
@@ -11,11 +11,11 @@ import {
 } from '../utils/wager';
 import { updateWinnings, updateBalance, updateBetStats } from "../utils/winnings";
 import './Blackjack.css';
-import { jwtDecode } from 'jwt-decode';
 
 const Blackjack = () => {
   const [playerHand, setPlayerHand] = useState([]);
   const [dealerHand, setDealerHand] = useState([]);
+  const [betAmount, setBetAmount] = useState([]);
   const [gameStatus, setGameStatus] = useState('waiting'); // 'waiting', 'playing', 'finished'
   const [deck, setDeck] = useState([]);
   const [isBetProcessing, setIsBetProcessing] = useState(false);
@@ -81,6 +81,7 @@ const Blackjack = () => {
     // Early check: if player already has Blackjack, they automatically win
     if (playerValue === 21) {
       setGameStatus('blackjack');
+      updateBalance(betAmount * 2);
       return;
     }
 
@@ -88,31 +89,31 @@ const Blackjack = () => {
       dealerValue = calculateHandValue(dealerCurrentHand);
       console.log('Dealer’s Value:', dealerValue);
 
-      // Dealer must hit if under 17
       if (dealerValue < 17) {
-        // Draw a card
         dealerCurrentHand.push(deck.pop());
         setDealerHand([...dealerCurrentHand]);
       } else {
         // Dealer stands at 17 or more
         clearInterval(revealInterval);
 
-        // Now determine the outcome
         if (dealerValue > 21) {
           // Dealer busts, player wins
           setGameStatus('won');
+          updateBalance(betAmount * 2);
         } else if (dealerValue > playerValue) {
           // Dealer has higher total (21 or less), dealer wins
           setGameStatus('lost');
         } else if (dealerValue < playerValue) {
           // Player has higher total, player wins
           setGameStatus('won');
+          updateBalance(betAmount * 2);
         } else {
           // Tie
           setGameStatus('draw');
+          updateBalance(betAmount);
         }
       }
-    }, 1000); // 1 second interval for suspense
+    }, 1000);
   };
 
   const calculateHandValue = (hand) => {
@@ -140,18 +141,56 @@ const Blackjack = () => {
   };
 
   async function handleBet(amount, user){
+
+    setIsBetProcessing(true);
+
+    const betButton = document.querySelector('.blackjack-play-button')
+    if (betButton.dataset.betting === 'true') {
+      return;
+    }
+
+    betButton.dataset.betting = 'true';
+
     if (amount <= 0){
       alert('Please Enter a Valid Bet');
-      return false;
+      betButton.dataset.betting = 'false';
+      return;
     }
 
     if (amount > user.balance){
       alert('You dont have enough balance');
-      return false;
+      betButton.dataset.betting = 'false';
+      return;
     }
 
-    beginHand();
-  }
+    try {
+      // Update balance in database
+      await updateBalance(-amount);
+      
+      // Update local balance
+      const updatedBalance = Number((user.balance - amount).toFixed(2));
+      user.balance = updatedBalance;
+      localStorage.setItem('user', JSON.stringify(user));
+
+      window.dispatchEvent(new Event('balanceUpdate'));
+    } catch (error) {
+      console.error('Error placing bet:', error);
+      alert('Failed to place bet. Please try again.');
+    } finally {
+      betButton.dataset.betting = 'false';
+      setIsBetProcessing(false);
+    }
+
+    setBetAmount(parseFloat(amount));
+    beginHand(amount);
+  };
+
+  useEffect(() => {
+    window.isBetProcessing = isBetProcessing;
+    return () => {
+      window.isBetProcessing = false;
+    };
+  }, [isBetProcessing]);
 
   return (
     <div className="main-card">
