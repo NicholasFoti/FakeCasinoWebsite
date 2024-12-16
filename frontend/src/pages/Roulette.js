@@ -5,6 +5,17 @@ import { faMoneyBill1Wave, faUser, faVolumeHigh, faVolumeMute } from '@fortaweso
 import winSound from '../sounds/money.mp3';
 import spinSound from '../sounds/spinWheel.mp3';
 import Chat from '../components/Chat';
+import {
+  handleClearBet,
+  handlePlusOne,
+  handlePlusTen,
+  handlePlusOneHundred,
+  handlePlusOneThousand,
+  handleHalf,
+  handleDouble,
+  handleMax
+} from '../utils/wager';
+import { updateWinnings, updateBalance, updateBetStats } from "../utils/winnings";
 
 
 import "./Roulette.css";
@@ -123,7 +134,6 @@ function Roulette () {
     } else {
       container.style.transition = "transform 10s cubic-bezier(0.4, 0.0, 0.15, 0.999)";
       container.style.transform = `translateX(-${targetOffset}px)`;
-      playSpinSound();
     }
 
     setGameState(prev => ({
@@ -239,24 +249,6 @@ function Roulette () {
     
     setCurrentWinAudio(audio);
     audio.play().catch(error => console.error('Error playing win sound:', error));
-  }
-  
-  function playSpinSound() {
-    if (currentSpinAudio) {
-      currentSpinAudio.pause();
-      currentSpinAudio.currentTime = 0;
-    }
-  
-    const audio = new Audio(spinSound);
-    audio.volume = isMuted ? 0 : spinVolumeRef.current;
-    
-    // Add an event listener for when the sound ends
-    audio.addEventListener('ended', () => {
-      setCurrentSpinAudio(null);
-    });
-    
-    setCurrentSpinAudio(audio);
-    audio.play().catch(error => console.error('Error playing spin sound:', error));
   }
 
   const toggleMute = () => {
@@ -454,139 +446,6 @@ function Roulette () {
     };
   }, [isBetProcessing]);
 
-  //////////////////////////////
-  //      API CALLS          //
-  //////////////////////////////
-
-  // Update balance in database
-  async function updateBalance(amount) {
-    const numericAmount = Number(Number(amount).toFixed(2));
-    
-    const apiUrl = process.env.NODE_ENV === 'production' ? 'https://fakecasinowebsite.onrender.com/api/game/update-balance' : 'http://localhost:3001/api/game/update-balance';
-
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify({
-        userId: JSON.parse(localStorage.getItem('user')).id,
-        amount: numericAmount,
-      })
-    });
-    return response;
-  };
-
-  // Update bet stats in database
-  async function updateBetStats(won) {
-    const apiUrl = process.env.NODE_ENV === 'production' ? 'https://fakecasinowebsite.onrender.com/api/game/update-bet-stats' : 'http://localhost:3001/api/game/update-bet-stats';
-
-    try {
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify({
-                userId: JSON.parse(localStorage.getItem('user')).id,
-                won: won
-            })
-        });
-        
-        if (response.ok) {
-            const userData = await response.json();
-            const user = JSON.parse(localStorage.getItem('user'));
-            user.bets_won = userData.stats.bets_won;
-            user.bets_lost = userData.stats.bets_lost;
-            localStorage.setItem('user', JSON.stringify(user));
-        }
-    } catch (error) {
-        console.error('Error updating bet stats:', error);
-    }
-  };
-
-  // Update winnings in database
-  async function updateWinnings(winAmount, lossAmount) {
-    const apiUrl = process.env.NODE_ENV === 'production' ? 'https://fakecasinowebsite.onrender.com/api/game/update-winnings' : 'http://localhost:3001/api/game/update-winnings';
-
-    const response = await fetch(apiUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${localStorage.getItem('token')}`
-      },
-      body: JSON.stringify({ userId: JSON.parse(localStorage.getItem('user')).id, winAmount, lossAmount })
-    });
-    return response;
-  }
-
-  //////////////////////////////
-  //   WAGER BUTTON HELPERS   //
-  //////////////////////////////
-
-  function handleClearBet() {
-    const wagerInput = document.querySelector('.wager-input input');
-    wagerInput.value = '';
-  };
-
-  function handlePlusOne() {
-    const wagerInput = document.querySelector('.wager-input input');
-    if (wagerInput.value === '') {
-      wagerInput.value = 1;
-    } else {
-      wagerInput.value = parseFloat(wagerInput.value) + 1;
-    }
-  };
-
-  function handlePlusTen() {
-    const wagerInput = document.querySelector('.wager-input input');
-    if (wagerInput.value === '') {
-      wagerInput.value = 10;
-    } else {
-      wagerInput.value = parseFloat(wagerInput.value) + 10;
-    }
-  };
-
-  function handlePlusOneHundred() {
-    const wagerInput = document.querySelector('.wager-input input');
-    if (wagerInput.value === '') {
-      wagerInput.value = 100;
-    } else {
-      wagerInput.value = parseFloat(wagerInput.value) + 100;
-    }
-  };
-
-  function handlePlusOneThousand() {
-    const wagerInput = document.querySelector('.wager-input input');
-    if (wagerInput.value === '') {
-      wagerInput.value = 1000;
-    } else {
-      wagerInput.value = parseFloat(wagerInput.value) + 1000;
-    }
-  };
-
-  function handleHalf() {
-    const wagerInput = document.querySelector('.wager-input input');
-    wagerInput.value = parseFloat(wagerInput.value) / 2;
-  };
-  
-  function handleDouble() {
-    const wagerInput = document.querySelector('.wager-input input');
-    wagerInput.value = parseFloat(wagerInput.value) * 2;
-  };
-
-  function handleMax() {
-    const wagerInput = document.querySelector('.wager-input input');
-    const userBalance = JSON.parse(localStorage.getItem('user')).balance;
-    if(userBalance.toString().includes('.00')) {
-      wagerInput.value = parseInt(userBalance);
-    } else {
-      wagerInput.value = userBalance;
-    }
-  };
-
   useEffect(() => {
     const handleRouletteState = (event) => {
       const state = event.detail;
@@ -703,12 +562,6 @@ function Roulette () {
   return (
     <div className="roulette-page">
       <Chat />
-      <button className="mute-button" onClick={toggleMute}>
-          <FontAwesomeIcon 
-            icon={isMuted ? faVolumeMute : faVolumeHigh} 
-            size="lg"
-          />
-        </button>
       <div className="roulette-container">
         <div className="countdown-container">
           <div className="countdown-text">{gameState.countdown}</div>

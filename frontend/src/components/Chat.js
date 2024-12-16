@@ -83,7 +83,7 @@ const Chat = () => {
         {messages.map((msg, index) => (
           <div key={index} className="chat-message">
             <div className="chat-message-header">
-              <FontAwesomeIcon icon={faUser} style={{ color: "#ff5757" }} />
+              <FontAwesomeIcon icon={faUser} style={{ color: "#ffe8a9" }} />
               <span className="chat-username">{msg.username}</span>
               <span className="chat-timestamp">{new Date(msg.timestamp).toLocaleTimeString()}</span>
             </div>

@@ -10,6 +10,7 @@ import Profile from './pages/Profile';
 import Roulette from './pages/Roulette';
 import Blackjack from './pages/Blackjack';
 import Slots from './pages/Slots';
+import Plinko from './pages/Plinko';
 import Footer from './components/Footer';
 import Leaderboard from './components/Leaderboard';
 import { connectSocket, disconnectSocket } from './services/socket';
@@ -36,6 +37,7 @@ function App() {
     };
 
     const checkUserData = async () => {
+      //Dont check & update if a bet is processing.
       if (window.isBetProcessing) return;
       
       const token = localStorage.getItem('token');
@@ -59,7 +61,8 @@ function App() {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
           }
-        } catch (error) {
+        } 
+        catch (error) {
           console.error('Error refreshing user data:', error);
         }
       }
@@ -89,6 +92,7 @@ function App() {
             <Route path="/roulette" element={<Roulette />} />
             <Route path="/blackjack" element={<Blackjack />} />
             <Route path="/slots" element={<Slots />} />
+            <Route path="/plinko" element={<Plinko />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
           </Routes>

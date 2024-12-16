@@ -20,10 +20,10 @@ a:hover {
 
 @keyframes pulseGlow {
   from {
-    box-shadow: 0 0 5px #ffffff, 0 0 20px #f03e3e, 0 0 30px #f03e3e, 0 0 40px #f03e3e;
+    box-shadow: 0 0 5px #ffd86b, 0 0 20px #f03e3e, 0 0 30px #f03e3e, 0 0 40px #f03e3e;
   }
   to {
-    box-shadow: 0 0 10px #ffffff, 0 0 30px #f03e3e, 0 0 40px #f03e3e, 0 0 50px #f03e3e;
+    box-shadow: 0 0 10px #ffd86b, 0 0 30px #f03e3e, 0 0 40px #f03e3e, 0 0 50px #f03e3e;
   }
 }
 

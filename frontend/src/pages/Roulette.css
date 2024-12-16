@@ -558,20 +558,3 @@
   color: rgb(151, 151, 151);
 }
 
-.mute-button {
-  position: relative;
-  background: none;
-  top: 5px;
-  right: 20px;
-  border: none;
-  width: 30px;
-  cursor: pointer;
-  color: white;
-  padding: 10px;
-  transition: color 0.2s ease;
-}
-
-.mute-button:hover {
-  color: #888;
-}
-

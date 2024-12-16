@@ -1,18 +1,44 @@
 import React, { useState } from 'react';
+import {
+  handleClearBet,
+  handlePlusOne,
+  handlePlusTen,
+  handlePlusOneHundred,
+  handlePlusOneThousand,
+  handleHalf,
+  handleDouble,
+  handleMax
+} from '../utils/wager';
+import { updateWinnings, updateBalance, updateBetStats } from "../utils/winnings";
 import './Blackjack.css';
+import { jwtDecode } from 'jwt-decode';
 
 const Blackjack = () => {
   const [playerHand, setPlayerHand] = useState([]);
   const [dealerHand, setDealerHand] = useState([]);
   const [gameStatus, setGameStatus] = useState('waiting'); // 'waiting', 'playing', 'finished'
   const [deck, setDeck] = useState([]);
+  const [isBetProcessing, setIsBetProcessing] = useState(false);
 
 
   const startGame = () => {
+    const userToken = localStorage.getItem('token');
+    if (!userToken){
+      alert('Please login to place a bet');
+      return;
+    }
+
+    const user = JSON.parse(localStorage.getItem('user'));
+    const wager = document.querySelector('.blackjack-wager-input input').value;
+
+    handleBet(wager, user)
+  };
+
+  const beginHand = () => {
     const newDeck = createDeck();
     const shuffledDeck = shuffleDeck(newDeck);
     setDeck(shuffledDeck);
-    console.log(shuffledDeck);
+
     // Initialize hands and set game status to 'playing'
     setPlayerHand(shuffledDeck.slice(0, 2));
     setDealerHand(shuffledDeck.slice(2, 4));
@@ -22,9 +48,10 @@ const Blackjack = () => {
   const createDeck = () => {
     const suits = ['♠', '♥', '♦', '♣'];
     const numbers = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
-    return suits.flatMap(suit => numbers.map(number => number + suit));
+    return suits.flatMap(suit => numbers.map(number => `${number}${suit}`));
   };
 
+  //Shuffle the deck before play
   const shuffleDeck = (newDeck) => {
     const shuffledDeck = [...newDeck];
     for (let i = shuffledDeck.length - 1; i > 0; i--) {
@@ -39,18 +66,53 @@ const Blackjack = () => {
     const newPlayerHand = [...playerHand, deck.pop()];
     setPlayerHand(newPlayerHand);
     if (calculateHandValue(newPlayerHand) > 21) {
-      setGameStatus('lost');
+      setGameStatus('bust');
     }
   };
 
-  // Logic for dealers turn.
+  // Logic for the dealer's turn after the player stands
   const stand = () => {
     setGameStatus('stand');
-    const newDealerHand = [...dealerHand, deck.pop()];
-    setDealerHand(newDealerHand);
-    if (calculateHandValue(newDealerHand) > 21) {
-      setGameStatus('won');
+
+    let dealerCurrentHand = [...dealerHand];
+    let dealerValue = calculateHandValue(dealerCurrentHand);
+    const playerValue = calculateHandValue(playerHand);
+
+    // Early check: if player already has Blackjack, they automatically win
+    if (playerValue === 21) {
+      setGameStatus('blackjack');
+      return;
     }
+
+    const revealInterval = setInterval(() => {
+      dealerValue = calculateHandValue(dealerCurrentHand);
+      console.log('Dealer’s Value:', dealerValue);
+
+      // Dealer must hit if under 17
+      if (dealerValue < 17) {
+        // Draw a card
+        dealerCurrentHand.push(deck.pop());
+        setDealerHand([...dealerCurrentHand]);
+      } else {
+        // Dealer stands at 17 or more
+        clearInterval(revealInterval);
+
+        // Now determine the outcome
+        if (dealerValue > 21) {
+          // Dealer busts, player wins
+          setGameStatus('won');
+        } else if (dealerValue > playerValue) {
+          // Dealer has higher total (21 or less), dealer wins
+          setGameStatus('lost');
+        } else if (dealerValue < playerValue) {
+          // Player has higher total, player wins
+          setGameStatus('won');
+        } else {
+          // Tie
+          setGameStatus('draw');
+        }
+      }
+    }, 1000); // 1 second interval for suspense
   };
 
   const calculateHandValue = (hand) => {
@@ -61,8 +123,6 @@ const Blackjack = () => {
 
     let value = 0;
     let aceCount = 0;
-
-    console.log(hand);
 
     hand.forEach(card => {
       const number = card.slice(0, -1);
@@ -79,9 +139,70 @@ const Blackjack = () => {
     return value;
   };
 
+  async function handleBet(amount, user){
+    if (amount <= 0){
+      alert('Please Enter a Valid Bet');
+      return false;
+    }
+
+    if (amount > user.balance){
+      alert('You dont have enough balance');
+      return false;
+    }
+
+    beginHand();
+  }
+
   return (
     <div className="main-card">
-      <h2>Blackjack Coming Soon</h2>
+      <h2>Blackjack (In Development)</h2>
+      <div className="player-cards">
+        {playerHand.map((card, index) => (
+          <span key={index}>{card}</span>
+        ))}
+      </div>
+      <div className="dealer-cards">
+        {gameStatus !== 'playing' ? dealerHand.map((card, index) => (
+          <span key={index}>{card}</span>
+        )) : <span key={0}>{dealerHand[0]}</span>}
+      </div>
+      {gameStatus === 'bust' || gameStatus === 'lost' || gameStatus === 'won' || gameStatus === 'blackjack' || gameStatus === 'draw' ? (
+        <div>
+          <p>{gameStatus === 'bust' ? 'Bust!' : gameStatus === 'lost' ? 'You Lost!' : gameStatus === 'won' ? 'You Won!' : gameStatus === 'blackjack' ? 'Blackjack!' : 'Draw! Original Bet Returned'}</p>
+          <button className="blackjack-play-again" onClick={() => {
+            setGameStatus('waiting');
+            setPlayerHand([]);
+            setDealerHand([]);
+          }}>Play Again</button>
+        </div>
+      ) : (
+        <div className="button-container">
+          {gameStatus === 'waiting' ? (
+            <>
+              <button className="blackjack-play-button" onClick={startGame}>Play</button>
+              <div className="wager">
+                <h2>Wager:</h2>
+                <div className="wager-input blackjack-wager-input">
+                  <input type="number" placeholder="Enter your wager" />
+                  <button className="blackjack-wager-button clear" onClick={handleClearBet}>Clear</button>
+                  <button className="blackjack-wager-button +1" onClick={handlePlusOne}>+1</button>
+                  <button className="blackjack-wager-button +10" onClick={handlePlusTen}>+10</button>
+                  <button className="blackjack-wager-button +100" onClick={handlePlusOneHundred}>+100</button>
+                  <button className="blackjack-wager-button +1000" onClick={handlePlusOneThousand}>+1000</button>
+                  <button className="blackjack-wager-button 1/2" onClick={handleHalf}>1/2</button>
+                  <button className="blackjack-wager-button 2x" onClick={handleDouble}>2x</button>
+                  <button className="blackjack-wager-button max" onClick={handleMax}>Max</button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <button className="blackjack-hit-button" onClick={hit}>Hit</button>
+              <button className="blackjack-stand-button" onClick={stand}>Stand</button>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 };

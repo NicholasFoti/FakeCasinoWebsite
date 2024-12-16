@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { faCoins, faHouse, faDice, faDiamond, faClover, faTrophy } from '@fortawesome/free-solid-svg-icons';
+import { faCoins, faHouse, faDice, faDiamond, faClover, faTrophy, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './Header.css';
 
@@ -69,6 +69,7 @@ const Header = () => {
         <Link className="roulette-button header-button" to="/roulette"><FontAwesomeIcon className="header-icon" icon={faDice} />Roulette</Link>
         <Link className="blackjack-button header-button" to="/blackjack"><FontAwesomeIcon className="header-icon" icon={faDiamond} />Blackjack</Link>
         <Link className="slots-button header-button" to="/slots"><FontAwesomeIcon className="header-icon" icon={faClover} />Slots</Link>
+        <Link className="plinko-button header-button" to="/plinko"><FontAwesomeIcon className="header-icon" icon={faCircle} />Plinko</Link>
         <Link className="leaderboard-button header-button" to="/leaderboard"><FontAwesomeIcon className="header-icon" icon={faTrophy} />Leaderboard</Link>
       </div>
       <div className="logged-in-info">
@@ -88,8 +89,8 @@ const Header = () => {
           </>
         ) : (
           <div className="auth-buttons">
-            <Link to="/login" className="auth-button login-button">Login</Link>
             <Link to="/signup" className="auth-button sign-up-button">Sign Up</Link>
+            <Link to="/login" className="auth-button login-button">Login</Link>
           </div>
         )}
       </div>

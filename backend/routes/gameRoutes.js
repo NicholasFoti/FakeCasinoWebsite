@@ -92,42 +92,6 @@ router.post('/update-bet-stats', authenticateToken, async (req, res) => {
     }
 });
 
-router.post('/process-roulette-bets', authenticateToken, async (req, res) => {
-    try {
-        const { userId, totalBetAmount, bets } = req.body;
-        
-        if (!userId || !bets || totalBetAmount === undefined) {
-            return res.status(400).json({ 
-                message: 'Missing required fields'
-            });
-        }
-
-        // First deduct the total bet amount
-        const deductBalance = await pool.query(
-            'UPDATE user_details SET balance = balance - $1 WHERE id = $2 RETURNING balance',
-            [totalBetAmount, userId]
-        );
-
-        if (deductBalance.rowCount === 0) {
-            return res.status(404).json({ message: 'Failed to update balance' });
-        }
-
-        // Store the bet information in a new table for persistence
-        const storeBets = await pool.query(
-            'INSERT INTO active_roulette_bets (user_id, bets, total_amount, timestamp) VALUES ($1, $2, $3, NOW())',
-            [userId, JSON.stringify(bets), totalBetAmount]
-        );
-
-        res.json({ 
-            message: 'Bets processed successfully',
-            newBalance: deductBalance.rows[0].balance
-        });
-    } catch (error) {
-        console.error('Error processing roulette bets:', error);
-        res.status(500).json({ message: 'Server error while processing bets' });
-    }
-});
-
 router.post('/update-winnings', authenticateToken, async (req, res) => {
     const { userId, winAmount, lossAmount } = req.body;
     await pool.query('UPDATE user_details SET total_winnings = total_winnings + $1, total_losses = total_losses + $2 WHERE id = $3', [winAmount, lossAmount, userId]);
