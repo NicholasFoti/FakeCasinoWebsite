@@ -22,3 +22,15 @@
 .blackjack button:hover {
   background-color: #f03e3e;
 }
+
+.player-cards, .dealer-cards{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+p {
+  margin-right: 5px;
+}

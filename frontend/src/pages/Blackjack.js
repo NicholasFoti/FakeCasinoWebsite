@@ -195,16 +195,24 @@ const Blackjack = () => {
   return (
     <div className="main-card">
       <h2>Blackjack (In Development)</h2>
-      <div className="player-cards">
-        {playerHand.map((card, index) => (
-          <span key={index}>{card}</span>
-        ))}
-      </div>
-      <div className="dealer-cards">
-        {gameStatus !== 'playing' ? dealerHand.map((card, index) => (
-          <span key={index}>{card}</span>
-        )) : <span key={0}>{dealerHand[0]}</span>}
-      </div>
+      {gameStatus !== 'waiting' && (
+        <>
+          <div className="player-cards">
+            <p>Your Hand:</p>
+            {playerHand.map((card, index) => (
+              <span key={index}>{card}</span>
+            ))}
+          </div>
+          <div className="dealer-cards">
+            <p>Dealers Hand:</p>
+            {gameStatus !== 'playing' ? dealerHand.map((card, index) => (
+              <span key={index}>{card}</span>
+            )) : 
+            <span key={0}>{dealerHand[0]}</span>
+            }
+          </div>
+        </>
+      )}
       {gameStatus === 'bust' || gameStatus === 'lost' || gameStatus === 'won' || gameStatus === 'blackjack' || gameStatus === 'draw' ? (
         <div>
           <p>{gameStatus === 'bust' ? 'Bust!' : gameStatus === 'lost' ? 'You Lost!' : gameStatus === 'won' ? 'You Won!' : gameStatus === 'blackjack' ? 'Blackjack!' : 'Draw! Original Bet Returned'}</p>
