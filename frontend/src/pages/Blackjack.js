@@ -9,6 +9,7 @@ import {
   handleDouble,
   handleMax
 } from '../utils/wager';
+import Chat from '../components/Chat';
 import { updateWinnings, updateBalance, updateBetStats } from "../utils/winnings";
 import './Blackjack.css';
 
@@ -78,10 +79,12 @@ const Blackjack = () => {
     let dealerValue = calculateHandValue(dealerCurrentHand);
     const playerValue = calculateHandValue(playerHand);
 
+    let won = false;
+
     // Early check: if player already has Blackjack, they automatically win
     if (playerValue === 21) {
       setGameStatus('blackjack');
-      updateBalance(betAmount * 2);
+      won = true;
       return;
     }
 
@@ -99,20 +102,26 @@ const Blackjack = () => {
         if (dealerValue > 21) {
           // Dealer busts, player wins
           setGameStatus('won');
-          updateBalance(betAmount * 2);
+          won = true;
         } else if (dealerValue > playerValue) {
           // Dealer has higher total (21 or less), dealer wins
           setGameStatus('lost');
+          won = false;
         } else if (dealerValue < playerValue) {
           // Player has higher total, player wins
           setGameStatus('won');
-          updateBalance(betAmount * 2);
+          won = true;
         } else {
           // Tie
           setGameStatus('draw');
           updateBalance(betAmount);
+          window.dispatchEvent(new Event('balanceUpdate'));
         }
       }
+      console.log(gameStatus, won);
+      if (gameStatus !== 'draw'){
+        handleWinnings(won, betAmount)
+      };
     }, 1000);
   };
 
@@ -185,6 +194,28 @@ const Blackjack = () => {
     beginHand(amount);
   };
 
+  const handleWinnings = async (won, wager) => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) return;
+    
+    if (won) {
+      const winnings = wager * 2;
+      try {
+        const response = await updateBalance(winnings);
+        if (response.ok) {
+          user.balance = parseFloat(user.balance) + winnings;
+          user.balance = user.balance.toFixed(2);
+          localStorage.setItem('user', JSON.stringify(user));
+          window.dispatchEvent(new Event('balanceUpdate'));
+        }
+      } catch (error) {
+        console.error('Error updating balance for winner:', error);
+      }
+    };
+
+    await updateBetStats(won);
+  };
+
   useEffect(() => {
     window.isBetProcessing = isBetProcessing;
     return () => {
@@ -193,8 +224,10 @@ const Blackjack = () => {
   }, [isBetProcessing]);
 
   return (
-    <div className="main-card">
-      <h2>Blackjack (In Development)</h2>
+    <div className="blackjack-page">
+      <Chat />
+      <div className="blackjack-main-card">
+        <h2>Blackjack (In Development)</h2>
       {gameStatus !== 'waiting' && (
         <>
           <div className="player-cards">
@@ -250,6 +283,7 @@ const Blackjack = () => {
           )}
         </div>
       )}
+      </div>
     </div>
   );
 };

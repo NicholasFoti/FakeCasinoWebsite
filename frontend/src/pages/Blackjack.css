@@ -1,4 +1,12 @@
-.blackjack {
+.blackjack-page{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-left: 260px;
+  padding-top: 80px;
+}
+
+.blackjack-main-card {
   border: 1px solid #333;
   padding: 20px;
   margin: 20px;
@@ -6,21 +14,7 @@
   background-color: #0c0c0c;
   color: white;
   border-radius: 15px;
-}
-
-.blackjack button {
-  background-color: #1F2937;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  margin: 5px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-
-.blackjack button:hover {
-  background-color: #f03e3e;
+  max-width: 800px;
 }
 
 .player-cards, .dealer-cards{
