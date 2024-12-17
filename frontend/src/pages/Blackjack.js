@@ -166,7 +166,9 @@ const Blackjack = () => {
       return;
     }
 
-    if (amount > user.balance){
+    // Refresh user data right before checking balance
+    const updatedUserData = JSON.parse(localStorage.getItem('user'));
+    if (amount > updatedUserData.balance){
       alert('You dont have enough balance');
       betButton.dataset.betting = 'false';
       return;
@@ -176,10 +178,9 @@ const Blackjack = () => {
       // Update balance in database
       await updateBalance(-amount);
       
-      // Update local balance
-      const updatedBalance = Number((user.balance - amount).toFixed(2));
-      user.balance = updatedBalance;
-      localStorage.setItem('user', JSON.stringify(user));
+      // Update the user's balance locally
+      updatedUserData.balance = Number((updatedUserData.balance - amount).toFixed(2));
+      localStorage.setItem('user', JSON.stringify(updatedUserData));
 
       window.dispatchEvent(new Event('balanceUpdate'));
     } catch (error) {
