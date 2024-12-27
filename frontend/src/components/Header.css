@@ -162,25 +162,25 @@
 
 @keyframes flashRed {
   0% {
-    color: #8e8f8f;
+    color: #ffffff;
   }
   50% {
     color: #f35454;
   }
   100% {
-    color: #8e8f8f;
+    color: #ffffff;
   }
 } 
 
 @keyframes flashGreen {
   0% {
-    color: #8e8f8f;
+    color: #ffffff;
   }
   50% {
     color: #00ff00;
   }
   100% {
-    color: #8e8f8f;
+    color: #ffffff;
   }
 } 
 
