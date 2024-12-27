@@ -73,7 +73,8 @@ const Chat = () => {
 
     if (input.trim() && input.length <= maxLength) {
       const username = user.username;
-      socket.emit('chatMessage', { username, text: input });
+      const timestamp = new Date().toISOString();
+      socket.emit('chatMessage', { username, text: input, timestamp });
 
       await updateChatDatabase(username, input);
 

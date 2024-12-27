@@ -64,7 +64,11 @@ io.on('connection', (socket) => {
   io.emit('updateConnections', connectedUsers.size);
 
   socket.on('chatMessage', (msg) => {
-    io.emit('chatMessage', msg);
+    io.emit('chatMessage', {
+      username: msg.username,
+      text: msg.text,
+      timestamp: msg.timestamp
+    });
   });
 
   socket.on('disconnect', () => {

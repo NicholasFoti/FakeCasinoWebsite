@@ -60,7 +60,6 @@ const HomePage = () => {
   }, [vantaEffect]);
 
   useEffect(() => {
-    // Fetch the initial count when the component mounts
     const fetchInitialCount = async () => {
       try {
         const response = await fetch(
