@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import './App.css';
@@ -11,11 +11,15 @@ import Roulette from './pages/Roulette';
 import Blackjack from './pages/Blackjack';
 import Slots from './pages/Slots';
 import Plinko from './pages/Plinko';
+import Crash from './pages/Crash';
+import HeadsOrTails from './pages/HeadsOrTails';
 import Footer from './components/Footer';
 import Leaderboard from './components/Leaderboard';
 import { connectSocket, disconnectSocket } from './services/socket';
 
 function App() {
+  const [hideFooter, setHideFooter] = useState(false);
+
   useEffect(() => {
 
     const checkTokenExpiration = () => {
@@ -89,15 +93,17 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/roulette" element={<Roulette />} />
+            <Route path="/roulette" element={<Roulette setHideFooter={setHideFooter} />} />
             <Route path="/blackjack" element={<Blackjack />} />
             <Route path="/slots" element={<Slots />} />
             <Route path="/plinko" element={<Plinko />} />
+            <Route path="/crash" element={<Crash />} />
+            <Route path="/coinflip" element={<HeadsOrTails />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
           </Routes>
         </main>
-        <Footer />
+        {!hideFooter && <Footer />}
       </div>
     </Router>
   );

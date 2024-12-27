@@ -36,6 +36,15 @@ app.use('/api/auth', authRoutes);
 app.use('/api/game', gameRoutes);
 app.use('/api/chat', chatRoutes);
 
+app.get('/api/online-connections', (req, res) => {
+  try {
+    res.json({ connections: connectedUsers.size });
+  } catch (error) {
+    console.error('Error fetching online connections:', error);
+    res.status(500).json({ message: 'Failed to fetch online connections' });
+  }
+});
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
 });
@@ -47,15 +56,21 @@ app.use((err, req, res, next) => {
 });
 
 // Socket.io connection
+const connectedUsers = new Set();
+
 io.on('connection', (socket) => {
+  connectedUsers.add(socket.id);
   console.log('A user connected:', socket.id);
+  io.emit('updateConnections', connectedUsers.size);
 
   socket.on('chatMessage', (msg) => {
     io.emit('chatMessage', msg);
   });
 
   socket.on('disconnect', () => {
+    connectedUsers.delete(socket.id);
     console.log('User disconnected:', socket.id);
+    io.emit('updateConnections', connectedUsers.size);
   });
 
   // Send current game state to new connections

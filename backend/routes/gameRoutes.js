@@ -123,4 +123,17 @@ router.get('/leaderboard/wins', async (req, res) => {
   }
 });
 
+router.get('/total-bets', async (req, res) => {
+    try {
+      const totalBets = await pool.query(`
+        SELECT COALESCE(SUM(bets_won), 0) + COALESCE(SUM(bets_lost), 0) AS total_bets 
+        FROM user_details
+      `);
+      res.json({ totalBets: totalBets.rows[0].total_bets });
+    } catch (error) {
+      console.error('Error fetching total bets:', error);
+      res.status(500).json({ message: 'Server error while fetching total bets' });
+    }
+  });
+
 module.exports = router;

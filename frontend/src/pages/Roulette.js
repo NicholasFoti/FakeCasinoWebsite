@@ -1,9 +1,8 @@
 import React, { useRef, useState, useEffect } from "react";
 import { socket } from '../services/socket';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMoneyBill1Wave, faUser, faVolumeHigh, faVolumeMute } from '@fortawesome/free-solid-svg-icons';
+import { faMoneyBill1Wave, faUser} from '@fortawesome/free-solid-svg-icons';
 import winSound from '../sounds/money.mp3';
-import spinSound from '../sounds/spinWheel.mp3';
 import Chat from '../components/Chat';
 import {
   handleClearBet,
@@ -20,7 +19,7 @@ import { updateWinnings, updateBalance, updateBetStats } from "../utils/winnings
 
 import "./Roulette.css";
 
-function Roulette () {
+function Roulette ({ setHideFooter }) {
   const [gameState, setGameState] = useState({
     countdown: 10,
     spinning: false,
@@ -35,7 +34,6 @@ function Roulette () {
   const [isLoading, setIsLoading] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
   const [currentWinAudio, setCurrentWinAudio] = useState(null);
-  const [currentSpinAudio, setCurrentSpinAudio] = useState(null);
   const [isBetProcessing, setIsBetProcessing] = useState(false);
   const globalVolumeRef = useRef(1);
   const spinVolumeRef = useRef(0.2);
@@ -250,25 +248,6 @@ function Roulette () {
     setCurrentWinAudio(audio);
     audio.play().catch(error => console.error('Error playing win sound:', error));
   }
-
-  const toggleMute = () => {
-    setIsMuted(prevMuted => {
-      const newMutedState = !prevMuted;
-      localStorage.setItem('isMuted', newMutedState.toString());
-      
-      // If there's a currently playing win sound, update its volume
-      if (currentWinAudio) {
-        currentWinAudio.volume = newMutedState ? 0 : globalVolumeRef.current;
-      }
-      
-      // If there's a currently playing spin sound, update its volume
-      if (currentSpinAudio) {
-        currentSpinAudio.volume = newMutedState ? 0 : spinVolumeRef.current;
-      }
-      
-      return newMutedState;  // Make sure to return the new state
-    });
-  };
 
   ///////////////////////////////
   //         WINNINGS          //
@@ -543,11 +522,8 @@ function Roulette () {
   }, []);
 
   useEffect(() => {
-    const savedMuteState = localStorage.getItem('isMuted');
-    if (savedMuteState !== null) {
-      setIsMuted(savedMuteState === 'true');
-    }
-  }, []);
+    setHideFooter(isLoading);
+  }, [isLoading, setHideFooter]);
 
   if (isLoading) {
     return (

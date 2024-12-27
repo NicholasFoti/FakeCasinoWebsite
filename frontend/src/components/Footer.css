@@ -1,22 +1,70 @@
 .casino-footer {
-  background-color: #1f1f1f;
+  display: flex;
+  flex-direction: column;
+  justify-content: end;
+  background: linear-gradient(to bottom, #222834, #101620);
   color: #8e8f8f;
-  padding: 15px;
   text-align: center;
-  position: fixed;
+  height: 160px;
+  position: relative;
   width: 100%;
   bottom: 0;
-  border-top: 1px solid #333;
-} 
+  border-top: 2px solid #333a47;
+  overflow: hidden;
+}
 
-.casino-footer a {
-  color: #fa4e4e;
-  text-decoration: none;
+.footer-logo {
+  display: flex;
+  align-items: center;
+  margin-left: 2rem;
+  overflow: hidden;
+}
+
+.footer-logo img{
+  width: 200px;
+}
+
+.social-links {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-right: 4rem;
+  gap: 12px;
+}
+
+.github, .portfolio, .linkedin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #ffffff;
+  width: 50px;
+  height: 50px;
+  transition: transform 0.3s ease;
   cursor: pointer;
 }
 
-.casino-footer-icon {
-  margin-left: 5px;
-  color: #fa4e4e;
-;
+.github:hover, .portfolio:hover, .linkedin:hover {
+  transform: scale(1.1);
+}
+
+.top-footer {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  max-height: 130px;
+}
+
+.bottom-footer {
+  display: flex;
+  justify-content: start;
+  align-items: center;
+  margin: 0 4rem 0 4rem;
+  border-top: 1px solid rgb(31, 37, 53);
+}
+
+.casino-footer p {
+  color: #52565e;
 }

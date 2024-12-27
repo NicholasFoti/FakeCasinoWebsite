@@ -1,3 +1,7 @@
+.profile-page{
+    height: calc(100vh - 302px);
+}
+
 .profile-container {
     max-width: 600px;
     color: #f0f0f0;

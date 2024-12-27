@@ -1,0 +1,118 @@
+/*Live Bet Card*/
+.live-bets-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    width: 20%;
+    height: 100%;
+    border: 1px solid transparent;
+    border-image: linear-gradient(135deg, #161b25, #313336);
+    border-image-slice: 1;
+    background-color: #13171e;
+  }
+  
+  .live-bets-header{
+    display: flex;
+    background: rgb(35,40,49);
+    background: linear-gradient(132deg, rgba(37,42,52,255) 0%, rgba(32,36,46,255) 50%, rgba(30,33,41,255) 100%);
+    flex-direction: row;
+    align-items: center;
+    justify-content: start;
+    font-size: 20px;
+    padding-left: 40px;
+    border: 1px solid transparent;
+    border-image: linear-gradient(135deg, #2e333d, #232832);
+    border-image-slice: 1;
+  }
+  
+  .live-bets-info{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+    width: 100%;
+    font-size: 20px;
+    margin-bottom: 10px;
+    color: rgb(134, 134, 134);
+  }
+  
+  .live-bets-info span {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .live-bets-info span:first-child {
+    text-align: left;
+  }
+  
+  .live-bets-info span:last-child {
+    text-align: right;
+  }
+  
+  .live-bet-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    box-shadow: 0 0 5px red;
+    background-color: red;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+    margin-right: 10px;
+  }
+  
+  .live-bets {
+    padding: 20px 40px 0 40px;
+  }
+  
+  .live-bets-reel {
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  .live-bet-item {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    width: 100%;
+  }
+
+  .live-bet-item span:nth-child(2), .live-bet-item span:nth-child(3) {
+    color: rgb(134, 134, 134);
+  }
+
+  .live-bet-item.positive span:nth-child(3) /* The profit span */ {
+    color: rgb(75, 247, 75);
+  }
+  
+  .live-bet-item span {
+    flex: 1;
+    text-align: center;
+  }
+  
+  .live-bet-item span:first-child {
+    text-align: left;
+  }
+  
+  .live-bet-item span:last-child {
+    text-align: right;
+  }
+  
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1; 
+    }
+  }

@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { faCoins, faHouse, faDice, faDiamond, faClover, faTrophy, faCircle } from '@fortawesome/free-solid-svg-icons';
+import { faCoins, faHouse, faDice, faDiamond, faClover, faTrophy, faCircle, faThumbsUp, faExplosion } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './Header.css';
 
 const Header = () => {
   const [user, setUser] = useState(null);
+  const [totalBets, setTotalBets] = useState(0);
   const navigate = useNavigate();
   const prevBalanceRef = useRef();
   const balanceRef = useRef();
   const logo = require('../images/CasinoLogo.png');
+  const chip = require('../images/chip.png');
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -18,6 +20,20 @@ const Header = () => {
       setUser(parsedUser);
       prevBalanceRef.current = parsedUser.balance;
     }
+
+    const fetchTotalBets = async () => {
+      try {
+        const apiUrl = process.env.NODE_ENV === 'production' ? 'https://fakecasinowebsite.onrender.com/api/game/total-bets' : 'http://localhost:3001/api/game/total-bets';
+
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        setTotalBets(data.totalBets || 0);
+      } catch (error) {
+        console.error('Error fetching total bets:', error);
+      }
+    };
+
+    fetchTotalBets();
 
     const handleStorageChange = () => {
       const updatedUser = localStorage.getItem('user');
@@ -70,13 +86,19 @@ const Header = () => {
         <Link className="blackjack-button header-button" to="/blackjack"><FontAwesomeIcon className="header-icon" icon={faDiamond} />Blackjack</Link>
         <Link className="slots-button header-button" to="/slots"><FontAwesomeIcon className="header-icon" icon={faClover} />Slots</Link>
         <Link className="plinko-button header-button" to="/plinko"><FontAwesomeIcon className="header-icon" icon={faCircle} />Plinko</Link>
+        <Link className="heads-or-tails-button header-button" to="/coinflip"><FontAwesomeIcon className="header-icon" icon={faThumbsUp} />Heads or Tails</Link>
+        <Link className="crash-button header-button" to="/crash"><FontAwesomeIcon className="header-icon" icon={faExplosion} />Crash</Link>
         <Link className="leaderboard-button header-button" to="/leaderboard"><FontAwesomeIcon className="header-icon" icon={faTrophy} />Leaderboard</Link>
+      </div>
+      <div className="total-bets-placed">
+        <img src={chip} />
+        <span className="total-bets-placed-span">{totalBets.toLocaleString()}</span>
+        <p>Total Bets</p>
       </div>
       <div className="logged-in-info">
         {user ? (
           <>
             <div className="user-info-container">
-              <span className="user-info">Logged in as: {user.username}</span>
               <span className="user-balance" ref={balanceRef}>
               <FontAwesomeIcon icon={faCoins} size="xl" style={{color: "#FFD43B",}} /> {Number(user.balance).toLocaleString('en-US', {
                 minimumFractionDigits: 2,
@@ -84,13 +106,15 @@ const Header = () => {
               })}
               </span>
             </div>
-            <button onClick={() => navigate('/profile')} className="auth-button profile-button">Profile</button>
-            <button onClick={handleLogout} className="auth-button logout-button">Logout</button>
+            <div className="auth-buttons">
+              <Link to="/profile" className="auth-button profile-button">Profile</Link>
+              <Link to="/" onClick={handleLogout} className="auth-button logout-button">Logout</Link>
+            </div>
           </>
         ) : (
           <div className="auth-buttons">
+            <Link to="/login" className="auth-button login-button">Log In</Link>
             <Link to="/signup" className="auth-button sign-up-button">Sign Up</Link>
-            <Link to="/login" className="auth-button login-button">Login</Link>
           </div>
         )}
       </div>

@@ -1,6 +1,7 @@
 .leaderboard-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
+    height: calc(100vh - 80px - 20px);
 }
 
 .leaderboard {
@@ -12,6 +13,7 @@
     max-width: 400px;
     width: 100%;
     margin: 20px auto;
+    height: 50%;
 }
 
 .leaderboard h2 {

@@ -10,6 +10,7 @@ const Login = () => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const logo = require('../images/CasinoLogo.png');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -46,38 +47,53 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-container">
-      <h2>Login</h2>
+    <div className="auth-wrapper">
       {error && <div className="error-message">{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <input
-            type="text"
-            placeholder="Username"
-            value={formData.username}
-            onChange={(e) => setFormData({...formData, username: e.target.value})}
-            required
-          />
-        </div>
-        <div className="form-group">
-          <input
-            type="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={(e) => setFormData({...formData, password: e.target.value})}
-            required
-          />
-        </div>
-        <button type="submit" className="submit-button" disabled={isLoading}>
-          {isLoading ? (
-            <div className="spinner"></div>
-          ) : (
-            'Login'
-          )}
-        </button>
-      </form>
+      <div className="logo login-logo">
+        <img src={logo} alt="Casino Logo" />
+      </div>
+      <div className="auth-container">
+        <h3>Authentication</h3>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <input
+              type="text"
+              placeholder="Your username"
+              value={formData.username}
+              onChange={(e) => setFormData({...formData, username: e.target.value})}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <input
+              type="password"
+              placeholder="Your password"
+              value={formData.password}
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              required
+            />
+          </div>
+          <button type="submit" className="submit-button" disabled={isLoading}>
+            {isLoading ? (
+              <div className="spinner"></div>
+            ) : (
+              'SIGN IN'
+            )}
+          </button>
+          <div className="account-creation">
+            <p>Don't have an account yet?</p>
+            <button className="account-creation-button" onClick={() => navigate("/signup")} disabled={isLoading}>
+              {isLoading ? (
+                <div className="spinner"></div>
+              ) : (
+                'SIGN UP'
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
 
-export default Login; 
+export default Login;

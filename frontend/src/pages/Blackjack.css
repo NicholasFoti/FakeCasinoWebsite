@@ -1,9 +1,11 @@
 .blackjack-page{
   display: flex;
-  justify-content: center;
+  justify-content: start;
   align-items: center;
+  flex-direction: column;
   padding-left: 260px;
   padding-top: 80px;
+  height: calc(100vh - 80px - 81px - 19px);
 }
 
 .blackjack-main-card {
