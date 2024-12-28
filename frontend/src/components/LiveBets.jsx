@@ -37,13 +37,15 @@ const LiveBets = ({ bets }) => {
             <span>Profit</span>
         </div>
         <div className="live-bets-reel">
-          {bets.slice(-maxVisible).map((bet, index) => (
-            <div key={index} className={`live-bet-item ${bet.profit >= 0 ? 'positive' : ''}`}>
-              <span>{bet.user}</span>
-              <span>{bet.amount}</span>
-              <span>{bet.profit < 0 ? '↓' : '↑'} {Math.abs(bet.profit)}</span>
-            </div>
-          ))}
+          {Array.isArray(bets) && bets
+            .slice(0, maxVisible)
+            .map((bet, index) => (
+              <div key={index} className={`live-bet-item ${bet.bet_profit >= 0 ? 'positive' : ''}`}>
+                <span>{bet.username}</span>
+                <span>{bet.bet_amount}</span>
+                <span>{bet.bet_profit < 0 ? '↓' : '↑'} {Math.abs(bet.bet_profit)}</span>
+              </div>
+            ))}
         </div>
     </div>
     </div>

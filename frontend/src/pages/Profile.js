@@ -15,7 +15,7 @@ function Profile() {
   });
 
   useEffect(() => {
-    const fetchRecentBets = async () => {
+    const fetchRecentUserBets = async () => {
       try {
         const lastFetch = localStorage.getItem('recent_bets_timestamp');
         const now = Date.now();
@@ -24,8 +24,8 @@ function Profile() {
             const token = localStorage.getItem('token');
 
             const apiUrl = process.env.NODE_ENV === 'production' 
-            ? 'https://fakecasinowebsite.onrender.com/api/game/recent-bets'
-            : 'http://localhost:3001/api/game/recent-bets';
+            ? 'https://fakecasinowebsite.onrender.com/api/game/recent-user-bets'
+            : 'http://localhost:3001/api/game/recent-user-bets';
   
           const response = await fetch(apiUrl, {
             headers: {
@@ -45,9 +45,9 @@ function Profile() {
       }
     };
 
-    fetchRecentBets();
+    fetchRecentUserBets();
 
-    const interval = setInterval(fetchRecentBets, 60000);
+    const interval = setInterval(fetchRecentUserBets, 60000);
 
     return () => clearInterval(interval);
   }, []);

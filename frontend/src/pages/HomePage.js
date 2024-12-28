@@ -9,30 +9,12 @@ import './HomePage.css';
 
 const HomePage = () => {
   const [websocketConnections, setWebsocketConnections] = useState(0);
-  const [liveBets, setLiveBets] = useState([]);
+  const [liveBets, setLiveBets] = useState(() => {
+    const cached = localStorage.getItem('cached_live_bets');
+    return cached ? JSON.parse(cached) : [];
+  });
   const navigate = useNavigate();
   const [vantaEffect, setVantaEffect] = useState(null);
-
-  const bets = [
-    { user: "User1", amount: 100, profit: 20 },
-    { user: "User2", amount: 200, profit: -50 },
-    { user: "User3", amount: 150, profit: 30 },
-    { user: "User4", amount: 150, profit: 30 },
-    { user: "User5", amount: 150, profit: 30 },
-    { user: "User6", amount: 150, profit: -30 },
-    { user: "User7", amount: 150, profit: -30 },
-    { user: "User8", amount: 150, profit: 30 },
-    { user: "User9", amount: 150, profit: 30 },
-    { user: "User10", amount: 150, profit: -30 },
-    { user: "User11", amount: 150, profit: -30 },
-    { user: "User12", amount: 150, profit: -30 },
-    { user: "User13", amount: 150, profit: -30 },
-    { user: "User14", amount: 150, profit: -30 },
-    { user: "User15", amount: 150, profit: -30 },
-    { user: "User16", amount: 150, profit: -30 },
-    { user: "User17", amount: 150, profit: -30 },
-    { user: "User18", amount: 150, profit: -30 },
-  ];
 
   useEffect(() => {
     if (!vantaEffect) {
@@ -95,6 +77,32 @@ const HomePage = () => {
     };
   }, []);
 
+  useEffect(() => {
+    const fetchRecentBets = async () => {
+      try {
+        const lastFetch = localStorage.getItem('recent_bets_timestamp');
+        const now = Date.now();
+
+        if (!lastFetch || (now - parseInt(lastFetch)) > 60000) {
+        const response = await fetch(
+          process.env.NODE_ENV === 'production'
+            ? 'https://fakecasinowebsite.onrender.com/api/game/recent-bets'
+            : 'http://localhost:3001/api/game/recent-bets'
+        );
+        if (response.ok) {
+            const data = await response.json();
+            setLiveBets(data);
+            localStorage.setItem('cached_live_bets', JSON.stringify(data));
+            localStorage.setItem('recent_bets_timestamp', Date.now().toString());
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching recent bets:', error);
+      }
+    };
+    fetchRecentBets();
+  }, []);
+
   return (
     <div className="main-card">
       <div className="main-section">
@@ -137,7 +145,7 @@ const HomePage = () => {
             </div>
           </div>
         </div>
-        <LiveBets bets={bets} />
+        <LiveBets bets={liveBets} />
       </div>
       <div className="games">
         <div className="plinko">
