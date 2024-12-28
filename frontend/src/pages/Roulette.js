@@ -281,10 +281,10 @@ function Roulette ({ setHideFooter }) {
       if (targetNumber === 0 && container.classList.contains('placed-green')) {
         winnings = amount * 14;
         won = true;
-      } else if (targetNumber % 2 === 0 && container.classList.contains('placed-black')) {
+      } else if (targetNumber !== 0 &&targetNumber % 2 === 0 && container.classList.contains('placed-black')) {
         winnings = amount * 2;
         won = true;
-      } else if (targetNumber % 2 === 1 && container.classList.contains('placed-red')) {
+      } else if (targetNumber !== 0 &&targetNumber % 2 === 1 && container.classList.contains('placed-red')) {
         winnings = amount * 2;
         won = true;
       }
