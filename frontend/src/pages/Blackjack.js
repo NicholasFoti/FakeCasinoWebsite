@@ -298,7 +298,7 @@ const Blackjack = () => {
           await addRecentBet(
             'Blackjack',
             betAmount,
-            won ? betAmount : -betAmount,
+            won ? betAmount * 2 : -betAmount,
             won
           );
         }
