@@ -12,15 +12,63 @@ import {
 import Chat from '../components/Chat';
 import { updateWinnings, updateBalance, updateBetStats } from "../utils/winnings";
 import './Blackjack.css';
+import Card from '../components/Card';
 
 const Blackjack = () => {
-  const [playerHand, setPlayerHand] = useState([]);
-  const [dealerHand, setDealerHand] = useState([]);
-  const [betAmount, setBetAmount] = useState([]);
-  const [gameStatus, setGameStatus] = useState('waiting'); // 'waiting', 'playing', 'finished'
-  const [deck, setDeck] = useState([]);
+  const [playerHand, setPlayerHand] = useState(() => {
+    const saved = localStorage.getItem('blackjack_playerHand');
+    return saved ? JSON.parse(saved) : [];
+  });
+  
+  const [dealerHand, setDealerHand] = useState(() => {
+    const saved = localStorage.getItem('blackjack_dealerHand');
+    return saved ? JSON.parse(saved) : [];
+  });
+  
+  const [deck, setDeck] = useState(() => {
+    const saved = localStorage.getItem('blackjack_deck');
+    return saved ? JSON.parse(saved) : [];
+  });
+  
+  const [gameStatus, setGameStatus] = useState(() => {
+    const saved = localStorage.getItem('blackjack_gameStatus');
+    return saved || 'waiting';
+  });
+  
+  const [betAmount, setBetAmount] = useState(() => {
+    const saved = localStorage.getItem('blackjack_betAmount');
+    return saved ? parseFloat(saved) : 0;
+  });
+
   const [isBetProcessing, setIsBetProcessing] = useState(false);
 
+  useEffect(() => {
+    localStorage.setItem('blackjack_playerHand', JSON.stringify(playerHand));
+  }, [playerHand]);
+
+  useEffect(() => {
+    localStorage.setItem('blackjack_dealerHand', JSON.stringify(dealerHand));
+  }, [dealerHand]);
+
+  useEffect(() => {
+    localStorage.setItem('blackjack_deck', JSON.stringify(deck));
+  }, [deck]);
+
+  useEffect(() => {
+    localStorage.setItem('blackjack_gameStatus', gameStatus);
+  }, [gameStatus]);
+
+  useEffect(() => {
+    localStorage.setItem('blackjack_betAmount', betAmount);
+  }, [betAmount]);
+
+  const clearGameState = () => {
+    localStorage.removeItem('blackjack_playerHand');
+    localStorage.removeItem('blackjack_dealerHand');
+    localStorage.removeItem('blackjack_deck');
+    localStorage.removeItem('blackjack_gameStatus');
+    localStorage.removeItem('blackjack_betAmount');
+  };
 
   const startGame = () => {
     const userToken = localStorage.getItem('token');
@@ -235,20 +283,29 @@ const Blackjack = () => {
         <h2>Blackjack (In Development)</h2>
       {gameStatus !== 'waiting' && (
         <>
+        <div className="game-area">
           <div className="player-cards">
-            <p>Your Hand:</p>
-            {playerHand.map((card, index) => (
-              <span key={index}>{card}</span>
-            ))}
+            <p>Your Hand: <span>{calculateHandValue(playerHand)}</span></p>
+            <div className="cards-row">
+              {playerHand.map((card, index) => (
+                <Card key={index} card={card} />
+              ))}
+            </div>
           </div>
           <div className="dealer-cards">
-            <p>Dealers Hand:</p>
-            {gameStatus !== 'playing' ? dealerHand.map((card, index) => (
-              <span key={index}>{card}</span>
-            )) : 
-            <span key={0}>{dealerHand[0]}</span>
-            }
+            <p>Dealers Hand: <span>{gameStatus !== 'playing' ? calculateHandValue(dealerHand) : calculateHandValue(dealerHand.slice(0, 1))}</span></p>
+            <div className="cards-row">
+              {gameStatus !== 'playing' 
+                ? dealerHand.map((card, index) => (
+                    <Card key={index} card={card} />
+                  ))
+                : dealerHand.slice(0, 1).map((card, index) => (
+                    <Card key={index} card={card} />
+                  ))
+              }
+            </div>
           </div>
+        </div>
         </>
       )}
       {gameStatus === 'bust' || gameStatus === 'lost' || gameStatus === 'won' || gameStatus === 'blackjack' || gameStatus === 'draw' ? (
@@ -258,6 +315,7 @@ const Blackjack = () => {
             setGameStatus('waiting');
             setPlayerHand([]);
             setDealerHand([]);
+            clearGameState();
           }}>Play Again</button>
         </div>
       ) : (
@@ -269,14 +327,14 @@ const Blackjack = () => {
                 <h2>Wager:</h2>
                 <div className="wager-input blackjack-wager-input">
                   <input type="number" placeholder="Enter your wager" />
-                  <button className="blackjack-wager-button clear" onClick={handleClearBet}>Clear</button>
-                  <button className="blackjack-wager-button +1" onClick={handlePlusOne}>+1</button>
-                  <button className="blackjack-wager-button +10" onClick={handlePlusTen}>+10</button>
-                  <button className="blackjack-wager-button +100" onClick={handlePlusOneHundred}>+100</button>
-                  <button className="blackjack-wager-button +1000" onClick={handlePlusOneThousand}>+1000</button>
-                  <button className="blackjack-wager-button 1/2" onClick={handleHalf}>1/2</button>
-                  <button className="blackjack-wager-button 2x" onClick={handleDouble}>2x</button>
-                  <button className="blackjack-wager-button max" onClick={handleMax}>Max</button>
+                  <button className="wager-button clear" onClick={handleClearBet}>Clear</button>
+                  <button className="wager-button +1" onClick={handlePlusOne}>+1</button>
+                  <button className="wager-button +10" onClick={handlePlusTen}>+10</button>
+                  <button className="wager-button +100" onClick={handlePlusOneHundred}>+100</button>
+                  <button className="wager-button +1000" onClick={handlePlusOneThousand}>+1000</button>
+                  <button className="wager-button 1/2" onClick={handleHalf}>1/2</button>
+                  <button className="wager-button 2x" onClick={handleDouble}>2x</button>
+                  <button className="wager-button max" onClick={handleMax}>Max</button>
                 </div>
               </div>
             </>

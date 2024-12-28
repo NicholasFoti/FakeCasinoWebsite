@@ -573,7 +573,7 @@ function Roulette ({ setHideFooter }) {
         </div>
         <div className="wager">
           <h2>Wager:</h2>
-          <div className="wager-input">
+          <div className="wager-input roulette-wager-input">
             <input type="number" placeholder="Enter your wager" />
             <button className="wager-button clear" onClick={handleClearBet}>Clear</button>
             <button className="wager-button +1" onClick={handlePlusOne}>+1</button>
