@@ -2,7 +2,6 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-left: 260px;
   padding-top: 80px;
   height: calc(100vh - 80px - 81px - 19px);
   width: 100%;
@@ -15,6 +14,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 30px;
 }
 
@@ -121,6 +121,7 @@
 
 .button-container {
   display: flex;
+  flex-direction: column;
   gap: 20px;
   margin-top: 20px;
 }
