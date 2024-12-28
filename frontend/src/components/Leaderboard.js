@@ -40,36 +40,38 @@ const Leaderboard = () => {
   }, []);
 
   return (
-    <div className="leaderboard-container">
-      <div className="leaderboard total-winnings">
-        <h2>Total Winnings</h2>
-        <h3>Top 10 Players</h3>
-        {loading ? (
-          <div className="spinner"></div>
-        ) : (
-        <ul>
-        {winningsLeaders.map((leader, index) => (
-          <li key={index}>
-            <span className="leaderboard-position">{index + 1}.</span> {leader.username}: ${leader.total_winnings - leader.total_losses}
-          </li>
-            ))}
-          </ul>
-        )}
-      </div>
-      <div className="leaderboard top-players">
-        <h2>Total Wins</h2>
-        <h3>Top 10 Players</h3>
-        {loading ? (
-          <div className="spinner"></div>
-        ) : (
-        <ul>
-        {winsLeaders.map((leader, index) => (
-          <li key={index}>
-            <span className="leaderboard-position">{index + 1}.</span> {leader.username}: {leader.bets_won}
-          </li>
-            ))}
-          </ul>
-        )}
+    <div className="leaderboard-page">
+      <div className="leaderboard-container">
+        <div className="leaderboard total-winnings">
+          <h2>Total Winnings</h2>
+          <h3>Top 10 Players</h3>
+          {loading ? (
+            <div className="spinner"></div>
+          ) : (
+          <ul>
+          {winningsLeaders.map((leader, index) => (
+            <li key={index}>
+              <span className="leaderboard-position">{index + 1}.</span> {leader.username}: ${leader.total_winnings - leader.total_losses}
+            </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <div className="leaderboard top-players">
+          <h2>Total Wins</h2>
+          <h3>Top 10 Players</h3>
+          {loading ? (
+            <div className="spinner"></div>
+          ) : (
+          <ul>
+          {winsLeaders.map((leader, index) => (
+            <li key={index}>
+              <span className="leaderboard-position">{index + 1}.</span> {leader.username}: {leader.bets_won}
+            </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   );
