@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import './LiveBets.css';
 
 const LiveBets = ({ bets }) => {
-  const [maxVisible, setMaxVisible] = useState(11); // Default to 11 bets
+  const [maxVisible, setMaxVisible] = useState(11);
 
   // Update maxVisible based on screen size
   const updateMaxVisible = () => {

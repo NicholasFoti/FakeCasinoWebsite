@@ -9,6 +9,7 @@ import './HomePage.css';
 
 const HomePage = () => {
   const [websocketConnections, setWebsocketConnections] = useState(0);
+  const [liveBets, setLiveBets] = useState([]);
   const navigate = useNavigate();
   const [vantaEffect, setVantaEffect] = useState(null);
 

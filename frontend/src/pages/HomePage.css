@@ -137,7 +137,7 @@
   font-size: 40px;
   width: 50%;
   border: 1px solid transparent;
-  border-image: linear-gradient(135deg, #5d6271, #10141d);
+  border-image: linear-gradient(40deg, #5d6271, #10141d);
   border-image-slice: 1;
 }
 

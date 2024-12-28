@@ -60,7 +60,6 @@ const connectedUsers = new Set();
 
 io.on('connection', (socket) => {
   connectedUsers.add(socket.id);
-  console.log('A user connected:', socket.id);
   io.emit('updateConnections', connectedUsers.size);
 
   socket.on('chatMessage', (msg) => {
@@ -73,7 +72,6 @@ io.on('connection', (socket) => {
 
   socket.on('disconnect', () => {
     connectedUsers.delete(socket.id);
-    console.log('User disconnected:', socket.id);
     io.emit('updateConnections', connectedUsers.size);
   });
 
@@ -136,7 +134,7 @@ const gameState = {
     inProgress: false,
     number: null,
     startTime: null,
-    duration: 13000 // Total animation duration
+    duration: 13000
   },
   lastUpdated: Date.now()
 };
