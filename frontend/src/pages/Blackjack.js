@@ -68,6 +68,7 @@ const Blackjack = () => {
     localStorage.removeItem('blackjack_deck');
     localStorage.removeItem('blackjack_gameStatus');
     localStorage.removeItem('blackjack_betAmount');
+    localStorage.removeItem('blackjack_current_game');
   };
 
   const startGame = () => {
@@ -256,10 +257,19 @@ const Blackjack = () => {
   useEffect(() => {
     if (gameStatus === 'bust' || gameStatus === 'lost' || gameStatus === 'won' || gameStatus === 'blackjack' || gameStatus === 'draw') {
       const handleGameOutcome = async () => {
+        // Check if this game has already been paid out
+        const gameId = localStorage.getItem('blackjack_current_game');
+        if (gameId) {
+          return; // Already handled this game outcome
+        }
+
+        // Set a unique game ID to prevent multiple payouts
+        const newGameId = Date.now().toString();
+        localStorage.setItem('blackjack_current_game', newGameId);
+
         const won = gameStatus === 'won' || gameStatus === 'blackjack';
         
         if (gameStatus === 'draw') {
-          // Handle draw - return bet amount
           await updateBalance(betAmount);
           const user = JSON.parse(localStorage.getItem('user'));
           user.balance = parseFloat(user.balance) + betAmount;
@@ -283,7 +293,6 @@ const Blackjack = () => {
             }
           }
           
-          // Update stats and record bet
           await updateBetStats(won);
           await updateWinnings(won ? betAmount * 2 : 0, won ? 0 : betAmount);
           await addRecentBet(
