@@ -150,9 +150,9 @@
   transition: transform 0.3s ease;
 }
 
-.spinner {
-  width: 20px;
-  height: 20px;
+.auth-spinner {
+  width: 16px;
+  height: 16px;
   border: 3px solid #333;
   border-top: 3px solid #fff;
   border-radius: 50%;

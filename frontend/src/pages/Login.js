@@ -75,7 +75,7 @@ const Login = () => {
           </div>
           <button type="submit" className="submit-button" disabled={isLoading}>
             {isLoading ? (
-              <div className="spinner"></div>
+              <div className="auth-spinner"></div>
             ) : (
               'SIGN IN'
             )}
@@ -84,7 +84,7 @@ const Login = () => {
             <p>Don't have an account yet?</p>
             <button className="account-creation-button" onClick={() => navigate("/signup")} disabled={isLoading}>
               {isLoading ? (
-                <div className="spinner"></div>
+                <div className="auth-spinner"></div>
               ) : (
                 'SIGN UP'
               )}

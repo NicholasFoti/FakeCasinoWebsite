@@ -91,7 +91,7 @@ function Signup () {
           </div>
           <button type="submit" className="submit-button" disabled={isLoading}>
             {isLoading ? (
-              <div className="spinner"></div>
+              <div className="auth-spinner"></div>
             ) : (
               'SIGN UP'
             )}
@@ -100,7 +100,7 @@ function Signup () {
             <p>Already have an account?</p>
             <button className="account-creation-button" onClick={() => navigate("/login")} disabled={isLoading}>
               {isLoading ? (
-                <div className="spinner"></div>
+                <div className="auth-spinner"></div>
               ) : (
                 'SIGN IN'
               )}
