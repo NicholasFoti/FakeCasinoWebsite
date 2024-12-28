@@ -2,34 +2,30 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding-top: 80px;
-  height: calc(100vh - 80px - 81px - 19px);
+  height: calc(100vh - 100px);
   width: 100%;
 }
 
 .blackjack-main-card {
   width: calc(100% - 280px);
+  height: 100%;  
   max-width: 1200px;
-  padding: 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 30px;
+  justify-content: start;
 }
 
 .game-area {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 40px;
 }
 
 .player-cards, .dealer-cards {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
   width: 100%;
 }
 
