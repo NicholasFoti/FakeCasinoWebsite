@@ -124,16 +124,45 @@ router.get('/leaderboard/wins', async (req, res) => {
 });
 
 router.get('/total-bets', async (req, res) => {
-    try {
-      const totalBets = await pool.query(`
-        SELECT COALESCE(SUM(bets_won), 0) + COALESCE(SUM(bets_lost), 0) AS total_bets 
-        FROM user_details
-      `);
-      res.json({ totalBets: totalBets.rows[0].total_bets });
-    } catch (error) {
-      console.error('Error fetching total bets:', error);
-      res.status(500).json({ message: 'Server error while fetching total bets' });
-    }
-  });
+  try {
+    const totalBets = await pool.query(`
+      SELECT COALESCE(SUM(bets_won), 0) + COALESCE(SUM(bets_lost), 0) AS total_bets 
+      FROM user_details
+    `);
+    res.json({ totalBets: totalBets.rows[0].total_bets });
+  } catch (error) {
+    console.error('Error fetching total bets:', error);
+    res.status(500).json({ message: 'Server error while fetching total bets' });
+  }
+});
+
+router.post('/add-recent-bet', authenticateToken, async (req, res) => {
+  try {
+    const { userId, gameType, betAmount, betProfit, won } = req.body;
+
+    const result = await pool.query(
+      'INSERT INTO recent_bets (user_id, game_type, bet_amount, bet_profit, won) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+      [userId, gameType, betAmount, betProfit, won]
+    );
+
+    res.json({ message: 'Bet recorded successfully', bet: result.rows[0] });
+  } catch (error) {
+    console.error('Error recording bet:', error);
+    res.status(500).json({ message: 'Server error while recording bet' });
+  }
+});
+
+router.get('/recent-bets', authenticateToken, async (req, res) => {  
+  try {
+    const result = await pool.query(
+      'SELECT game_type, bet_amount, bet_profit FROM recent_bets WHERE user_id = $1 ORDER BY created_at DESC LIMIT 5', 
+      [req.user.userId]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching recent bets:', error);
+    res.status(500).json({ message: 'Server error while fetching recent bets' });
+  }
+});
 
 module.exports = router;

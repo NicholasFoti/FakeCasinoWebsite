@@ -65,3 +65,24 @@ export async function updateWinnings(winAmount, lossAmount) {
     });
     return response;
 };
+
+//Add recent bet to database
+export async function addRecentBet(gameType, betAmount, betProfit, won) {
+    const apiUrl = process.env.NODE_ENV === 'production' ? 'https://fakecasinowebsite.onrender.com/api/game/add-recent-bet' : 'http://localhost:3001/api/game/add-recent-bet';
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify({
+        userId: JSON.parse(localStorage.getItem('user')).id,
+        gameType,
+        betAmount,
+        betProfit,
+        won
+      })
+    });
+    return response;
+}

@@ -42,7 +42,7 @@ const HomePage = () => {
           mouseControls: true,
           touchControls: false,
           gyroControls: false,
-          minHeight: 100.00,
+          minHeight: 50.00,
           minWidth: 200.00,
           scale: 1.00,
           scaleMobile: 1.00,
@@ -51,7 +51,8 @@ const HomePage = () => {
           backgroundColor: 0x13171e,
           size: 10,
           spacing: 100.00,
-          showLines: false
+          showLines: false,
+          resize: true
         })
       );
     }

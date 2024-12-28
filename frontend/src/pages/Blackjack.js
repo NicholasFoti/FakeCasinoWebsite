@@ -10,7 +10,7 @@ import {
   handleMax
 } from '../utils/wager';
 import Chat from '../components/Chat';
-import { updateWinnings, updateBalance, updateBetStats } from "../utils/winnings";
+import { updateWinnings, updateBalance, updateBetStats, addRecentBet } from "../utils/winnings";
 import './Blackjack.css';
 import Card from '../components/Card';
 
@@ -166,10 +166,6 @@ const Blackjack = () => {
           window.dispatchEvent(new Event('balanceUpdate'));
         }
       }
-      console.log(gameStatus, won);
-      if (gameStatus !== 'draw'){
-        handleWinnings(won, betAmount)
-      };
     }, 1000);
   };
 
@@ -216,7 +212,10 @@ const Blackjack = () => {
 
     // Refresh user data right before checking balance
     const updatedUserData = JSON.parse(localStorage.getItem('user'));
-    if (amount > updatedUserData.balance){
+    const numericAmount = Number(amount);
+    const numericBalance = Number(updatedUserData.balance);
+
+    if (numericAmount > numericBalance) {
       alert('You dont have enough balance');
       betButton.dataset.betting = 'false';
       return;
@@ -243,28 +242,6 @@ const Blackjack = () => {
     beginHand(amount);
   };
 
-  const handleWinnings = async (won, wager) => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) return;
-    
-    if (won) {
-      const winnings = wager * 2;
-      try {
-        const response = await updateBalance(winnings);
-        if (response.ok) {
-          user.balance = parseFloat(user.balance) + winnings;
-          user.balance = user.balance.toFixed(2);
-          localStorage.setItem('user', JSON.stringify(user));
-          window.dispatchEvent(new Event('balanceUpdate'));
-        }
-      } catch (error) {
-        console.error('Error updating balance for winner:', error);
-      }
-    };
-
-    await updateBetStats(won);
-  };
-
   useEffect(() => {
     window.isBetProcessing = isBetProcessing;
     return () => {
@@ -275,6 +252,51 @@ const Blackjack = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+    if (gameStatus === 'bust' || gameStatus === 'lost' || gameStatus === 'won' || gameStatus === 'blackjack' || gameStatus === 'draw') {
+      const handleGameOutcome = async () => {
+        const won = gameStatus === 'won' || gameStatus === 'blackjack';
+        
+        if (gameStatus === 'draw') {
+          // Handle draw - return bet amount
+          await updateBalance(betAmount);
+          const user = JSON.parse(localStorage.getItem('user'));
+          user.balance = parseFloat(user.balance) + betAmount;
+          user.balance = user.balance.toFixed(2);
+          localStorage.setItem('user', JSON.stringify(user));
+          window.dispatchEvent(new Event('balanceUpdate'));
+        } else {
+          if (won) {
+            const winnings = betAmount * 2;
+            try {
+              const response = await updateBalance(winnings);
+              if (response.ok) {
+                const user = JSON.parse(localStorage.getItem('user'));
+                user.balance = parseFloat(user.balance) + winnings;
+                user.balance = user.balance.toFixed(2);
+                localStorage.setItem('user', JSON.stringify(user));
+                window.dispatchEvent(new Event('balanceUpdate'));
+              }
+            } catch (error) {
+              console.error('Error updating balance for winner:', error);
+            }
+          }
+          
+          // Update stats and record bet
+          await updateBetStats(won);
+          await updateWinnings(won ? betAmount * 2 : 0, won ? 0 : betAmount);
+          await addRecentBet(
+            'Blackjack',
+            betAmount,
+            won ? betAmount : -betAmount,
+            won
+          );
+        }
+      };
+      handleGameOutcome();
+    }
+  }, [gameStatus, betAmount]);
 
   return (
     <div className="blackjack-page">

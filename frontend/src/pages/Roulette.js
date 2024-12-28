@@ -14,7 +14,7 @@ import {
   handleDouble,
   handleMax
 } from '../utils/wager';
-import { updateWinnings, updateBalance, updateBetStats } from "../utils/winnings";
+import { updateWinnings, updateBalance, updateBetStats, addRecentBet } from "../utils/winnings";
 
 
 import "./Roulette.css";
@@ -304,6 +304,14 @@ function Roulette ({ setHideFooter }) {
         }
       }
       await updateBetStats(won);
+      if (betterName === user.username) {
+        await addRecentBet(
+          'Roulette',
+          userTotalBetAmount,
+          won ? winnings : -userTotalBetAmount,
+          won
+        );
+      }
     }
   
     const netLoss = Math.max(userTotalBetAmount - userTotalWinAmount, 0);

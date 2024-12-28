@@ -69,10 +69,12 @@ const Header = () => {
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('user');
     localStorage.removeItem('token');
-    setUser(null);
-    navigate('/');
+    localStorage.removeItem('user');
+    localStorage.removeItem('cached_recent_bets');
+    localStorage.removeItem('recent_bets_timestamp');
+    window.dispatchEvent(new Event('logout'));
+    navigate('/login');
   };
 
   return (
