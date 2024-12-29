@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { faCoins } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './LiveBets.css';
 
 const LiveBets = ({ bets }) => {
@@ -42,7 +44,7 @@ const LiveBets = ({ bets }) => {
             .map((bet, index) => (
               <div key={index} className={`live-bet-item ${bet.bet_profit >= 0 ? 'positive' : ''}`}>
                 <span>{bet.username}</span>
-                <span>{bet.bet_amount}</span>
+                <span><FontAwesomeIcon icon={faCoins} className="live-bet-coin" size="l" />{bet.bet_amount}</span>
                 <span>{bet.bet_profit < 0 ? '↓' : '↑'} {Math.abs(bet.bet_profit)}</span>
               </div>
             ))}
