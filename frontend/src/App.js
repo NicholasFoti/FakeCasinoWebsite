@@ -50,8 +50,8 @@ function App() {
 
       const userId = JSON.parse(user).id;
       const apiUrl = process.env.NODE_ENV === 'production' 
-        ? `https://fakecasinowebsite.onrender.com/api/auth/user/${userId}` 
-        : `http://localhost:3001/api/auth/user/${userId}`;
+        ? `https://fakecasinowebsite.onrender.com/api/user/user/${userId}` 
+        : `http://localhost:3001/api/user/user/${userId}`;
 
       return fetch(apiUrl, {
         headers: {
