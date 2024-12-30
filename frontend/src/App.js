@@ -24,19 +24,20 @@ function App() {
 
     const checkTokenExpiration = () => {
       const token = localStorage.getItem('token');
-      if (token) {
-        try {
-          const decodedToken = jwtDecode(token);
-          const currentTime = Date.now() / 1000;
-          if (decodedToken.exp < currentTime) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            alert('Your session has expired. Please login again.');
-            window.location.href = '/login';
-          }
-        } catch (error) {
-          console.error('Error checking token expiration:', error);
+      if (!token) return;
+
+      try {
+        const decodedToken = jwtDecode(token);
+        const currentTime = Date.now() / 1000;
+        
+        // Add buffer time (5 minutes) before expiration
+        if (decodedToken.exp < currentTime + 300) {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          window.location.href = '/login';
         }
+      } catch (error) {
+        console.error('Error checking token expiration:', error);
       }
     };
 

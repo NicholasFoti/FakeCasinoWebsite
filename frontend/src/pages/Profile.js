@@ -67,7 +67,9 @@ function Profile() {
         if (lastFetch && (now - parseInt(lastFetch)) <= 60000) {
           const cached = localStorage.getItem('cached_recent_bets');
           if (cached) {
-            return JSON.parse(cached);
+            const parsedBets = JSON.parse(cached);
+            setRecentBets(parsedBets);
+            return parsedBets;
           }
         }
 
@@ -83,6 +85,10 @@ function Profile() {
           }
         });
         
+        if (!response.ok) {
+          throw new Error('Failed to fetch recent bets');
+        }
+        
         const data = await response.json();
         
         // Ensure data is an array and cache it
@@ -90,6 +96,7 @@ function Profile() {
         localStorage.setItem('cached_recent_bets', JSON.stringify(betsArray));
         localStorage.setItem('recent_bets_timestamp', now.toString());
         
+        setRecentBets(betsArray);
         return betsArray;
       } catch (error) {
         console.error('Error fetching recent bets:', error);
