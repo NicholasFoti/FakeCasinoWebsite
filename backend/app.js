@@ -8,7 +8,7 @@ const pool = require('./db/config');
 const authRoutes = require('./routes/authRoutes');
 const gameRoutes = require('./routes/gameRoutes');
 const chatRoutes = require('./routes/chatRoutes');
-
+const userRoutes = require('./routes/userRoutes');
 const app = express();
 const server = http.createServer(app);
 const { Server } = require('socket.io');
@@ -35,6 +35,7 @@ app.use(express.static(path.join(__dirname, '../frontend/build')));
 app.use('/api/auth', authRoutes);
 app.use('/api/game', gameRoutes);
 app.use('/api/chat', chatRoutes);
+app.use('/api/user', userRoutes);
 
 app.get('/api/online-connections', (req, res) => {
   try {

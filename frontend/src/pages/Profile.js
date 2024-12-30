@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
+import multiavatar from '@multiavatar/multiavatar';
 import './Profile.css';
 
 function Profile() {
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')) || {});
-  const [recentBets, setRecentBets] = useState(() => {
-    const cached = localStorage.getItem('cached_recent_bets');
-    return cached ? JSON.parse(cached) : [];
-  });
+  const [recentBets, setRecentBets] = useState([]);
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [selectedAvatar, setSelectedAvatar] = useState(user.avatar_id || '');
+
 
   const formattedDate = new Date(user.date_created).toLocaleDateString('en-US', {
     year: 'numeric',
@@ -14,45 +15,95 @@ function Profile() {
     day: 'numeric'
   });
 
+  const generateAvatarOptions = () => {
+    const options = [];
+    const seeds = Array.from({ length: 24 }, () => Math.random().toString(36).substring(7));
+    seeds.forEach(seed => {
+      options.push(multiavatar(seed));
+    });
+    return options;
+  };
+
+  const handleProfilePictureChange = () => {
+    setShowAvatarModal(true);
+  };
+
+  const handleAvatarSelect = async (avatarSvg) => {
+    try{
+      const apiUrl = process.env.NODE_ENV === 'production' 
+        ? 'https://fakecasinowebsite.onrender.com/api/user/update-avatar'
+        : 'http://localhost:3001/api/user/update-avatar';
+
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          avatarId: avatarSvg
+        })
+      });
+
+      if (response.ok) {
+        const updatedUser = { ...user, avatar_id: avatarSvg };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        setUser(updatedUser);
+        setShowAvatarModal(false);
+      }
+    } catch (error) {
+      console.error('Error updating avatar:', error);
+    }
+  };
+
   useEffect(() => {
     const fetchRecentUserBets = async () => {
-      const lastFetch = localStorage.getItem('recent_bets_timestamp');
-      const now = Date.now();
-
-      return new Promise((resolve, reject) => {
-        if (!lastFetch || (now - parseInt(lastFetch)) > 60000) {
-          const token = localStorage.getItem('token');
-          const apiUrl = process.env.NODE_ENV === 'production' 
-            ? 'https://fakecasinowebsite.onrender.com/api/game/recent-user-bets'
-            : 'http://localhost:3001/api/game/recent-user-bets';
-
-          fetch(apiUrl, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          })
-            .then(response => response.json())
-            .then(data => {
-              localStorage.setItem('cached_recent_bets', JSON.stringify(data));
-              localStorage.setItem('recent_bets_timestamp', now.toString());
-              resolve(data);
-            })
-            .catch(error => reject(error));
-        } else {
-          resolve(JSON.parse(localStorage.getItem('cached_recent_bets')));
+      try {
+        const lastFetch = localStorage.getItem('recent_bets_timestamp');
+        const now = Date.now();
+        
+        // Use cached data if it's less than 1 minute old
+        if (lastFetch && (now - parseInt(lastFetch)) <= 60000) {
+          const cached = localStorage.getItem('cached_recent_bets');
+          if (cached) {
+            return JSON.parse(cached);
+          }
         }
-      });
+
+        // Fetch new data if cache is old or missing
+        const token = localStorage.getItem('token');
+        const apiUrl = process.env.NODE_ENV === 'production' 
+          ? 'https://fakecasinowebsite.onrender.com/api/game/recent-user-bets'
+          : 'http://localhost:3001/api/game/recent-user-bets';
+
+        const response = await fetch(apiUrl, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        const data = await response.json();
+        
+        // Ensure data is an array and cache it
+        const betsArray = Array.isArray(data) ? data : [];
+        localStorage.setItem('cached_recent_bets', JSON.stringify(betsArray));
+        localStorage.setItem('recent_bets_timestamp', now.toString());
+        
+        return betsArray;
+      } catch (error) {
+        console.error('Error fetching recent bets:', error);
+        return [];
+      }
     };
 
-    fetchRecentUserBets()
-      .then(data => {
-        setRecentBets(data);
-      })
-      .catch(error => {
-        console.error('Error fetching recent bets:', error);
-      });
+    // Initial fetch
+    fetchRecentUserBets().then(setRecentBets);
 
-    const interval = setInterval(fetchRecentUserBets, 60000);
+    // Set up polling interval
+    const interval = setInterval(() => {
+      fetchRecentUserBets().then(setRecentBets);
+    }, 60000);
 
     return () => clearInterval(interval);
   }, []);
@@ -75,14 +126,38 @@ function Profile() {
     <div className="profile-page">
         <div className="profile-container">
             <div className="profile-header">
-                <img 
-                src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.username || 'User'}`}
-                alt="Profile" 
-                className="profile-avatar"
-                />
+                <div className="profile-picture-container">
+                  <div className="profile-avatar" 
+                    dangerouslySetInnerHTML={{ 
+                      __html: user.avatar_id || multiavatar(user.username) 
+                    }} 
+                  />
+                  <button className="profile-picture-edit-button" onClick={handleProfilePictureChange}>
+                    Change Avatar
+                  </button>
+
+                  {showAvatarModal && (
+                    <div className="avatar-modal">
+                      <div className="avatar-modal-content">
+                        <h3>Select an Avatar</h3>
+                        <div className="avatar-grid">
+                          {generateAvatarOptions().map((avatarSvg, index) => (
+                            <div 
+                              key={index}
+                              className={`avatar-option ${selectedAvatar === avatarSvg ? 'selected' : ''}`}
+                              onClick={() => handleAvatarSelect(avatarSvg)}
+                              dangerouslySetInnerHTML={{ __html: avatarSvg }}
+                            />
+                          ))}
+                        </div>
+                        <button onClick={() => setShowAvatarModal(false)}>Close</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
                 <div className="profile-info">
                 <h1 className="profile-username">{user.username}</h1>
-                <div className="profile-stats">
+                  <div className="profile-stats">
                     <div className="stat-item">
                     <div className="stat-value">${Number(user.balance).toLocaleString('en-US', {
                         minimumFractionDigits: 2,
@@ -100,7 +175,7 @@ function Profile() {
                     <div className="stat-value">{user.bets_won + user.bets_lost}</div>
                     <div className="stat-label">Total Bets</div>
                     </div>
-                </div>
+                  </div>
                 </div>
             </div>
 
