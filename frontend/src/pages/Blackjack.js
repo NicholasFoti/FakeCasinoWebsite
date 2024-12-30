@@ -275,17 +275,25 @@ const Blackjack = () => {
         const won = gameStatus === 'won' || gameStatus === 'blackjack';
         const isDraw = gameStatus === 'draw';
 
-        return Promise.all([
-          isDraw ? updateBalance(betAmount) : updateBalance(won ? betAmount * 2 : 0),
+        const promises = [
           updateBetStats(won),
           updateWinnings(won ? betAmount * 2 : 0, won ? 0 : betAmount),
-          addRecentBet('Blackjack', betAmount, won ? betAmount * 2 : -betAmount, won)
-        ])
+          addRecentBet('Blackjack', betAmount, won ? betAmount * 2 : (isDraw ? 0 : -betAmount), won)
+        ];
+
+        // Only add balance update for wins
+        if (won) {
+          promises.unshift(updateBalance(betAmount * 2));
+        }
+
+        return Promise.all(promises)
           .then(() => {
             const user = JSON.parse(localStorage.getItem('user'));
-            user.balance = parseFloat(user.balance) + (won ? betAmount * 2 : betAmount);
-            user.balance = user.balance.toFixed(2);
-            localStorage.setItem('user', JSON.stringify(user));
+            if (won) {
+              user.balance = parseFloat(user.balance) + (betAmount * 2);
+              user.balance = user.balance.toFixed(2);
+              localStorage.setItem('user', JSON.stringify(user));
+            }
             window.dispatchEvent(new Event('balanceUpdate'));
           })
           .catch(error => console.error('Error handling game outcome:', error));
