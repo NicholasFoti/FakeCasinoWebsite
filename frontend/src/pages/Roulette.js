@@ -264,6 +264,7 @@ function Roulette ({ setHideFooter }) {
 
     let totalWinAmount = 0;
     let totalLossAmount = 0;
+    let hasWon = false;
 
     // Calculate wins/losses and record bets
     const promises = [];
@@ -273,6 +274,8 @@ function Roulette ({ setHideFooter }) {
       const profit = isWin ? redBet * 2 : -redBet;
       if (isWin) {
         totalWinAmount += redBet * 2;
+        hasWon = true;
+        playWinSound();
       } else {
         totalLossAmount += redBet;
       }
@@ -287,6 +290,8 @@ function Roulette ({ setHideFooter }) {
       const profit = isWin ? blackBet * 2 : -blackBet;
       if (isWin) {
         totalWinAmount += blackBet * 2;
+        hasWon = true;
+        playWinSound();
       } else {
         totalLossAmount += blackBet;
       }
@@ -301,6 +306,8 @@ function Roulette ({ setHideFooter }) {
       const profit = isWin ? greenBet * 14 : -greenBet;
       if (isWin) {
         totalWinAmount += greenBet * 14;
+        hasWon = true;
+        playWinSound();
       } else {
         totalLossAmount += greenBet;
       }
@@ -310,24 +317,26 @@ function Roulette ({ setHideFooter }) {
       );
     }
 
-    // Update total winnings and balance if there were any wins
+    // Update total winnings and balance
+    promises.push(updateWinnings(totalWinAmount, totalLossAmount));
+
     if (totalWinAmount > 0) {
-      promises.push(
-        updateBalance(totalWinAmount),
-        updateWinnings(totalWinAmount, totalLossAmount)
-      );
+      promises.push(updateBalance(totalWinAmount));
       
       // Update local user balance
       const updatedBalance = parseFloat(user.balance) + totalWinAmount;
       user.balance = updatedBalance.toFixed(2);
       localStorage.setItem('user', JSON.stringify(user));
       window.dispatchEvent(new Event('balanceUpdate'));
-    } else if (totalLossAmount > 0) {
-      // Only update winnings stats if there were losses
-      promises.push(updateWinnings(0, totalLossAmount));
     }
 
-    await Promise.all(promises);
+    try {
+      await Promise.all(promises);
+    } catch (error) {
+      console.error('Error handling winnings:', error);
+    }
+
+    return hasWon;
   };
 
   ///////////////////////////////
