@@ -516,7 +516,7 @@ function Roulette ({ setHideFooter }) {
         
         const amountSpan = document.createElement('span');
         amountSpan.className = `placed-${color}-amount`;
-        amountSpan.textContent = amount.toFixed(2);
+        amountSpan.textContent = parseFloat(amount).toFixed(2);
         
         betElement.appendChild(nameSpan);
         betElement.appendChild(amountSpan);
