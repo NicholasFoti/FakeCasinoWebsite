@@ -254,89 +254,74 @@ function Roulette ({ setHideFooter }) {
   ///////////////////////////////
 
   const handleWinnings = async (targetNumber) => {
+    const allBetElements = document.querySelectorAll('.placed-red, .placed-black, .placed-green');
     const user = JSON.parse(localStorage.getItem('user'));
     if (!user) return;
-
-    // Get user's bets for each color
-    const redBet = gameState.currentBets.red[user.username] || 0;
-    const blackBet = gameState.currentBets.black[user.username] || 0;
-    const greenBet = gameState.currentBets.green[user.username] || 0;
-
-    let totalWinAmount = 0;
-    let totalLossAmount = 0;
-    let hasWon = false;
-
-    // Calculate wins/losses and record bets
-    const promises = [];
-    
-    if (redBet > 0) {
-      const isWin = targetNumber !== 0 && targetNumber % 2 === 1;
-      const profit = isWin ? redBet * 2 : -redBet;
-      if (isWin) {
-        totalWinAmount += redBet * 2;
-        hasWon = true;
-        playWinSound();
-      } else {
-        totalLossAmount += redBet;
-      }
-      promises.push(
-        addRecentBet('Roulette', redBet, profit, isWin),
-        updateBetStats(isWin)
-      );
-    }
-    
-    if (blackBet > 0) {
-      const isWin = targetNumber !== 0 && targetNumber % 2 === 0;
-      const profit = isWin ? blackBet * 2 : -blackBet;
-      if (isWin) {
-        totalWinAmount += blackBet * 2;
-        hasWon = true;
-        playWinSound();
-      } else {
-        totalLossAmount += blackBet;
-      }
-      promises.push(
-        addRecentBet('Roulette', blackBet, profit, isWin),
-        updateBetStats(isWin)
-      );
-    }
-    
-    if (greenBet > 0) {
-      const isWin = targetNumber === 0;
-      const profit = isWin ? greenBet * 14 : -greenBet;
-      if (isWin) {
-        totalWinAmount += greenBet * 14;
-        hasWon = true;
-        playWinSound();
-      } else {
-        totalLossAmount += greenBet;
-      }
-      promises.push(
-        addRecentBet('Roulette', greenBet, profit, isWin),
-        updateBetStats(isWin)
-      );
-    }
-
-    // Update total winnings and balance
-    promises.push(updateWinnings(totalWinAmount, totalLossAmount));
-
-    if (totalWinAmount > 0) {
-      promises.push(updateBalance(totalWinAmount));
+  
+    let userTotalBetAmount = 0;
+    let userTotalWinAmount = 0;
+  
+    // Calculate user's total bets and winnings
+    for (const container of allBetElements) {
+      const nameElement = container.querySelector('[class*="-name"]');
+      const amountElement = container.querySelector('[class*="-amount"]');
       
-      // Update local user balance
-      const updatedBalance = parseFloat(user.balance) + totalWinAmount;
-      user.balance = updatedBalance.toFixed(2);
-      localStorage.setItem('user', JSON.stringify(user));
-      window.dispatchEvent(new Event('balanceUpdate'));
+      if (!nameElement?.textContent || !amountElement?.textContent) continue;
+      
+      const betterName = nameElement.textContent.trim();
+      const amount = parseFloat(amountElement.textContent);
+      
+      if (!betterName || !amount || betterName !== user.username) continue;
+  
+      userTotalBetAmount += amount;
+  
+      let won = false;
+      let winnings = 0;
+  
+      if (targetNumber === 0 && container.classList.contains('placed-green')) {
+        winnings = amount * 14;
+        won = true;
+      } else if (targetNumber !== 0 &&targetNumber % 2 === 0 && container.classList.contains('placed-black')) {
+        winnings = amount * 2;
+        won = true;
+      } else if (targetNumber !== 0 &&targetNumber % 2 === 1 && container.classList.contains('placed-red')) {
+        winnings = amount * 2;
+        won = true;
+      }
+  
+      if (won) {
+        userTotalWinAmount += winnings - userTotalBetAmount;
+        playWinSound();
+        try {
+          const response = await updateBalance(winnings);
+          if (response.ok) {
+            user.balance = Number((user.balance + winnings).toFixed(2));
+            localStorage.setItem('user', JSON.stringify(user));
+            window.dispatchEvent(new Event('balanceUpdate'));
+          }
+        } catch (error) {
+          console.error('Error updating balance for winner:', error);
+        }
+      }
+      await updateBetStats(won);
+      if (betterName === user.username) {
+        await addRecentBet(
+          'Roulette',
+          userTotalBetAmount,
+          won ? winnings : -userTotalBetAmount,
+          won
+        );
+      }
     }
-
+  
+    const netLoss = Math.max(userTotalBetAmount - userTotalWinAmount, 0);
+  
+    // Update total winnings and losses in database
     try {
-      await Promise.all(promises);
+      await updateWinnings(userTotalWinAmount, netLoss);
     } catch (error) {
-      console.error('Error handling winnings:', error);
+      console.error('Error updating winnings:', error);
     }
-
-    return hasWon;
   };
 
   ///////////////////////////////
@@ -531,7 +516,7 @@ function Roulette ({ setHideFooter }) {
         
         const amountSpan = document.createElement('span');
         amountSpan.className = `placed-${color}-amount`;
-        amountSpan.textContent = parseFloat(amount).toFixed(2);
+        amountSpan.textContent = amount.toFixed(2);
         
         betElement.appendChild(nameSpan);
         betElement.appendChild(amountSpan);
