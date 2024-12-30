@@ -89,10 +89,19 @@ const Blackjack = () => {
     const shuffledDeck = shuffleDeck(newDeck);
     setDeck(shuffledDeck);
 
-    // Initialize hands and set game status to 'playing'
-    setPlayerHand(shuffledDeck.slice(0, 2));
-    setDealerHand(shuffledDeck.slice(2, 4));
-    setGameStatus('playing');
+    // Initialize hands
+    const initialPlayerHand = shuffledDeck.slice(0, 2);
+    const initialDealerHand = shuffledDeck.slice(2, 4);
+    
+    setPlayerHand(initialPlayerHand);
+    setDealerHand(initialDealerHand);
+
+    // Check for blackjack
+    if (calculateHandValue(initialPlayerHand) === 21) {
+      setGameStatus('blackjack');
+    } else {
+      setGameStatus('playing');
+    }
   };
 
   const createDeck = () => {
@@ -264,9 +273,10 @@ const Blackjack = () => {
         localStorage.setItem('blackjack_current_game', newGameId);
         
         const won = gameStatus === 'won' || gameStatus === 'blackjack';
+        const isDraw = gameStatus === 'draw';
 
         return Promise.all([
-          updateBalance(won ? betAmount * 2 : betAmount),
+          isDraw ? updateBalance(betAmount) : updateBalance(won ? betAmount * 2 : 0),
           updateBetStats(won),
           updateWinnings(won ? betAmount * 2 : 0, won ? 0 : betAmount),
           addRecentBet('Blackjack', betAmount, won ? betAmount * 2 : -betAmount, won)
