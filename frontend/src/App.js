@@ -40,36 +40,37 @@ function App() {
       }
     };
 
-    const checkUserData = async () => {
-      //Dont check & update if a bet is processing.
-      if (window.isBetProcessing) return;
+    const checkUserData = () => {
+      if (window.isBetProcessing) return Promise.resolve();
       
       const token = localStorage.getItem('token');
       const user = localStorage.getItem('user');
       
-      if (token && user) {
-        try {
-          const userId = JSON.parse(user).id;
-          const apiUrl = process.env.NODE_ENV === 'production' ? `https://fakecasinowebsite.onrender.com/api/auth/user/${userId}` : `http://localhost:3001/api/auth/user/${userId}`;
-          const response = await fetch(apiUrl, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
+      if (!token || !user) return Promise.resolve();
 
-          if (response.ok) {
-            const userData = await response.json();
-            localStorage.setItem('user', JSON.stringify(userData));
-            window.dispatchEvent(new Event('balanceUpdate'));
-          } else {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-          }
-        } 
-        catch (error) {
-          console.error('Error refreshing user data:', error);
+      const userId = JSON.parse(user).id;
+      const apiUrl = process.env.NODE_ENV === 'production' 
+        ? `https://fakecasinowebsite.onrender.com/api/auth/user/${userId}` 
+        : `http://localhost:3001/api/auth/user/${userId}`;
+
+      return fetch(apiUrl, {
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-      }
+      })
+        .then(response => {
+          if (!response.ok) throw new Error('Invalid response');
+          return response.json();
+        })
+        .then(userData => {
+          localStorage.setItem('user', JSON.stringify(userData));
+          window.dispatchEvent(new Event('balanceUpdate'));
+        })
+        .catch(error => {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          console.error('Error refreshing user data:', error);
+        });
     };
 
     checkTokenExpiration();

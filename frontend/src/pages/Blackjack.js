@@ -256,52 +256,29 @@ const Blackjack = () => {
 
   useEffect(() => {
     if (gameStatus === 'bust' || gameStatus === 'lost' || gameStatus === 'won' || gameStatus === 'blackjack' || gameStatus === 'draw') {
-      const handleGameOutcome = async () => {
-        // Check if this game has already been paid out
+      const handleGameOutcome = () => {
         const gameId = localStorage.getItem('blackjack_current_game');
-        if (gameId) {
-          return; // Already handled this game outcome
-        }
+        if (gameId) return Promise.resolve();
 
-        // Set a unique game ID to prevent multiple payouts
         const newGameId = Date.now().toString();
         localStorage.setItem('blackjack_current_game', newGameId);
-
-        const won = gameStatus === 'won' || gameStatus === 'blackjack';
         
-        if (gameStatus === 'draw') {
-          await updateBalance(betAmount);
-          const user = JSON.parse(localStorage.getItem('user'));
-          user.balance = parseFloat(user.balance) + betAmount;
-          user.balance = user.balance.toFixed(2);
-          localStorage.setItem('user', JSON.stringify(user));
-          window.dispatchEvent(new Event('balanceUpdate'));
-        } else {
-          if (won) {
-            const winnings = betAmount * 2;
-            try {
-              const response = await updateBalance(winnings);
-              if (response.ok) {
-                const user = JSON.parse(localStorage.getItem('user'));
-                user.balance = parseFloat(user.balance) + winnings;
-                user.balance = user.balance.toFixed(2);
-                localStorage.setItem('user', JSON.stringify(user));
-                window.dispatchEvent(new Event('balanceUpdate'));
-              }
-            } catch (error) {
-              console.error('Error updating balance for winner:', error);
-            }
-          }
-          
-          await updateBetStats(won);
-          await updateWinnings(won ? betAmount * 2 : 0, won ? 0 : betAmount);
-          await addRecentBet(
-            'Blackjack',
-            betAmount,
-            won ? betAmount * 2 : -betAmount,
-            won
-          );
-        }
+        const won = gameStatus === 'won' || gameStatus === 'blackjack';
+
+        return Promise.all([
+          updateBalance(won ? betAmount * 2 : betAmount),
+          updateBetStats(won),
+          updateWinnings(won ? betAmount * 2 : 0, won ? 0 : betAmount),
+          addRecentBet('Blackjack', betAmount, won ? betAmount * 2 : -betAmount, won)
+        ])
+          .then(() => {
+            const user = JSON.parse(localStorage.getItem('user'));
+            user.balance = parseFloat(user.balance) + (won ? betAmount * 2 : betAmount);
+            user.balance = user.balance.toFixed(2);
+            localStorage.setItem('user', JSON.stringify(user));
+            window.dispatchEvent(new Event('balanceUpdate'));
+          })
+          .catch(error => console.error('Error handling game outcome:', error));
       };
       handleGameOutcome();
     }

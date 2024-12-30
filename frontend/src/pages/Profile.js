@@ -16,36 +16,41 @@ function Profile() {
 
   useEffect(() => {
     const fetchRecentUserBets = async () => {
-      try {
-        const lastFetch = localStorage.getItem('recent_bets_timestamp');
-        const now = Date.now();
+      const lastFetch = localStorage.getItem('recent_bets_timestamp');
+      const now = Date.now();
 
+      return new Promise((resolve, reject) => {
         if (!lastFetch || (now - parseInt(lastFetch)) > 60000) {
-            const token = localStorage.getItem('token');
-
-            const apiUrl = process.env.NODE_ENV === 'production' 
+          const token = localStorage.getItem('token');
+          const apiUrl = process.env.NODE_ENV === 'production' 
             ? 'https://fakecasinowebsite.onrender.com/api/game/recent-user-bets'
             : 'http://localhost:3001/api/game/recent-user-bets';
-  
-          const response = await fetch(apiUrl, {
+
+          fetch(apiUrl, {
             headers: {
               'Authorization': `Bearer ${token}`
             }
-          });
-  
-          if (response.ok) {
-            const data = await response.json();
-            setRecentBets(data);
-            localStorage.setItem('cached_recent_bets', JSON.stringify(data));
-            localStorage.setItem('recent_bets_timestamp', now.toString());
-          }
+          })
+            .then(response => response.json())
+            .then(data => {
+              localStorage.setItem('cached_recent_bets', JSON.stringify(data));
+              localStorage.setItem('recent_bets_timestamp', now.toString());
+              resolve(data);
+            })
+            .catch(error => reject(error));
+        } else {
+          resolve(JSON.parse(localStorage.getItem('cached_recent_bets')));
         }
-      } catch (error) {
-        console.error('Error fetching recent bets:', error);
-      }
+      });
     };
 
-    fetchRecentUserBets();
+    fetchRecentUserBets()
+      .then(data => {
+        setRecentBets(data);
+      })
+      .catch(error => {
+        console.error('Error fetching recent bets:', error);
+      });
 
     const interval = setInterval(fetchRecentUserBets, 60000);
 
