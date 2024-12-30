@@ -19,37 +19,59 @@ function Profile() {
       try {
         const lastFetch = localStorage.getItem('recent_bets_timestamp');
         const now = Date.now();
-
-        if (!lastFetch || (now - parseInt(lastFetch)) > 60000) {
-            const token = localStorage.getItem('token');
-
-            const apiUrl = process.env.NODE_ENV === 'production' 
-            ? 'https://fakecasinowebsite.onrender.com/api/game/recent-user-bets'
-            : 'http://localhost:3001/api/game/recent-user-bets';
-  
-          const response = await fetch(apiUrl, {
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
-          });
-  
-          if (response.ok) {
-            const data = await response.json();
-            setRecentBets(data);
-            localStorage.setItem('cached_recent_bets', JSON.stringify(data));
-            localStorage.setItem('recent_bets_timestamp', now.toString());
+        const cacheExpiry = 60000; // 1 minute cache expiry
+        
+        // Check for valid cached data
+        if (lastFetch && (now - parseInt(lastFetch)) <= cacheExpiry) {
+          const cached = localStorage.getItem('cached_recent_bets');
+          if (cached) {
+            const parsedBets = JSON.parse(cached);
+            setRecentBets(parsedBets);
+            return;
           }
         }
+  
+        // Fetch new data if cache is expired or missing
+        const token = localStorage.getItem('token');
+        const apiUrl = process.env.NODE_ENV === 'production' 
+          ? 'https://fakecasinowebsite.onrender.com/api/user/recent-user-bets'
+          : 'http://localhost:3001/api/user/recent-user-bets';
+  
+        const response = await fetch(apiUrl, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch recent bets');
+        }
+        
+        const data = await response.json();
+        const betsArray = Array.isArray(data) ? data : [];
+        
+        // Update cache and state
+        localStorage.setItem('cached_recent_bets', JSON.stringify(betsArray));
+        localStorage.setItem('recent_bets_timestamp', now.toString());
+        setRecentBets(betsArray);
       } catch (error) {
         console.error('Error fetching recent bets:', error);
       }
     };
-
+  
     fetchRecentUserBets();
-
-    const interval = setInterval(fetchRecentUserBets, 60000);
-
-    return () => clearInterval(interval);
+  
+    // Listen for bet events
+    const handleBetPlaced = () => {
+      localStorage.removeItem('recent_bets_timestamp');
+      fetchRecentUserBets();
+    };
+  
+    window.addEventListener('betPlaced', handleBetPlaced);
+  
+    return () => {
+      window.removeEventListener('betPlaced', handleBetPlaced);
+    };
   }, []);
 
   useEffect(() => {

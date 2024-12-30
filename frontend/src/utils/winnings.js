@@ -84,5 +84,9 @@ export async function addRecentBet(gameType, betAmount, betProfit, won) {
         won
       })
     });
+
+    if (response.ok) {
+      window.dispatchEvent(new Event('betPlaced'));
+    }
     return response;
 }
