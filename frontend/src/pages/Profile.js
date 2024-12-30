@@ -62,18 +62,19 @@ function Profile() {
       try {
         const lastFetch = localStorage.getItem('recent_bets_timestamp');
         const now = Date.now();
+        const cacheExpiry = 60000; // 1 minute cache expiry
         
-        // Use cached data if it's less than 1 minute old
-        if (lastFetch && (now - parseInt(lastFetch)) <= 60000) {
+        // Check if we have valid cached data
+        if (lastFetch && (now - parseInt(lastFetch)) <= cacheExpiry) {
           const cached = localStorage.getItem('cached_recent_bets');
           if (cached) {
             const parsedBets = JSON.parse(cached);
             setRecentBets(parsedBets);
-            return parsedBets;
+            return;
           }
         }
 
-        // Fetch new data if cache is old or missing
+        // Fetch new data if cache is expired or missing
         const token = localStorage.getItem('token');
         const apiUrl = process.env.NODE_ENV === 'production' 
           ? 'https://fakecasinowebsite.onrender.com/api/user/recent-user-bets'
@@ -90,29 +91,31 @@ function Profile() {
         }
         
         const data = await response.json();
-        
-        // Ensure data is an array and cache it
         const betsArray = Array.isArray(data) ? data : [];
+        
+        // Update cache and state
         localStorage.setItem('cached_recent_bets', JSON.stringify(betsArray));
         localStorage.setItem('recent_bets_timestamp', now.toString());
-        
         setRecentBets(betsArray);
-        return betsArray;
       } catch (error) {
         console.error('Error fetching recent bets:', error);
-        return [];
       }
     };
 
     // Initial fetch
-    fetchRecentUserBets().then(setRecentBets);
+    fetchRecentUserBets();
 
-    // Set up polling interval
-    const interval = setInterval(() => {
-      fetchRecentUserBets().then(setRecentBets);
-    }, 60000);
+    // Listen for bet events
+    const handleBetPlaced = () => {
+      localStorage.removeItem('recent_bets_timestamp'); // Invalidate cache on new bet
+      fetchRecentUserBets(); // Fetch fresh data
+    };
 
-    return () => clearInterval(interval);
+    window.addEventListener('betPlaced', handleBetPlaced);
+
+    return () => {
+      window.removeEventListener('betPlaced', handleBetPlaced);
+    };
   }, []);
 
   useEffect(() => {
