@@ -152,6 +152,19 @@ router.post('/add-recent-bet', authenticateToken, async (req, res) => {
   }
 });
 
+router.get('/recent-user-bets', authenticateToken, async (req, res) => {  
+  try {
+    const result = await pool.query(
+      'SELECT game_type, bet_amount, bet_profit FROM recent_bets WHERE user_id = $1 ORDER BY created_at DESC LIMIT 5', 
+      [req.user.userId]
+    );
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Error fetching recent bets:', error);
+    res.status(500).json({ message: 'Server error while fetching recent bets' });
+  }
+});
+
 router.get('/recent-bets', async (req, res) => {
   try {
     const result = await pool.query(

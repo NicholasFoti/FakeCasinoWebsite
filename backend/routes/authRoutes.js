@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('../db/config');
+const authenticateToken = require('../middleware/authMiddleware');
 
 // Register Route
 router.post('/signup', async (req, res) => {
@@ -101,6 +102,26 @@ router.post('/login', async (req, res) => {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
     }
+});
+
+router.get('/user/:id', authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const userResult = await pool.query(
+      'SELECT id, username, balance, date_created, bets_won, bets_lost, total_winnings, total_losses FROM user_details WHERE id = $1',
+      [id]
+    );
+
+    if (userResult.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(userResult.rows[0]);
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    res.status(500).json({ message: 'Server error while fetching user data' });
+  }
 });
 
 module.exports = router; 

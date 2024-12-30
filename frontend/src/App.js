@@ -24,54 +24,52 @@ function App() {
 
     const checkTokenExpiration = () => {
       const token = localStorage.getItem('token');
-      if (!token) return;
-
-      try {
-        const decodedToken = jwtDecode(token);
-        const currentTime = Date.now() / 1000;
-        
-        // Add buffer time (5 minutes) before expiration
-        if (decodedToken.exp < currentTime + 300) {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          window.location.href = '/login';
+      if (token) {
+        try {
+          const decodedToken = jwtDecode(token);
+          const currentTime = Date.now() / 1000;
+          if (decodedToken.exp < currentTime) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            alert('Your session has expired. Please login again.');
+            window.location.href = '/login';
+          }
+        } catch (error) {
+          console.error('Error checking token expiration:', error);
         }
-      } catch (error) {
-        console.error('Error checking token expiration:', error);
       }
     };
 
-    const checkUserData = () => {
-      if (window.isBetProcessing) return Promise.resolve();
+    const checkUserData = async () => {
+      //Dont check & update if a bet is processing.
+      if (window.isBetProcessing) return;
       
       const token = localStorage.getItem('token');
       const user = localStorage.getItem('user');
       
-      if (!token || !user) return Promise.resolve();
+      if (token && user) {
+        try {
+          const userId = JSON.parse(user).id;
+          const apiUrl = process.env.NODE_ENV === 'production' ? `https://fakecasinowebsite.onrender.com/api/auth/user/${userId}` : `http://localhost:3001/api/auth/user/${userId}`;
+          const response = await fetch(apiUrl, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
 
-      const userId = JSON.parse(user).id;
-      const apiUrl = process.env.NODE_ENV === 'production' 
-        ? `https://fakecasinowebsite.onrender.com/api/user/user/${userId}` 
-        : `http://localhost:3001/api/user/user/${userId}`;
-
-      return fetch(apiUrl, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      })
-        .then(response => {
-          if (!response.ok) throw new Error('Invalid response');
-          return response.json();
-        })
-        .then(userData => {
-          localStorage.setItem('user', JSON.stringify(userData));
-          window.dispatchEvent(new Event('balanceUpdate'));
-        })
-        .catch(error => {
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
+          if (response.ok) {
+            const userData = await response.json();
+            localStorage.setItem('user', JSON.stringify(userData));
+            window.dispatchEvent(new Event('balanceUpdate'));
+          } else {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+          }
+        } 
+        catch (error) {
           console.error('Error refreshing user data:', error);
-        });
+        }
+      }
     };
 
     checkTokenExpiration();
