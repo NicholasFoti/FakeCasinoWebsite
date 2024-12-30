@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { faCoins, faHouse, faDice, faDiamond, faClover, faTrophy, faCircle, faThumbsUp, faExplosion } from '@fortawesome/free-solid-svg-icons';
+import { faCoins, faHouse, faDice, faDiamond, faClover, faTrophy, faCircle, faThumbsUp, faExplosion, faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import './Header.css';
 
@@ -81,7 +81,6 @@ const Header = () => {
     <header className="casino-header">
       <div className="header-content">
         <Link to="/" className="header-logo"><img src={logo} alt="Fake Casino" /></Link>
-      </div>
       <div className="header-buttons">
         <Link className="home-button header-button" to="/"><FontAwesomeIcon className="header-icon" icon={faHouse} />Home</Link>
         <Link className="roulette-button header-button" to="/roulette"><FontAwesomeIcon className="header-icon" icon={faDice} />Roulette</Link>
@@ -93,10 +92,10 @@ const Header = () => {
         <Link className="leaderboard-button header-button" to="/leaderboard"><FontAwesomeIcon className="header-icon" icon={faTrophy} />Leaderboard</Link>
       </div>
       <div className="total-bets-placed">
-        <img src={chip} />
-        <span className="total-bets-placed-span">{totalBets.toLocaleString()}</span>
-        <p>Total Bets</p>
-      </div>
+          <img src={chip} />
+          <span className="total-bets-placed-span">{totalBets.toLocaleString()}</span>
+          <p>Total Bets</p>
+        </div>
       <div className="logged-in-info">
         {user ? (
           <>
@@ -109,8 +108,14 @@ const Header = () => {
               </span>
             </div>
             <div className="auth-buttons">
-              <Link to="/profile" className="auth-button profile-button">Profile</Link>
-              <Link to="/" onClick={handleLogout} className="auth-button logout-button">Logout</Link>
+              <Link to="/profile" className="auth-button profile-button">
+              <img 
+                src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.username || 'User'}`}
+                alt="Profile" 
+                className="header-profile-avatar"
+                />
+              </Link>
+              <Link to="/" onClick={handleLogout} className="auth-button logout-symbol"><FontAwesomeIcon icon={faArrowRightFromBracket} /></Link>
             </div>
           </>
         ) : (
@@ -119,6 +124,7 @@ const Header = () => {
             <Link to="/signup" className="auth-button sign-up-button">Sign Up</Link>
           </div>
         )}
+      </div>
       </div>
     </header>
   );

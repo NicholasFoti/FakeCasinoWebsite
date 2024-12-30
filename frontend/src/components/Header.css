@@ -29,6 +29,7 @@
 .header-content {
   display: flex;
   align-items: center;
+  width: 100%;
   gap: 20px;
 }
 
@@ -39,7 +40,7 @@
 
 .nav-links a, .auth-button {
   position: relative;
-  color: #8e8f8f;
+  color: #ffffff;
   text-decoration: none;
   transition: color 0.3s;
   padding-bottom: 5px;
@@ -51,7 +52,7 @@
   text-align: center;
   align-items: center;
   margin-left: auto;
-  gap: 20px;
+  gap: 40px;
 }
 
 .header-buttons {
@@ -104,13 +105,19 @@
 
 .auth-buttons {
   display: flex;
-  gap: 20px;
+  gap: 15px;
 }
 
 .login-button, .profile-button {
   color: rgb(230, 230, 230);
   background-color: transparent;
   transition: all 0.3s ease;
+}
+
+.header-profile-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
 }
 
 .login-button:hover, .profile-button:hover {
@@ -123,9 +130,8 @@
 }
 
 .auth-button {
-  padding: 10px 20px;
   height: 40px;
-  width: 100px;
+  width: 100%;
   font-weight: bold;
   text-decoration: none;
   text-align: center;
@@ -134,6 +140,17 @@
   justify-content: center;
   align-items: center;
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.logout-symbol {
+  color: #ffffff;
+  font-size: 1.2em;
+  margin-right: 10px;
+  transition: transform 0.2s ease;
+}
+
+.logout-symbol:hover {
+  transform: scale(1.05);
 }
 
 .user-info, .user-balance {
@@ -190,7 +207,7 @@
   align-items: center;
   flex-direction: row;
   gap: 5px;
-  margin-left: 40px;
+  margin-left: auto;
 }
 
 .total-bets-placed span{
