@@ -73,6 +73,7 @@ const Header = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('cached_recent_bets');
     localStorage.removeItem('recent_bets_timestamp');
+    setUser(null);
     window.dispatchEvent(new Event('logout'));
     navigate('/login');
   };
