@@ -1,14 +1,17 @@
 .blackjack-page {
   display: flex;
+  flex-direction: column;
   justify-content: center;
-  align-items: flex-start;
+  align-items: start;
   height: calc(100vh - 100px);
-  width: 100%;
+  width: calc(100% - 330px);
+  margin-left: 330px;
 }
 
 .blackjack-main-card {
-  width: calc(100% - 280px);
-  height: 100%;  
+  height: 100%;
+  width: 100%;
+  margin: auto;
   max-width: 1200px;
   display: flex;
   flex-direction: column;
