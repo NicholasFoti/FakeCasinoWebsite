@@ -307,8 +307,8 @@ function Roulette ({ setHideFooter }) {
       if (betterName === user.username) {
         await addRecentBet(
           'Roulette',
-          userTotalBetAmount,
-          won ? winnings : -userTotalBetAmount,
+          amount,
+          won ? winnings : -amount,
           won
         );
       }
