@@ -132,7 +132,29 @@
 
 .card-container {
   perspective: 1000px;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: cardAppear 0.5s forwards;
 }
+
+@keyframes cardAppear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Add animation delay for sequential cards */
+.cards-row .card-container:nth-child(1) { animation-delay: 0s; }
+.cards-row .card-container:nth-child(2) { animation-delay: 0.1s; }
+.cards-row .card-container:nth-child(3) { animation-delay: 0.2s; }
+.cards-row .card-container:nth-child(4) { animation-delay: 0.3s; }
+.cards-row .card-container:nth-child(5) { animation-delay: 0.4s; }
+.cards-row .card-container:nth-child(6) { animation-delay: 0.5s; }
 
 .playing-card.flipped {
   transform: rotateY(180deg);
