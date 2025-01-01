@@ -133,50 +133,48 @@ const Blackjack = () => {
   const stand = () => {
     setGameStatus('stand');
 
-    let dealerCurrentHand = [...dealerHand];
-    let dealerValue = calculateHandValue(dealerCurrentHand);
-    const playerValue = calculateHandValue(playerHand);
+    // Add delay to show card flip animation
+    setTimeout(() => {
+      let dealerCurrentHand = [...dealerHand];
+      let dealerValue = calculateHandValue(dealerCurrentHand);
+      const playerValue = calculateHandValue(playerHand);
 
-    let won = false;
+      let won = false;
 
-    // Early check: if player already has Blackjack, they automatically win
-    if (playerValue === 21) {
-      setGameStatus('blackjack');
-      won = true;
-      return;
-    }
-
-    const revealInterval = setInterval(() => {
-      dealerValue = calculateHandValue(dealerCurrentHand);
-      console.log('Dealer’s Value:', dealerValue);
-
-      if (dealerValue < 17) {
-        dealerCurrentHand.push(deck.pop());
-        setDealerHand([...dealerCurrentHand]);
-      } else {
-        // Dealer stands at 17 or more
-        clearInterval(revealInterval);
-
-        if (dealerValue > 21) {
-          // Dealer busts, player wins
-          setGameStatus('won');
-          won = true;
-        } else if (dealerValue > playerValue) {
-          // Dealer has higher total (21 or less), dealer wins
-          setGameStatus('lost');
-          won = false;
-        } else if (dealerValue < playerValue) {
-          // Player has higher total, player wins
-          setGameStatus('won');
-          won = true;
-        } else {
-          // Tie
-          setGameStatus('draw');
-          updateBalance(betAmount);
-          window.dispatchEvent(new Event('balanceUpdate'));
-        }
+      // Early check: if player already has Blackjack, they automatically win
+      if (playerValue === 21) {
+        setGameStatus('blackjack');
+        won = true;
+        return;
       }
-    }, 1000);
+
+      const revealInterval = setInterval(() => {
+        dealerValue = calculateHandValue(dealerCurrentHand);
+        console.log('Dealers Value:', dealerValue);
+
+        if (dealerValue < 17) {
+          dealerCurrentHand.push(deck.pop());
+          setDealerHand([...dealerCurrentHand]);
+        } else {
+          clearInterval(revealInterval);
+          
+          if (dealerValue > 21) {
+            setGameStatus('won');
+            won = true;
+          } else if (dealerValue > playerValue) {
+            setGameStatus('lost');
+            won = false;
+          } else if (dealerValue < playerValue) {
+            setGameStatus('won');
+            won = true;
+          } else {
+            setGameStatus('draw');
+            updateBalance(betAmount);
+            window.dispatchEvent(new Event('balanceUpdate'));
+          }
+        }
+      }, 1000);
+    }, 600); // Wait for card flip animation to complete
   };
 
   const calculateHandValue = (hand) => {
@@ -231,6 +229,7 @@ const Blackjack = () => {
       return;
     }
 
+    let betSuccessful = false;
     try {
       // Update balance in database
       await updateBalance(-amount);
@@ -240,6 +239,7 @@ const Blackjack = () => {
       localStorage.setItem('user', JSON.stringify(updatedUserData));
 
       window.dispatchEvent(new Event('balanceUpdate'));
+      betSuccessful = true;
     } catch (error) {
       console.error('Error placing bet:', error);
       alert('Failed to place bet. Please try again.');
@@ -248,8 +248,10 @@ const Blackjack = () => {
       setIsBetProcessing(false);
     }
 
-    setBetAmount(parseFloat(amount));
-    beginHand(amount);
+    if (betSuccessful) {
+      setBetAmount(parseFloat(amount));
+      beginHand(amount);
+    }
   };
 
   useEffect(() => {
@@ -321,14 +323,13 @@ const Blackjack = () => {
           <div className="dealer-cards">
             <p>Dealers Hand: <span>{gameStatus !== 'playing' ? calculateHandValue(dealerHand) : calculateHandValue(dealerHand.slice(0, 1))}</span></p>
             <div className="cards-row">
-              {gameStatus !== 'playing' 
-                ? dealerHand.map((card, index) => (
-                    <Card key={index} card={card} />
-                  ))
-                : dealerHand.slice(0, 1).map((card, index) => (
-                    <Card key={index} card={card} />
-                  ))
-              }
+              {dealerHand.map((card, index) => (
+                <Card 
+                  key={index} 
+                  card={card} 
+                  isHidden={gameStatus === 'playing' && index === 1}
+                />
+              ))}
             </div>
           </div>
         </div>
