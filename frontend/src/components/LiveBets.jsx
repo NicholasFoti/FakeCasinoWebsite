@@ -42,10 +42,10 @@ const LiveBets = ({ bets }) => {
           {Array.isArray(bets) && bets
             .slice(0, maxVisible)
             .map((bet, index) => (
-              <div key={index} className={`live-bet-item ${bet.bet_profit >= 0 ? 'positive' : ''}`}>
+              <div key={index} className={`live-bet-item ${bet.bet_profit > 0 ? 'positive' : ''}`}>
                 <span>{bet.username}</span>
                 <span><FontAwesomeIcon icon={faCoins} className="live-bet-coin" size="l" />{bet.bet_amount}</span>
-                <span>{bet.bet_profit < 0 ? '↓' : '↑'} {Math.abs(bet.bet_profit)}</span>
+                <span>{bet.bet_profit < 0 ? '↓' : bet.bet_profit > 0 ? '↑' : '-'} {Math.abs(bet.bet_profit)}</span>
               </div>
             ))}
         </div>
