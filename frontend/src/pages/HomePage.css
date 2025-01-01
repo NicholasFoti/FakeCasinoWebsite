@@ -182,6 +182,10 @@
   border: 1px solid transparent;
   border-image: linear-gradient(135deg, #5d6271, #10141d);
   border-image-slice: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
 }
 
 .slots {
