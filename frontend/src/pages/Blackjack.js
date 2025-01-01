@@ -308,7 +308,7 @@ const Blackjack = () => {
     <div className="blackjack-page">
       <Chat />
       <div className="blackjack-main-card">
-        <h2>Blackjack (In Development)</h2>
+        <h2>Blackjack</h2>
       {gameStatus !== 'waiting' && (
         <>
         <div className="game-area">
@@ -342,6 +342,7 @@ const Blackjack = () => {
             setGameStatus('waiting');
             setPlayerHand([]);
             setDealerHand([]);
+            setDeck([]);
             clearGameState();
           }}>Play Again</button>
         </div>

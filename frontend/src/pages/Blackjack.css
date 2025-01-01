@@ -11,12 +11,14 @@
 .blackjack-main-card {
   height: 100%;
   width: 100%;
-  margin: auto;
+  margin: 0 auto;
+  padding-right: 150px;
+  padding-bottom: 162px;
   max-width: 1200px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: start;
+  justify-content: center;
 }
 
 .game-area {
