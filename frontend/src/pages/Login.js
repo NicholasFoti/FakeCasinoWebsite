@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 import './Auth.css';
 
 const Login = () => {
@@ -17,22 +18,10 @@ const Login = () => {
     setError('');
     setIsLoading(true);
 
-    const apiUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://fakecasinowebsite.onrender.com/api/auth/login'
-      : 'http://localhost:3001/api/auth/login';
-
     try {
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData)
-      });
+      const { data } = await api.post('/api/auth/login', formData);
 
-      const data = await response.json();
-
-      if (!response.ok) {
+      if (!data) {
         throw new Error(data.message || 'Login failed');
       }
 
@@ -40,9 +29,19 @@ const Login = () => {
       localStorage.setItem('user', JSON.stringify(data.user));
       window.location.href = '/';
     } catch (err) {
-      setError(err.message);
+      handleErrorMessage(err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleErrorMessage = (err) => {
+    if (err.response.status === 401) {
+      setError('Username or password is incorrect');
+    } else if (err.response.status === 400) {
+      setError('Server error');
+    } else {
+      setError(err.message);
     }
   };
 

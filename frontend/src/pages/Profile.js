@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import api from '../services/api';
 import './Profile.css';
 
 function Profile() {
@@ -19,7 +20,7 @@ function Profile() {
       try {
         const lastFetch = localStorage.getItem('recent_bets_timestamp');
         const now = Date.now();
-        const cacheExpiry = 60000; // 1 minute cache expiry
+        const cacheExpiry = 60000;
         
         // Check for valid cached data
         if (lastFetch && (now - parseInt(lastFetch)) <= cacheExpiry) {
@@ -32,22 +33,8 @@ function Profile() {
         }
   
         // Fetch new data if cache is expired or missing
-        const token = localStorage.getItem('token');
-        const apiUrl = process.env.NODE_ENV === 'production' 
-          ? 'https://fakecasinowebsite.onrender.com/api/game/recent-user-bets'
-          : 'http://localhost:3001/api/game/recent-user-bets';
-  
-        const response = await fetch(apiUrl, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch recent bets');
-        }
-        
-        const data = await response.json();
+        const { data } = await api.get('/api/game/recent-user-bets');
+
         const betsArray = Array.isArray(data) ? data : [];
         
         // Update cache and state

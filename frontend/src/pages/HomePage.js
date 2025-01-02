@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faAnglesRight} from '@fortawesome/free-solid-svg-icons';
 import LiveBets from '../components/LiveBets';
+import api from '../services/api';
 import './HomePage.css';
 
 const HomePage = () => {
@@ -45,18 +46,9 @@ const HomePage = () => {
 
   useEffect(() => {
     const fetchInitialCount = async () => {
-      try {
-        const response = await fetch(
-          process.env.NODE_ENV === 'production'
-            ? 'https://fakecasinowebsite.onrender.com/api/online-connections'
-            : 'http://localhost:3001/api/online-connections'
-        );
-        if (response.ok) {
-          const data = await response.json();
-          setWebsocketConnections(data.connections);
-        } else {
-          console.error('Failed to fetch initial connections:', response.statusText);
-        }
+      try{
+        const { data } = await api.get('/api/online-connections');
+        setWebsocketConnections(data.connections);
       } catch (error) {
         console.error('Error fetching initial connections:', error);
       }
@@ -84,17 +76,10 @@ const HomePage = () => {
         const now = Date.now();
 
         if (!lastFetch || (now - parseInt(lastFetch)) > 60000) {
-        const response = await fetch(
-          process.env.NODE_ENV === 'production'
-            ? 'https://fakecasinowebsite.onrender.com/api/game/recent-bets'
-            : 'http://localhost:3001/api/game/recent-bets'
-        );
-        if (response.ok) {
-            const data = await response.json();
-            setLiveBets(data);
-            localStorage.setItem('cached_live_bets', JSON.stringify(data));
-            localStorage.setItem('recent_bets_timestamp', Date.now().toString());
-          }
+        const { data } = await api.get('/api/game/recent-bets');
+        setLiveBets(data);
+        localStorage.setItem('cached_live_bets', JSON.stringify(data));
+        localStorage.setItem('recent_bets_timestamp', Date.now().toString());
         }
       } catch (error) {
         console.error('Error fetching recent bets:', error);

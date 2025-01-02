@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../services/api';
 import './Auth.css';
 
 function Signup () {
@@ -21,25 +22,10 @@ function Signup () {
     }
     setIsLoading(true);
 
-    const apiUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://fakecasinowebsite.onrender.com/api/auth/signup'
-      : 'http://localhost:3001/api/auth/signup';
-
     try {
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: formData.username,
-          password: formData.password
-        })
-      });
+      const { data } = await api.post('/api/auth/signup', formData);
 
-      const data = await response.json();
-
-      if (!response.ok) {
+      if (!data) {
         throw new Error(data.message || 'Signup failed');
       }
 
