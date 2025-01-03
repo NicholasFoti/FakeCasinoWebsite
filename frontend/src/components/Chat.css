@@ -17,9 +17,14 @@
 
 .chat-container h2 {
   margin-bottom: 15px;
-  color: #ffffff;
+  text-align: center;
+  color: #a7a7a7;
   margin-top: 0;
   font-size: 1.2em;
+}
+
+.chat-header {
+  margin-top: 10px;
 }
 
 .chat-messages {
@@ -54,7 +59,7 @@
 /* Firefox */
 .chat-messages {
   scrollbar-width: thin; 
-  scrollbar-color: #ff172b #444; 
+  scrollbar-color: #ff1e39 #444; 
 }
 
 .chat-message {
@@ -136,20 +141,10 @@
   color: #888;
 }
 
-.chat-input-container input:focus {
-  border: 1px solid #ff2538;
-  box-shadow: 0 0 5px #ff2538;
-}
-
 .chat-input-container button {
   padding: 10px 15px;
-  background-color: #ff2538;  
-  color: #f0f0f0;
-  border-radius: 5px;
+  background-color: #ff1e39;
+  color: white;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.chat-input-container button:hover {
-  transform: scale(1.05);
 }

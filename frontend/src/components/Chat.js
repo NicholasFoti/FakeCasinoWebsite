@@ -3,6 +3,7 @@ import './Chat.css';
 import { socket } from '../services/socket';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser } from '@fortawesome/free-solid-svg-icons';
+import api from '../services/api';
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -11,11 +12,9 @@ const Chat = () => {
 
   useEffect(() => {
     const fetchMessages = async () => {
-      const apiUrl = process.env.NODE_ENV === 'production' ? 'https://fakecasinowebsite.onrender.com/api/chat/messages' : 'http://localhost:3001/api/chat/messages';
       try {
-        const response = await fetch(apiUrl);
-        if (response.ok) {
-          const data = await response.json();
+        const { data } = await api.get('/api/chat/messages');
+        if (data) {
           setMessages(data);
         }
       } catch (error) {
@@ -44,16 +43,14 @@ const Chat = () => {
   }, [messages]);
 
   const updateChatDatabase = async (username, text) => {
-    const apiUrl = process.env.NODE_ENV === 'production' ? 'https://fakecasinowebsite.onrender.com/api/chat/send-message' : 'http://localhost:3001/api/chat/send-message';
     try {
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, text })
+      const { data } = await api.post('/api/chat/send-message', {
+        username,
+        text
       });
 
-      if (!response.ok) {
-        console.error('Failed to save message:', response.statusText);
+      if (!data) {
+        console.error('Failed to save message:', data.message);
       }
     } catch (error) {
       console.error('Error saving message:', error);
@@ -76,9 +73,12 @@ const Chat = () => {
       const timestamp = new Date().toISOString();
       socket.emit('chatMessage', { username, text: input, timestamp });
 
-      await updateChatDatabase(username, input);
-
-      setInput('');
+      try {
+        await updateChatDatabase(username, input);
+        setInput('');
+      } catch (error) {
+        console.error('Error saving message:', error);
+      }
     } else if (input.length > maxLength) {
       alert(`Message is too long. Maximum length is ${maxLength} characters.`);
     }
@@ -86,7 +86,8 @@ const Chat = () => {
 
   return (
     <div className="chat-container">
-      <h2>Live Chat</h2>
+      <div className="chat-header">
+      </div>
       <div className="chat-messages">
         {messages.map((msg, index) => (
           <div key={index} className="chat-message">
