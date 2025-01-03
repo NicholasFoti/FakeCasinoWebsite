@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import './Chat.css';
 import { socket } from '../services/socket';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faComments } from '@fortawesome/free-solid-svg-icons';
 import api from '../services/api';
 
 const Chat = () => {
@@ -87,6 +87,8 @@ const Chat = () => {
   return (
     <div className="chat-container">
       <div className="chat-header">
+        <FontAwesomeIcon icon={faComments} style={{ color: "white", fontSize: "1.5em" }} />
+        <span style={{ marginLeft: "10px", color: "white", fontSize: "1.2em" }}>Live Chat</span>
       </div>
       <div className="chat-messages">
         {messages.map((msg, index) => (

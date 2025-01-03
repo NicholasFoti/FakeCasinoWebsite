@@ -2,7 +2,7 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 330px;
+  width: 390px;
   height: calc(100vh - 80px);
   font-family: "Poppins", serif;
   font-weight: 400;
@@ -24,7 +24,8 @@
 }
 
 .chat-header {
-  margin-top: 10px;
+  margin-top: 20px;
+  margin-bottom: 10px;
 }
 
 .chat-messages {
@@ -63,6 +64,7 @@
 }
 
 .chat-message {
+  width: 90%;
   margin-bottom: 15px;
   padding: 15px;
   background-color: rgb(8, 10, 15);
