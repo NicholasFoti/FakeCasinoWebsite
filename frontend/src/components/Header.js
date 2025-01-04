@@ -73,6 +73,12 @@ const Header = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('cached_recent_bets');
     localStorage.removeItem('recent_bets_timestamp');
+    localStorage.removeItem('blackjack_playerHand');
+    localStorage.removeItem('blackjack_dealerHand');
+    localStorage.removeItem('blackjack_deck');
+    localStorage.removeItem('blackjack_gameStatus');
+    localStorage.removeItem('blackjack_betAmount');
+    localStorage.removeItem('blackjack_current_game');
     setUser(null);
     window.dispatchEvent(new Event('logout'));
     navigate('/login');
