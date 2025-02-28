@@ -351,7 +351,7 @@ const Blackjack = () => {
           {gameStatus === 'waiting' ? (
             <>
               <button className="blackjack-play-button" onClick={startGame}>Play</button>
-              <div className="wager">
+              <div className="wager blackjack">
                 <h2>Wager:</h2>
                 <div className="wager-input blackjack-wager-input">
                   <input type="number" placeholder="Enter your wager" />

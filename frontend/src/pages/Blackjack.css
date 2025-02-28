@@ -18,7 +18,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: start;
+}
+
+.blackjack-main-card h2 {
+  color: white;
+  font-size: 2em;
+  margin: 40px 0;
 }
 
 .game-area {
@@ -128,8 +134,57 @@
 .button-container {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 40px;
   margin-top: 20px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.wager.blackjack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  order: -1;
+}
+
+.wager h2 {
+  color: white;
+  margin: 0;
+}
+
+.wager-input {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 2px;
+  width: fit-content;
+}
+
+.blackjack-play-button, .blackjack-hit-button, .blackjack-stand-button, .blackjack-play-again {
+  width: 200px;
+  background-color: #ff1e39;
+  box-shadow: 0 0 10px #ff1e39;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+}
+
+.blackjack-play-button:hover, .blackjack-hit-button:hover, 
+.blackjack-stand-button:hover, .blackjack-play-again:hover {
+  transform: scale(1.05);
+}
+
+.blackjack-play-button:disabled, .blackjack-hit-button:disabled, 
+.blackjack-stand-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .card-container {
@@ -185,4 +240,48 @@
     #333 10px,
     #333 20px
   );
+}
+
+.wager-input input {
+  border-radius: 0;
+  padding-left: 10px;
+  border: 1px solid #333;
+  background-color: transparent;
+  color: white;
+  height: 36px;
+  border-top-left-radius: 2px;
+  border-bottom-left-radius: 2px;
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
+
+.wager-input input:focus {
+  border: 1px solid #a82929;
+  box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+  outline: none;
+}
+
+.wager-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0;
+  border-left: none;
+  border-right: 1px solid #333;
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+  background-color: transparent;
+  color: white;
+  height: 40px;
+  cursor: pointer;
+}
+
+.wager-button:hover {
+  background-color: #333;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.wager-button:last-child {
+  border-top-right-radius: 2px;
+  border-bottom-right-radius: 2px;
 }
