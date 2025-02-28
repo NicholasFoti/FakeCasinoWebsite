@@ -1,0 +1,120 @@
+.battles-page {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-left: 260px;
+    padding-top: 80px;
+    min-height: calc(100vh - 80px - 81px - 19px);
+    padding-bottom: 100px;
+  }
+  
+  .battles-container {
+    width: calc(100% - 280px);
+    max-width: 1200px;
+    padding: 20px;
+    color: white;
+    margin-bottom: 100px;
+  }
+  
+  .case-selection {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+  
+  .case-option {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid transparent;
+    border-image: linear-gradient(40deg, #5d6271, #10141d);
+    border-image-slice: 1;
+    padding: 15px;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  
+  .case-option:hover {
+    transform: translateY(-5px);
+  }
+  
+  .case-option.selected {
+    background: linear-gradient(348deg, rgba(255, 217, 0, 0.15) 0%, rgba(255, 217, 0, 0.3) 100%);
+  }
+  
+  .cases-amount {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .cases-amount button {
+    padding: 5px 15px;
+    background: #444;
+    border: none;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .battle-area {
+    display: flex;
+    gap: 40px;
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
+  
+  .player-side, .opponent-side {
+    flex: 1;
+  }
+  
+  .items-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: none;
+    overflow-y: visible;
+  }
+  
+  .item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 2px solid;
+    border-radius: 5px;
+  }
+  
+  .battle-result {
+    margin-top: 30px;
+    margin-bottom: 30px;
+    padding: 20px;
+    text-align: center;
+    border-radius: 5px;
+    position: relative;
+    z-index: 10;
+  }
+  
+  .battle-result.won {
+    background: rgba(75, 247, 75, 0.1);
+    border: 1px solid rgb(75, 247, 75);
+  }
+  
+  .battle-result.lost {
+    background: rgba(255, 0, 0, 0.1);
+    border: 1px solid red;
+  }
+  
+  .start-battle {
+    padding: 15px 30px;
+    background: #DC2626;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .start-battle:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }

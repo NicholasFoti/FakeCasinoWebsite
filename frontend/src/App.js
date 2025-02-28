@@ -15,6 +15,7 @@ import Crash from './pages/Crash';
 import HeadsOrTails from './pages/HeadsOrTails';
 import Footer from './components/Footer';
 import Leaderboard from './components/Leaderboard';
+import Battles from './pages/Battles';
 import { connectSocket, disconnectSocket } from './services/socket';
 
 function App() {
@@ -98,6 +99,7 @@ function App() {
             <Route path="/slots" element={<Slots />} />
             <Route path="/plinko" element={<Plinko />} />
             <Route path="/crash" element={<Crash />} />
+            <Route path="/battles" element={<Battles />} />
             <Route path="/coinflip" element={<HeadsOrTails />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/leaderboard" element={<Leaderboard />} />
