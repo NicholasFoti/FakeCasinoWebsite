@@ -28,6 +28,10 @@ body {
   background-size: cover;
 }
 
+main {
+  padding-top: 100px;
+}
+
 button {
   font-family: "Poppins", serif;
   font-weight: 400;

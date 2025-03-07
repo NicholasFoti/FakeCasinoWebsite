@@ -6,18 +6,20 @@
 }
 
 .casino-header {
+  position: fixed;
   font-family: "Poppins", serif;
   font-weight: 400;
   font-style: normal;
   display: flex;
   align-items: center;
-  background-color: transparent;
   color: white;
   width: 100%;
   height: 100px;
   box-sizing: border-box;
   padding: 0 60px 0 60px;
   overflow: hidden;
+  background-color: #04060A;
+  z-index: 100;
 }
 
 .header-logo img {
